@@ -1,0 +1,72 @@
+import { NextRequest, NextResponse } from "next/server";
+import { ChatMessage, DISCOUNT_CODE, LeadProfile } from "@/app/lib/open-limits-brain";
+import { saveLead } from "@/app/lib/lead-storage";
+
+type DiscountLeadBody = {
+  name?: string;
+  email?: string;
+  phone?: string;
+  niche?: string;
+  page?: string;
+};
+
+function clean(value?: string) {
+  return typeof value === "string" ? value.trim().slice(0, 220) : "";
+}
+
+export async function POST(request: NextRequest) {
+  let body: DiscountLeadBody;
+  try {
+    body = (await request.json()) as DiscountLeadBody;
+  } catch {
+    return NextResponse.json({ error: "Send valid lead details." }, { status: 400 });
+  }
+
+  const name = clean(body.name);
+  const email = clean(body.email);
+  const phone = clean(body.phone);
+  const niche = clean(body.niche);
+
+  if (!email || !phone) {
+    return NextResponse.json(
+      { error: "Email and phone are required for the discount code." },
+      { status: 400 },
+    );
+  }
+
+  const lead: LeadProfile = {
+    name: name || null,
+    email,
+    phone,
+    niche: niche || null,
+    budget: "30% off new store design offer",
+    projectType: "New store design discount lead",
+    summary: `Requested ${DISCOUNT_CODE} for a new store design project${niche ? ` in ${niche}` : ""}.`,
+    score: 82,
+    intent: "high",
+  };
+  const transcript: ChatMessage[] = [
+    {
+      role: "user",
+      content: `30% off popup lead. Name: ${name || "not provided"}. Email: ${email}. Phone: ${phone}. Niche: ${niche || "not provided"}.`,
+    },
+  ];
+
+  let saved = false;
+  try {
+    saved = await saveLead({
+      lead,
+      transcript,
+      page: body.page || "discount-popup",
+      userAgent: request.headers.get("user-agent"),
+      hfIntent: "discount-popup",
+    });
+  } catch (error) {
+    console.error(error);
+  }
+
+  return NextResponse.json({
+    code: DISCOUNT_CODE,
+    saved,
+  });
+}

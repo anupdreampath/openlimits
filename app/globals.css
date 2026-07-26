@@ -1376,6 +1376,249 @@ button:hover .arrow--diagonal {
   transform: translateY(-2px);
 }
 
+.discount-pop {
+  align-items: center;
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  padding: 22px;
+  perspective: 1100px;
+  position: fixed;
+  z-index: 140;
+}
+
+.discount-pop__scrim {
+  background:
+    radial-gradient(circle at 24% 26%, rgba(183,239,102,.32), transparent 22%),
+    radial-gradient(circle at 72% 70%, rgba(255,183,219,.34), transparent 25%),
+    rgba(17,17,17,.62);
+  border: 0;
+  inset: 0;
+  position: absolute;
+}
+
+.discount-pop__card {
+  background:
+    linear-gradient(135deg, #fff6e9 0%, #ffb7db 48%, #b7ef66 100%);
+  border: 3px solid var(--ink);
+  border-radius: 22px;
+  box-shadow:
+    14px 14px 0 var(--ink),
+    28px 28px 0 rgba(107,78,255,.72),
+    0 34px 90px rgba(0,0,0,.34);
+  display: grid;
+  grid-template-columns: .8fr 1.2fr;
+  max-width: 780px;
+  min-height: 430px;
+  overflow: hidden;
+  position: relative;
+  transform: rotateX(7deg) rotateY(-9deg) rotateZ(1deg);
+  transform-style: preserve-3d;
+  width: min(100%, 780px);
+}
+
+.discount-pop__card::before {
+  background:
+    repeating-linear-gradient(90deg, rgba(17,17,17,.09) 0 1px, transparent 1px 18px),
+    repeating-linear-gradient(0deg, rgba(17,17,17,.08) 0 1px, transparent 1px 18px);
+  content: "";
+  inset: 0;
+  opacity: .55;
+  pointer-events: none;
+  position: absolute;
+}
+
+.discount-pop__close {
+  align-items: center;
+  background: var(--ink);
+  border: 0;
+  border-radius: 50%;
+  color: white;
+  display: flex;
+  font-size: 1.55rem;
+  height: 42px;
+  justify-content: center;
+  line-height: 1;
+  position: absolute;
+  right: 15px;
+  top: 15px;
+  width: 42px;
+  z-index: 3;
+}
+
+.discount-pop__burst {
+  align-items: center;
+  background: var(--ink);
+  color: var(--acid);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 28px;
+  position: relative;
+  text-align: center;
+  transform: translateZ(40px);
+  z-index: 1;
+}
+
+.discount-pop__burst::before,
+.discount-pop__burst::after {
+  background: var(--pink);
+  border: 2px solid var(--ink);
+  content: "";
+  height: 116px;
+  position: absolute;
+  width: 116px;
+}
+
+.discount-pop__burst::before {
+  right: -36px;
+  top: 38px;
+  transform: rotate(18deg);
+}
+
+.discount-pop__burst::after {
+  background: var(--blue);
+  bottom: 44px;
+  left: -34px;
+  transform: rotate(-14deg);
+}
+
+.discount-pop__burst span {
+  font-size: clamp(5rem, 12vw, 8.4rem);
+  font-weight: 950;
+  letter-spacing: -.1em;
+  line-height: .78;
+  position: relative;
+  text-shadow: 5px 5px 0 var(--purple);
+  z-index: 2;
+}
+
+.discount-pop__burst b {
+  background: var(--acid);
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  color: var(--ink);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: .78rem;
+  letter-spacing: .16em;
+  margin-top: 24px;
+  padding: 11px 18px;
+  position: relative;
+  z-index: 2;
+}
+
+.discount-pop__content {
+  padding: 44px 42px 34px;
+  position: relative;
+  transform: translateZ(68px);
+  z-index: 2;
+}
+
+.discount-pop__kicker {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: .62rem;
+  font-weight: 820;
+  letter-spacing: .12em;
+  margin: 0 0 20px;
+  text-transform: uppercase;
+}
+
+.discount-pop__content h2 {
+  font-size: clamp(3.4rem, 7vw, 5.5rem);
+  font-weight: 950;
+  letter-spacing: -.09em;
+  line-height: .78;
+  margin: 0;
+}
+
+.discount-pop__content > p {
+  color: rgba(17,17,17,.68);
+  font-size: .92rem;
+  line-height: 1.45;
+  margin: 22px 0 18px;
+  max-width: 360px;
+}
+
+.discount-pop__form {
+  display: grid;
+  gap: 10px;
+}
+
+.discount-pop__form input {
+  background: rgba(255,255,255,.82);
+  border: 2px solid var(--ink);
+  border-radius: 10px;
+  color: var(--ink);
+  font: inherit;
+  font-size: .84rem;
+  min-height: 45px;
+  outline: none;
+  padding: 12px 13px;
+  width: 100%;
+}
+
+.discount-pop__form input:focus {
+  box-shadow: 4px 4px 0 var(--purple);
+}
+
+.discount-pop__form button,
+.discount-pop__success a {
+  align-items: center;
+  background: var(--ink);
+  border: 0;
+  border-radius: 999px;
+  color: white;
+  display: inline-flex;
+  font-size: .82rem;
+  font-weight: 820;
+  justify-content: center;
+  min-height: 48px;
+  padding: 13px 18px;
+  transition: transform .2s ease, background .2s ease;
+}
+
+.discount-pop__form button:hover,
+.discount-pop__success a:hover {
+  background: var(--purple);
+  transform: translateY(-2px);
+}
+
+.discount-pop__form button:disabled {
+  cursor: not-allowed;
+  opacity: .55;
+}
+
+.discount-pop__error {
+  color: #9d1c1c;
+  font-size: .72rem;
+  font-weight: 760;
+}
+
+.discount-pop__success {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.discount-pop__success span {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: .58rem;
+  font-weight: 820;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.discount-pop__success strong {
+  background: white;
+  border: 3px solid var(--ink);
+  box-shadow: 6px 6px 0 var(--ink);
+  font-size: 2.1rem;
+  letter-spacing: -.05em;
+  padding: 10px 16px;
+}
+
 @media (max-width: 1050px) {
   .hero {
     min-height: 800px;
@@ -1853,6 +2096,54 @@ button:hover .arrow--diagonal {
   .lead-chat__meta span {
     font-size: .46rem;
     padding: 10px 12px;
+  }
+
+  .discount-pop {
+    align-items: flex-end;
+    padding: 12px;
+  }
+
+  .discount-pop__card {
+    border-radius: 18px;
+    box-shadow: 7px 7px 0 var(--ink), 14px 14px 0 rgba(107,78,255,.72);
+    grid-template-columns: 1fr;
+    max-height: calc(100svh - 24px);
+    min-height: 0;
+    overflow-y: auto;
+    transform: none;
+  }
+
+  .discount-pop__burst {
+    min-height: 150px;
+    padding: 20px;
+  }
+
+  .discount-pop__burst::before,
+  .discount-pop__burst::after {
+    height: 76px;
+    width: 76px;
+  }
+
+  .discount-pop__burst span {
+    font-size: 4.6rem;
+  }
+
+  .discount-pop__burst b {
+    margin-top: 12px;
+  }
+
+  .discount-pop__content {
+    padding: 28px 18px 20px;
+    transform: none;
+  }
+
+  .discount-pop__content h2 {
+    font-size: clamp(3rem, 16vw, 4.2rem);
+  }
+
+  .discount-pop__close {
+    height: 38px;
+    width: 38px;
   }
 }
 

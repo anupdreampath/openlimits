@@ -1,11 +1,15 @@
-import { neon } from "@neondatabase/serverless";
 import { NextRequest, NextResponse } from "next/server";
 import {
+  ADMIN_EMAIL,
+  CALENDAR_LINK,
   ChatMessage,
   LEAD_EXTRACTION_PROMPT,
   LeadProfile,
+  OFFICE_ADDRESS,
   SYSTEM_PROMPT,
+  WHATSAPP_NUMBER,
 } from "@/app/lib/open-limits-brain";
+import { saveLead } from "@/app/lib/lead-storage";
 
 type GroqMessage = {
   role: "system" | "user" | "assistant";
@@ -21,6 +25,8 @@ const GROQ_CHAT_URL = "https://api.groq.com/openai/v1/chat/completions";
 const DEFAULT_GROQ_MODEL = "llama-3.3-70b-versatile";
 const MAX_MESSAGES = 16;
 const MAX_MESSAGE_LENGTH = 1200;
+const emailPattern = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i;
+const phonePattern = /(?:\+?\d[\d\s().-]{7,}\d)/;
 
 function jsonResponse(body: unknown, status = 200) {
   return NextResponse.json(body, {
@@ -60,6 +66,104 @@ function parseJsonObject<T>(value: string): T | null {
   }
 }
 
+function latestUserContent(messages: ChatMessage[]) {
+  return [...messages].reverse().find((message) => message.role === "user")?.content || "";
+}
+
+function extractFallbackLead(messages: ChatMessage[]): LeadProfile {
+  const fullText = messages.map((message) => message.content).join("\n");
+  const latest = latestUserContent(messages);
+  const email = fullText.match(emailPattern)?.[0] || null;
+  const phone = fullText.match(phonePattern)?.[0]?.trim() || null;
+  const budget =
+    fullText.match(/\$?\s?\d{1,3}(?:,\d{3})?(?:\s?k)?\s?(?:usd|dollars|\$)?/i)?.[0]?.trim() ||
+    null;
+  const timeline =
+    fullText.match(/\b(?:asap|urgent|this month|next month|in \d+\s?weeks?|q[1-4]|january|february|march|april|may|june|july|august|september|october|november|december)\b/i)?.[0] ||
+    null;
+  const niche =
+    fullText.match(/\b(?:beauty|skincare|fashion|apparel|food|drink|supplement|wellness|pet|jewelry|fitness|saas|clinic|dental|coffee|fragrance|streetwear)\b/i)?.[0] ||
+    null;
+  const hasProjectSignal =
+    /shopify|store|theme|redesign|website|landing|brand|launch|conversion|ecommerce/i.test(
+      fullText,
+    );
+  const score = Math.min(
+    100,
+    25 +
+      (email ? 25 : 0) +
+      (phone ? 20 : 0) +
+      (budget ? 15 : 0) +
+      (timeline ? 10 : 0) +
+      (hasProjectSignal ? 10 : 0),
+  );
+
+  return {
+    email,
+    phone,
+    niche,
+    budget,
+    timeline,
+    projectType: hasProjectSignal ? "Shopify/store design inquiry" : null,
+    summary: latest.slice(0, 260),
+    score,
+    intent: score >= 70 ? "high" : score >= 45 ? "medium" : "low",
+  };
+}
+
+function hasHotLeadSignal(lead: LeadProfile, messages: ChatMessage[]) {
+  const text = messages.map((message) => message.content).join("\n");
+  return Boolean(
+    lead.intent === "high" ||
+      (lead.email && (lead.phone || lead.budget || lead.timeline)) ||
+      /asap|urgent|ready|book|call|hire|start|launch|quote|\$|budget/i.test(text),
+  );
+}
+
+function missingLeadDetails(lead: LeadProfile) {
+  return [
+    ["name", lead.name],
+    ["email", lead.email],
+    ["phone", lead.phone],
+    ["niche", lead.niche],
+    ["website URL", lead.company],
+    ["budget", lead.budget],
+    ["timeline", lead.timeline],
+  ]
+    .filter(([, value]) => !value)
+    .map(([label]) => label);
+}
+
+function answerFallback(messages: ChatMessage[], lead: LeadProfile) {
+  const latest = latestUserContent(messages).toLowerCase();
+  const missing = missingLeadDetails(lead).slice(0, 3).join(", ");
+  const hotCta = `\n\nBook a call: ${CALENDAR_LINK}\nFast-track on WhatsApp: ${WHATSAPP_NUMBER}`;
+
+  if (/price|cost|budget|quote|\$/.test(latest)) {
+    return `Custom Shopify design projects usually run $2k-$10k, depending on design depth, animations, apps, and launch speed. Send ${missing || "your email and phone"} and we can route you to the right quote.${hasHotLeadSignal(lead, messages) ? hotCta : ""}`;
+  }
+
+  if (/contact|email|phone|address|whatsapp|where/.test(latest)) {
+    return `You can reach Open Limits at ${ADMIN_EMAIL} or WhatsApp ${WHATSAPP_NUMBER}. Office: ${OFFICE_ADDRESS}. Book a call: ${CALENDAR_LINK}`;
+  }
+
+  if (/example|work|portfolio|case|niche/.test(latest)) {
+    return `Yes. Open Limits has Shopify work across beauty, food, wellness, fashion, pet care, and lifestyle brands. Tell me your niche and URL, then I will point you to the closest fit and next move.${hasHotLeadSignal(lead, messages) ? hotCta : ""}`;
+  }
+
+  if (/redesign|store|shopify|theme|website|launch|ecommerce/.test(latest)) {
+    return `Good fit. Open Limits builds premium Shopify stores for brands that need stronger visuals, cleaner conversion, and a sharper launch. Send ${missing || "your name, email, and phone"} so we can qualify scope fast.${hasHotLeadSignal(lead, messages) ? hotCta : ""}`;
+  }
+
+  return `I can help scope this fast. Share your name, email, phone, niche, website URL, budget, and timeline. For urgent projects, book here: ${CALENDAR_LINK} or WhatsApp ${WHATSAPP_NUMBER}.`;
+}
+
+function addHotLeadCta(answer: string, lead: LeadProfile, messages: ChatMessage[]) {
+  if (!hasHotLeadSignal(lead, messages)) return answer;
+  if (answer.includes(CALENDAR_LINK) || answer.includes(WHATSAPP_NUMBER)) return answer;
+  return `${answer}\n\nBook a call: ${CALENDAR_LINK}\nFast-track on WhatsApp: ${WHATSAPP_NUMBER}`;
+}
+
 async function callGroq(messages: GroqMessage[], jsonMode = false) {
   const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) {
@@ -76,7 +180,7 @@ async function callGroq(messages: GroqMessage[], jsonMode = false) {
       model: process.env.GROQ_MODEL || DEFAULT_GROQ_MODEL,
       messages,
       temperature: jsonMode ? 0.1 : 0.45,
-      max_tokens: jsonMode ? 420 : 520,
+      max_tokens: jsonMode ? 420 : 260,
       ...(jsonMode ? { response_format: { type: "json_object" } } : {}),
     }),
   });
@@ -140,92 +244,13 @@ async function scoreWithHuggingFace(messages: ChatMessage[]) {
   }
 }
 
-function shouldStoreLead(lead: LeadProfile) {
-  return Boolean(
-    lead.email ||
-      lead.phone ||
-      (lead.intent === "high" && (lead.budget || lead.timeline || lead.company)) ||
-      (lead.score || 0) >= 65,
-  );
-}
-
-async function saveLead({
-  lead,
-  transcript,
-  page,
-  userAgent,
-  hfIntent,
-}: {
-  lead: LeadProfile;
-  transcript: ChatMessage[];
-  page?: string;
-  userAgent?: string | null;
-  hfIntent?: string | null;
-}) {
-  const databaseUrl = process.env.DATABASE_URL || process.env.NEON_DATABASE_URL;
-  if (!databaseUrl || !shouldStoreLead(lead)) return false;
-
-  const sql = neon(databaseUrl);
-  await sql`
-    CREATE TABLE IF NOT EXISTS open_limits_leads (
-      id BIGSERIAL PRIMARY KEY,
-      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-      name TEXT,
-      email TEXT,
-      phone TEXT,
-      company TEXT,
-      budget TEXT,
-      timeline TEXT,
-      project_type TEXT,
-      lead_score INTEGER,
-      intent TEXT,
-      summary TEXT,
-      transcript JSONB NOT NULL,
-      source_page TEXT,
-      user_agent TEXT,
-      hf_intent TEXT
-    )
-  `;
-  await sql`
-    CREATE INDEX IF NOT EXISTS open_limits_leads_created_at_idx
-      ON open_limits_leads (created_at DESC)
-  `;
-  await sql`
-    INSERT INTO open_limits_leads (
-      name,
-      email,
-      phone,
-      company,
-      budget,
-      timeline,
-      project_type,
-      lead_score,
-      intent,
-      summary,
-      transcript,
-      source_page,
-      user_agent,
-      hf_intent
-    )
-    VALUES (
-      ${lead.name || null},
-      ${lead.email || null},
-      ${lead.phone || null},
-      ${lead.company || null},
-      ${lead.budget || null},
-      ${lead.timeline || null},
-      ${lead.projectType || null},
-      ${lead.score || null},
-      ${lead.intent || null},
-      ${lead.summary || null},
-      ${JSON.stringify(transcript)},
-      ${page || null},
-      ${userAgent || null},
-      ${hfIntent || null}
-    )
-  `;
-
-  return true;
+async function safeSaveLead(input: Parameters<typeof saveLead>[0]) {
+  try {
+    return await saveLead(input);
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -241,8 +266,12 @@ export async function POST(request: NextRequest) {
     return jsonResponse({ error: "Send at least one user message." }, 400);
   }
 
+  let answer: string;
+  let lead: LeadProfile;
+  let source: "groq" | "fallback" = "groq";
+
   try {
-    const answer = await callGroq([
+    answer = await callGroq([
       { role: "system", content: SYSTEM_PROMPT },
       ...messages,
     ]);
@@ -258,9 +287,10 @@ export async function POST(request: NextRequest) {
       ],
       true,
     );
-    const lead = parseJsonObject<LeadProfile>(extraction) || {};
+    lead = parseJsonObject<LeadProfile>(extraction) || extractFallbackLead(transcript);
+    answer = addHotLeadCta(answer, lead, transcript);
     const hfIntent = await scoreWithHuggingFace(transcript);
-    const saved = await saveLead({
+    const saved = await safeSaveLead({
       lead,
       transcript,
       page: body.page,
@@ -273,16 +303,28 @@ export async function POST(request: NextRequest) {
       lead,
       saved,
       hfIntent,
+      source,
     });
   } catch (error) {
     console.error(error);
-    return jsonResponse(
-      {
-        answer:
-          "I can still help, but the project brain is not connected right now. Send your brand URL, timeline, budget range, and email, and the Open Limits team can follow up.",
-        error: "The chat brain is temporarily unavailable.",
-      },
-      503,
-    );
+    source = "fallback";
+    lead = extractFallbackLead(messages);
+    answer = answerFallback(messages, lead);
+    const transcript = [...messages, { role: "assistant" as const, content: answer }];
+    const saved = await safeSaveLead({
+      lead,
+      transcript,
+      page: body.page,
+      userAgent: request.headers.get("user-agent"),
+      hfIntent: "fallback",
+    });
+
+    return jsonResponse({
+      answer,
+      lead,
+      saved,
+      hfIntent: null,
+      source,
+    });
   }
 }

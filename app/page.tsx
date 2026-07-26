@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { DiscountPopup } from "@/app/components/DiscountPopup";
 import { LeadChat } from "@/app/components/LeadChat";
 
 type Project = {
@@ -969,6 +970,7 @@ export default function Home() {
         </div>
       </footer>
 
+      <DiscountPopup />
       <LeadChat open={chatOpen} onOpenChange={setChatOpen} />
     </main>
   );
