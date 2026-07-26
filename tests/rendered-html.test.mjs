@@ -9,17 +9,23 @@ async function read(path) {
 }
 
 test("Open Limits page uses the owned lead chat instead of third-party chat", async () => {
-  const [page, component, discount, styles] = await Promise.all([
+  const [page, component, discount, styles, about, refund, terms] = await Promise.all([
     read("app/page.tsx"),
     read("app/components/LeadChat.tsx"),
     read("app/components/DiscountPopup.tsx"),
     read("app/globals.css"),
+    read("app/about/page.tsx"),
+    read("app/refund-policy/page.tsx"),
+    read("app/terms-of-use/page.tsx"),
   ]);
 
   assert.match(page, /Award-winning Shopify website design agency/i);
   assert.match(page, /<LeadChat open=\{chatOpen\} onOpenChange=\{setChatOpen\} \/>/);
   assert.match(page, /<DiscountPopup \/>/);
   assert.doesNotMatch(page, /Tawk|NEXT_PUBLIC_TAWK|mailto:hello@openlimits\.agency/);
+  assert.doesNotMatch(page, /href="#"/);
+  assert.match(page, /https:\/\/www\.fiverr\.com\/s\/m5qDeDN/);
+  assert.match(page, /https:\/\/www\.upwork\.com\/freelancers\/~016de1057b0e843c6b/);
   assert.match(component, /Custom themes: \$2k-\$10k/);
   assert.match(component, /\/api\/chat/);
   assert.match(discount, /Get 30% off now\./);
@@ -28,6 +34,11 @@ test("Open Limits page uses the owned lead chat instead of third-party chat", as
   assert.match(styles, /\.lead-chat__panel/);
   assert.match(styles, /\.chat-launcher/);
   assert.match(styles, /\.discount-pop__card/);
+  assert.match(styles, /\.info-page/);
+  assert.match(styles, /visibility: hidden/);
+  assert.match(about, /InfoPage/);
+  assert.match(refund, /RefundPolicyPage/);
+  assert.match(terms, /TermsOfUsePage/);
 });
 
 test("chat API is wired to Groq, fallback answers, CTAs, and Neon leads", async () => {

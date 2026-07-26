@@ -1,6 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
+import { Arrow, Mark, SectionWave } from "@/app/components/BrandPrimitives";
 import { DiscountPopup } from "@/app/components/DiscountPopup";
 import { LeadChat } from "@/app/components/LeadChat";
 import { VisitorTracker } from "@/app/components/VisitorTracker";
@@ -604,48 +606,6 @@ const services = [
   ["04", "Conversion growth", "Sharper journeys, smarter experiments, stronger numbers."],
 ];
 
-function SectionWave({
-  from,
-  to,
-  flip = false,
-}: {
-  from: string;
-  to: string;
-  flip?: boolean;
-}) {
-  return (
-    <svg
-      className={`section-wave ${flip ? "section-wave--flip" : ""}`}
-      viewBox="0 0 1440 140"
-      preserveAspectRatio="none"
-      aria-hidden="true"
-      style={{ background: from }}
-    >
-      <path
-        d="M0,34 C180,112 328,112 472,62 C650,0 778,4 946,69 C1111,132 1269,115 1440,48 L1440,140 L0,140 Z"
-        fill={to}
-      />
-    </svg>
-  );
-}
-
-function Mark() {
-  return (
-    <span className="brand-mark" aria-hidden="true">
-      <span />
-      <span />
-    </span>
-  );
-}
-
-function Arrow({ diagonal = false }: { diagonal?: boolean }) {
-  return (
-    <span className={diagonal ? "arrow arrow--diagonal" : "arrow"} aria-hidden="true">
-      →
-    </span>
-  );
-}
-
 function ProjectMedia({
   project,
   index,
@@ -733,20 +693,27 @@ export default function Home() {
   );
 
   const openChat = () => {
+    setMenuOpen(false);
     setChatOpen(true);
   };
 
   return (
     <main>
       <header className="site-header">
-        <a className="logo" href="#top" aria-label="Open Limits home">
+        <Link className="logo" href="/" aria-label="Open Limits home">
           <Mark />
           <span>OPEN LIMITS</span>
-        </a>
-        <nav className={menuOpen ? "nav nav--open" : "nav"} aria-label="Main navigation">
-          <a href="#work" onClick={() => setMenuOpen(false)}>Work</a>
-          <a href="#services" onClick={() => setMenuOpen(false)}>Services</a>
-          <a href="#proof" onClick={() => setMenuOpen(false)}>Reviews</a>
+        </Link>
+        <nav
+          className={menuOpen ? "nav nav--open" : "nav"}
+          id="site-navigation"
+          aria-label="Main navigation"
+        >
+          <Link href="/#work" onClick={() => setMenuOpen(false)}>Work</Link>
+          <Link href="/#services" onClick={() => setMenuOpen(false)}>Services</Link>
+          <Link href="/#proof" onClick={() => setMenuOpen(false)}>Reviews</Link>
+          <Link href="/about" onClick={() => setMenuOpen(false)}>About</Link>
+          <Link href="/pricing" onClick={() => setMenuOpen(false)}>Pricing</Link>
           <button className="nav-cta" onClick={openChat}>
             Start a project <Arrow diagonal />
           </button>
@@ -756,6 +723,7 @@ export default function Home() {
           onClick={() => setMenuOpen((value) => !value)}
           aria-label="Toggle menu"
           aria-expanded={menuOpen}
+          aria-controls="site-navigation"
         >
           <span />
           <span />
@@ -991,27 +959,32 @@ export default function Home() {
 
       <footer className="footer">
         <div className="footer-top">
-          <a className="logo logo--footer" href="#top">
+          <Link className="logo logo--footer" href="/">
             <Mark />
             <span>OPEN LIMITS</span>
-          </a>
+          </Link>
           <p>Shopify experiences for brands<br />with no interest in average.</p>
           <div className="footer-links">
-            <a href="#work">Work</a>
-            <a href="#services">Services</a>
-            <a href="#proof">Reviews</a>
-            <button onClick={openChat}>Email us</button>
+            <Link href="/#work">Work</Link>
+            <Link href="/about">About us</Link>
+            <Link href="/process">Process</Link>
+            <Link href="/pricing">Pricing</Link>
+            <Link href="/support">Support</Link>
+            <Link href="/privacy-policy">Privacy</Link>
+            <Link href="/refund-policy">Refunds</Link>
+            <Link href="/terms-of-use">Terms</Link>
+            <a href="mailto:admin@theopenlimits.com">Email us</a>
           </div>
           <div className="footer-social">
-            <a href="#" aria-label="Instagram">IG ↗</a>
-            <a href="#" aria-label="Behance">BE ↗</a>
-            <a href="#" aria-label="LinkedIn">LI ↗</a>
+            <a href="https://www.fiverr.com/s/m5qDeDN" target="_blank" rel="noreferrer" aria-label="Order on Fiverr">Fiverr ↗</a>
+            <a href="https://www.upwork.com/freelancers/~016de1057b0e843c6b?mp_source=share" target="_blank" rel="noreferrer" aria-label="Order on Upwork">Upwork ↗</a>
+            <a href="https://calendar.app.google/adHW8rdFF8fZwitT6" target="_blank" rel="noreferrer" aria-label="Book a call">Call ↗</a>
           </div>
         </div>
         <div className="footer-bottom">
           <span>© {new Date().getFullYear()} OPEN LIMITS</span>
-          <span>INDIA · WORKING WORLDWIDE</span>
-          <a href="#top">BACK TO TOP ↑</a>
+          <span>15720 VENTURA BLVD #233 · ENCINO CA 91436</span>
+          <Link href="/#top">BACK TO TOP ↑</Link>
         </div>
       </footer>
 
