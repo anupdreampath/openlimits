@@ -782,7 +782,7 @@ export default function Home() {
               <a className="hero-slide__button" href="#work">
                 See award-winning work <Arrow />
               </a>
-              <button onClick={openChat}>
+              <button className="hero-slide__team-button" onClick={openChat}>
                 Talk to the team <Arrow diagonal />
               </button>
             </div>

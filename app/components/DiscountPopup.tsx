@@ -16,13 +16,11 @@ export function DiscountPopup() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (sessionStorage.getItem("open-limits-discount-seen")) return;
     const timer = window.setTimeout(() => setOpen(true), 5600);
     return () => window.clearTimeout(timer);
   }, []);
 
   function closePopup() {
-    sessionStorage.setItem("open-limits-discount-seen", "true");
     setOpen(false);
   }
 
@@ -49,7 +47,6 @@ export function DiscountPopup() {
         setError(data.error || "Add email and phone to unlock the code.");
         return;
       }
-      sessionStorage.setItem("open-limits-discount-seen", "true");
       setClaimedCode(data.code || DISCOUNT_CODE);
     } catch {
       setError("Connection dipped. Try once more or WhatsApp us directly.");

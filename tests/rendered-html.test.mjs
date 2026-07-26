@@ -22,6 +22,7 @@ test("Open Limits page uses the owned lead chat instead of third-party chat", as
 
   assert.doesNotMatch(page, /Open Limits is the award-winning Shopify website design agency/i);
   assert.match(page, /Talk to the team/);
+  assert.match(page, /hero-slide__team-button/);
   assert.match(page, /<LeadChat open=\{chatOpen\} onOpenChange=\{setChatOpen\} \/>/);
   assert.match(page, /<SplashScreen \/>/);
   assert.match(page, /<DiscountPopup \/>/);
@@ -35,6 +36,7 @@ test("Open Limits page uses the owned lead chat instead of third-party chat", as
   assert.match(discount, /Unlock 30%/);
   assert.match(discount, /Fill info\./);
   assert.match(discount, /setTimeout\(\(\) => setOpen\(true\), 5600\)/);
+  assert.doesNotMatch(discount, /open-limits-discount-seen/);
   assert.match(discount, /\/api\/discount-lead/);
   assert.match(discount, /OPENLIMITS30|DISCOUNT_CODE/);
   assert.match(splash, /Websites that refuse to blend in\./);
@@ -45,7 +47,8 @@ test("Open Limits page uses the owned lead chat instead of third-party chat", as
   assert.match(styles, /\.chat-launcher/);
   assert.match(styles, /\.site-splash/);
   assert.match(styles, /@keyframes splashProgress/);
-  assert.match(styles, /\.hero-slide__actions > button[\s\S]*background: var\(--green\)/);
+  assert.match(styles, /\.hero-slide__actions[\s\S]*gap: 28px[\s\S]*margin-top: 44px/);
+  assert.match(styles, /\.hero-slide__actions \.hero-slide__team-button[\s\S]*background: var\(--acid\)/);
   assert.match(styles, /\.discount-pop__card/);
   assert.match(styles, /\.info-page/);
   assert.match(styles, /visibility: hidden/);

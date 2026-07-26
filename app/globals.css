@@ -3286,7 +3286,8 @@ button:hover .arrow--diagonal {
 .hero-slide__actions {
   align-items: center;
   display: flex;
-  gap: 20px;
+  gap: 28px;
+  margin-top: 44px;
 }
 
 .hero-slide__button {
@@ -3307,9 +3308,9 @@ button:hover .arrow--diagonal {
   transform: translateY(-2px);
 }
 
-.hero-slide__actions > button {
+.hero-slide__actions .hero-slide__team-button {
   align-items: center;
-  background: var(--green);
+  background: var(--acid);
   border: 2px solid var(--ink);
   border-radius: 999px;
   box-shadow: 0 8px 0 var(--ink);
@@ -3317,12 +3318,12 @@ button:hover .arrow--diagonal {
   display: inline-flex;
   font-size: .78rem;
   font-weight: 820;
-  gap: 14px;
-  padding: 15px 20px;
+  gap: 24px;
+  padding: 15px 24px;
   transition: box-shadow .2s ease, transform .2s ease;
 }
 
-.hero-slide__actions > button:hover {
+.hero-slide__actions .hero-slide__team-button:hover {
   box-shadow: 0 5px 0 var(--ink);
   transform: translateY(3px);
 }
