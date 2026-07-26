@@ -44,3 +44,8 @@ next-env.d.ts
 /artifacts/
 /.openai/artifacts/
 /tmp/
+
+# local video-edit workfiles
+/remotion-edit/
+/scripts/render-paper-cut-overlay.mjs
+*.mp4
