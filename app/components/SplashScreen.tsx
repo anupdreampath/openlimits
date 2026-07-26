@@ -1,11 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { CSSProperties, PointerEvent } from "react";
 import { Mark } from "@/app/components/BrandPrimitives";
 
 export function SplashScreen() {
   const [visible, setVisible] = useState(true);
   const [leaving, setLeaving] = useState(false);
+  const [spotlight, setSpotlight] = useState({ x: 50, y: 50 });
+
+  function dismiss() {
+    setLeaving(true);
+    window.setTimeout(() => setVisible(false), 520);
+  }
 
   useEffect(() => {
     const leaveTimer = window.setTimeout(() => setLeaving(true), 1450);
@@ -18,8 +25,31 @@ export function SplashScreen() {
 
   if (!visible) return null;
 
+  function handlePointerMove(event: PointerEvent<HTMLDivElement>) {
+    const rect = event.currentTarget.getBoundingClientRect();
+    setSpotlight({
+      x: Math.round(((event.clientX - rect.left) / rect.width) * 100),
+      y: Math.round(((event.clientY - rect.top) / rect.height) * 100),
+    });
+  }
+
   return (
-    <div className={leaving ? "site-splash site-splash--leaving" : "site-splash"} aria-label="Open Limits loading">
+    <div
+      className={leaving ? "site-splash site-splash--leaving" : "site-splash"}
+      style={{
+        "--splash-x": `${spotlight.x}%`,
+        "--splash-y": `${spotlight.y}%`,
+      } as CSSProperties}
+      aria-label="Open Limits loading"
+      onClick={dismiss}
+      onPointerMove={handlePointerMove}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") dismiss();
+      }}
+    >
+      <div className="site-splash__cursor" aria-hidden="true" />
       <div className="site-splash__mark">
         <Mark />
       </div>
@@ -28,6 +58,10 @@ export function SplashScreen() {
         <span>LIMITS</span>
       </div>
       <p>Websites that refuse to blend in.</p>
+      <div className="site-splash__progress" aria-hidden="true">
+        <span />
+      </div>
+      <small>Tap to enter</small>
     </div>
   );
 }

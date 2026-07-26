@@ -1709,10 +1709,12 @@ button:hover .arrow--diagonal {
 .site-splash {
   align-items: center;
   background:
+    radial-gradient(circle at var(--splash-x, 50%) var(--splash-y, 50%), rgba(183,239,102,.48), transparent 18%),
     radial-gradient(circle at 28% 22%, rgba(183,239,102,.5), transparent 24%),
     radial-gradient(circle at 76% 70%, rgba(255,183,219,.42), transparent 26%),
     var(--ink);
   color: white;
+  cursor: pointer;
   display: flex;
   flex-direction: column;
   gap: 18px;
@@ -1736,6 +1738,7 @@ button:hover .arrow--diagonal {
 }
 
 .site-splash::after {
+  animation: splashTile 1.8s ease-in-out infinite alternate;
   background: var(--acid);
   border: 2px solid var(--ink);
   border-radius: 32px;
@@ -1749,6 +1752,22 @@ button:hover .arrow--diagonal {
   width: clamp(120px, 18vw, 210px);
 }
 
+.site-splash__cursor {
+  background: rgba(255,255,255,.16);
+  border: 1px solid rgba(255,255,255,.28);
+  border-radius: 50%;
+  filter: blur(.2px);
+  height: 92px;
+  left: var(--splash-x, 50%);
+  pointer-events: none;
+  position: absolute;
+  top: var(--splash-y, 50%);
+  transform: translate(-50%, -50%);
+  transition: left .12s ease, top .12s ease;
+  width: 92px;
+  z-index: 1;
+}
+
 .site-splash--leaving {
   opacity: 0;
   pointer-events: none;
@@ -1756,6 +1775,7 @@ button:hover .arrow--diagonal {
 }
 
 .site-splash__mark {
+  animation: splashMark 1.2s ease-in-out infinite alternate;
   color: var(--acid);
   position: relative;
   transform: scale(2.2);
@@ -1763,6 +1783,7 @@ button:hover .arrow--diagonal {
 }
 
 .site-splash__wordmark {
+  animation: splashWord 1.7s ease-in-out infinite alternate;
   display: grid;
   font-size: clamp(3.6rem, 11vw, 8rem);
   font-weight: 950;
@@ -1784,6 +1805,76 @@ button:hover .arrow--diagonal {
   position: relative;
   text-transform: uppercase;
   z-index: 1;
+}
+
+.site-splash__progress {
+  background: rgba(255,255,255,.16);
+  border: 1px solid rgba(255,255,255,.22);
+  border-radius: 999px;
+  height: 8px;
+  overflow: hidden;
+  position: relative;
+  width: min(260px, 58vw);
+  z-index: 1;
+}
+
+.site-splash__progress span {
+  animation: splashProgress 1.8s cubic-bezier(.2,.8,.2,1) forwards;
+  background: linear-gradient(90deg, var(--acid), var(--pink), var(--blue));
+  border-radius: inherit;
+  display: block;
+  height: 100%;
+  transform-origin: left;
+}
+
+.site-splash small {
+  border: 1px solid rgba(255,255,255,.25);
+  border-radius: 999px;
+  color: rgba(255,255,255,.72);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: .56rem;
+  font-weight: 820;
+  letter-spacing: .12em;
+  padding: 9px 12px;
+  position: relative;
+  text-transform: uppercase;
+  z-index: 1;
+}
+
+@keyframes splashTile {
+  from {
+    transform: rotate(10deg) translate3d(0,0,0);
+  }
+  to {
+    transform: rotate(4deg) translate3d(-18px,18px,0);
+  }
+}
+
+@keyframes splashMark {
+  from {
+    transform: scale(2.2) rotate(-3deg);
+  }
+  to {
+    transform: scale(2.36) rotate(3deg);
+  }
+}
+
+@keyframes splashWord {
+  from {
+    text-shadow: 6px 6px 0 var(--purple);
+  }
+  to {
+    text-shadow: -6px 7px 0 var(--pink), 6px 12px 0 rgba(183,239,102,.28);
+  }
+}
+
+@keyframes splashProgress {
+  from {
+    transform: scaleX(.08);
+  }
+  to {
+    transform: scaleX(1);
+  }
 }
 
 .discount-pop {
@@ -2920,10 +3011,19 @@ button:hover .arrow--diagonal {
     font-size: clamp(4rem, 19vw, 5.8rem);
   }
 
+  .site-splash__cursor {
+    height: 72px;
+    width: 72px;
+  }
+
   .site-splash p {
     font-size: .58rem;
     line-height: 1.45;
     max-width: 280px;
+  }
+
+  .site-splash small {
+    font-size: .5rem;
   }
 
   .discount-pop {
@@ -3040,6 +3140,13 @@ button:hover .arrow--diagonal {
   .discount-pop__flipper,
   .discount-pop__card {
     transition: none;
+  }
+
+  .site-splash::after,
+  .site-splash__mark,
+  .site-splash__wordmark,
+  .site-splash__progress span {
+    animation: none;
   }
 }
 
