@@ -1964,6 +1964,9 @@ button:hover .arrow--diagonal {
 }
 
 .discount-pop__face--back {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
   transform: rotateY(180deg);
 }
 
@@ -2034,6 +2037,7 @@ button:hover .arrow--diagonal {
 }
 
 .discount-pop__content {
+  min-height: 100%;
   padding: 44px 42px 34px;
   position: relative;
   transform: translateZ(68px);
@@ -2082,6 +2086,11 @@ button:hover .arrow--diagonal {
   gap: 10px;
 }
 
+.discount-pop__field {
+  display: grid;
+  gap: 5px;
+}
+
 .discount-pop__form input {
   background: rgba(255,255,255,.82);
   border: 2px solid var(--ink);
@@ -2097,6 +2106,18 @@ button:hover .arrow--diagonal {
 
 .discount-pop__form input:focus {
   box-shadow: 4px 4px 0 var(--purple);
+}
+
+.discount-pop__form input[aria-invalid="true"] {
+  border-color: #9d1c1c;
+  box-shadow: 4px 4px 0 rgba(157,28,28,.2);
+}
+
+.discount-pop__field-error {
+  color: #9d1c1c;
+  font-size: .68rem;
+  font-weight: 760;
+  line-height: 1.2;
 }
 
 .discount-pop__tease button,

@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react";
 import { CALENDAR_LINK, DISCOUNT_CODE, WHATSAPP_NUMBER } from "@/app/lib/open-limits-brain";
 
 type DiscountResponse = {
@@ -8,37 +8,131 @@ type DiscountResponse = {
   error?: string;
 };
 
+type FieldName = "name" | "email" | "phone" | "niche";
+
+type FormValues = Record<FieldName, string>;
+type FormErrors = Partial<Record<FieldName, string>>;
+
+const DISCOUNT_STORAGE_KEY = "open-limits-discount-dismissed";
+const fieldOrder: FieldName[] = ["name", "email", "phone", "niche"];
+
+const initialValues: FormValues = {
+  name: "",
+  email: "",
+  phone: "",
+  niche: "",
+};
+
+function isLocalTestHost() {
+  const host = window.location.hostname;
+  return host === "localhost" || host === "127.0.0.1" || host === "::1";
+}
+
+function shouldRememberPopupChoice() {
+  return typeof window !== "undefined" && !isLocalTestHost();
+}
+
+function validateField(name: FieldName, value: string) {
+  const trimmed = value.trim();
+  if (!trimmed) return `${name === "niche" ? "Niche" : name[0].toUpperCase() + name.slice(1)} is required.`;
+  if (name === "name" && trimmed.length < 2) return "Add at least 2 characters.";
+  if (name === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) return "Add a valid email.";
+  if (name === "phone" && trimmed.replace(/\D/g, "").length < 7) return "Add a valid phone or WhatsApp number.";
+  if (name === "niche" && trimmed.length < 2) return "Tell us your store niche.";
+  return "";
+}
+
+function validateAll(values: FormValues) {
+  return fieldOrder.reduce<FormErrors>((errors, field) => {
+    const error = validateField(field, values[field]);
+    if (error) errors[field] = error;
+    return errors;
+  }, {});
+}
+
 export function DiscountPopup() {
   const [open, setOpen] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [claimedCode, setClaimedCode] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [values, setValues] = useState<FormValues>(initialValues);
+  const [fieldErrors, setFieldErrors] = useState<FormErrors>({});
+  const inputRefs = useRef<Partial<Record<FieldName, HTMLInputElement | null>>>({});
+  const submitRef = useRef<HTMLButtonElement | null>(null);
+  const advanceTimer = useRef<number | null>(null);
 
   useEffect(() => {
+    if (shouldRememberPopupChoice() && window.localStorage.getItem(DISCOUNT_STORAGE_KEY)) return;
     const timer = window.setTimeout(() => setOpen(true), 5600);
     return () => window.clearTimeout(timer);
   }, []);
 
+  function rememberPopupChoice() {
+    if (!shouldRememberPopupChoice()) return;
+    window.localStorage.setItem(DISCOUNT_STORAGE_KEY, "1");
+  }
+
   function closePopup() {
+    rememberPopupChoice();
     setOpen(false);
+  }
+
+  function focusAndScroll(target: FieldName | "submit", shouldFocus = true) {
+    if (advanceTimer.current) window.clearTimeout(advanceTimer.current);
+    advanceTimer.current = window.setTimeout(() => {
+      const node = target === "submit" ? submitRef.current : inputRefs.current[target];
+      node?.scrollIntoView({ behavior: "smooth", block: "center" });
+      if (shouldFocus) node?.focus();
+    }, 180);
+  }
+
+  function revealForm() {
+    setShowForm(true);
+    focusAndScroll("name");
+  }
+
+  function handleFieldChange(event: ChangeEvent<HTMLInputElement>) {
+    const field = event.currentTarget.name as FieldName;
+    const value = event.currentTarget.value;
+    const nextIndex = fieldOrder.indexOf(field) + 1;
+    setValues((current) => ({ ...current, [field]: value }));
+    setFieldErrors((current) => {
+      const next = { ...current };
+      const fieldError = validateField(field, value);
+      if (fieldError) next[field] = fieldError;
+      else delete next[field];
+      return next;
+    });
+
+    if (!validateField(field, value)) {
+      focusAndScroll(fieldOrder[nextIndex] || "submit", false);
+    }
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
+    const errors = validateAll(values);
+    setFieldErrors(errors);
+    const firstInvalid = fieldOrder.find((field) => errors[field]);
+    if (firstInvalid) {
+      focusAndScroll(firstInvalid);
+      setError("Finish the highlighted fields to unlock the code.");
+      return;
+    }
+
     setIsSubmitting(true);
-    const form = new FormData(event.currentTarget);
 
     try {
       const response = await fetch("/api/discount-lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: form.get("name"),
-          email: form.get("email"),
-          phone: form.get("phone"),
-          niche: form.get("niche"),
+          name: values.name.trim(),
+          email: values.email.trim(),
+          phone: values.phone.trim(),
+          niche: values.niche.trim(),
           page: window.location.pathname,
         }),
       });
@@ -48,6 +142,7 @@ export function DiscountPopup() {
         return;
       }
       setClaimedCode(data.code || DISCOUNT_CODE);
+      rememberPopupChoice();
     } catch {
       setError("Connection dipped. Try once more or WhatsApp us directly.");
     } finally {
@@ -77,7 +172,7 @@ export function DiscountPopup() {
               <p className="discount-pop__kicker">New store design projects</p>
               <h2>Get 30% off.</h2>
               <p>Unlock the code for a premium Shopify design sprint.</p>
-              <button type="button" onClick={() => setShowForm(true)}>
+              <button type="button" onClick={revealForm}>
                 Unlock 30% <span aria-hidden="true">→</span>
               </button>
             </div>
@@ -104,12 +199,48 @@ export function DiscountPopup() {
                 </div>
               ) : (
                 <form className="discount-pop__form" onSubmit={handleSubmit}>
-                  <input name="name" placeholder="Name" autoComplete="name" />
-                  <input name="email" type="email" placeholder="Email" autoComplete="email" required />
-                  <input name="phone" type="tel" placeholder="Phone / WhatsApp" autoComplete="tel" required />
-                  <input name="niche" placeholder="Niche, e.g. skincare" autoComplete="organization-title" />
+                  {fieldOrder.map((field) => (
+                    <label className="discount-pop__field" key={field}>
+                      <input
+                        aria-describedby={`${field}-discount-error`}
+                        aria-invalid={Boolean(fieldErrors[field])}
+                        autoComplete={
+                          field === "name"
+                            ? "name"
+                            : field === "email"
+                              ? "email"
+                              : field === "phone"
+                                ? "tel"
+                                : "organization-title"
+                        }
+                        inputMode={field === "phone" ? "tel" : field === "email" ? "email" : "text"}
+                        name={field}
+                        onChange={handleFieldChange}
+                        placeholder={
+                          field === "name"
+                            ? "Name"
+                            : field === "email"
+                              ? "Email"
+                              : field === "phone"
+                                ? "Phone / WhatsApp"
+                                : "Niche, e.g. skincare"
+                        }
+                        ref={(node) => {
+                          inputRefs.current[field] = node;
+                        }}
+                        required
+                        type={field === "email" ? "email" : field === "phone" ? "tel" : "text"}
+                        value={values[field]}
+                      />
+                      {fieldErrors[field] ? (
+                        <span className="discount-pop__field-error" id={`${field}-discount-error`}>
+                          {fieldErrors[field]}
+                        </span>
+                      ) : null}
+                    </label>
+                  ))}
                   {error ? <div className="discount-pop__error">{error}</div> : null}
-                  <button type="submit" disabled={isSubmitting}>
+                  <button ref={submitRef} type="submit" disabled={isSubmitting}>
                     {isSubmitting ? "Unlocking..." : "Reveal my code"}
                   </button>
                 </form>
