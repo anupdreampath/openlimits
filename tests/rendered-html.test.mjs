@@ -53,7 +53,7 @@ test("Open Limits page uses the owned lead chat instead of third-party chat", as
   assert.match(adminChatsPage, /view="chats"/);
   assert.match(adminVisitorsPage, /view="visitors"/);
   assert.match(layout, /FacebookPixel/);
-  assert.match(facebookPixel, /507936122170760/);
+  assert.match(facebookPixel, /601198065432718/);
   assert.match(facebookPixel, /fbq\('init'/);
   assert.match(facebookPixel, /PageView/);
   assert.match(adminOverview, /buildAnalytics/);
