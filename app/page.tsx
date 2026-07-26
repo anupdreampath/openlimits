@@ -778,10 +778,6 @@ export default function Home() {
               Stand out.
               <em>Sell louder.</em>
             </h1>
-            <p>
-              Open Limits is the award-winning Shopify website design agency for
-              brands that want movement, memory and serious conversion energy.
-            </p>
             <div className="hero-slide__actions">
               <a className="hero-slide__button" href="#work">
                 See award-winning work <Arrow />

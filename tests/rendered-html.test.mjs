@@ -20,7 +20,8 @@ test("Open Limits page uses the owned lead chat instead of third-party chat", as
     read("app/terms-of-use/page.tsx"),
   ]);
 
-  assert.match(page, /Award-winning Shopify website design agency/i);
+  assert.doesNotMatch(page, /Open Limits is the award-winning Shopify website design agency/i);
+  assert.match(page, /Talk to the team/);
   assert.match(page, /<LeadChat open=\{chatOpen\} onOpenChange=\{setChatOpen\} \/>/);
   assert.match(page, /<SplashScreen \/>/);
   assert.match(page, /<DiscountPopup \/>/);
@@ -44,6 +45,7 @@ test("Open Limits page uses the owned lead chat instead of third-party chat", as
   assert.match(styles, /\.chat-launcher/);
   assert.match(styles, /\.site-splash/);
   assert.match(styles, /@keyframes splashProgress/);
+  assert.match(styles, /\.hero-slide__actions > button[\s\S]*background: var\(--green\)/);
   assert.match(styles, /\.discount-pop__card/);
   assert.match(styles, /\.info-page/);
   assert.match(styles, /visibility: hidden/);
