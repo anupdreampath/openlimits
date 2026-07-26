@@ -1882,11 +1882,21 @@ button:hover .arrow--diagonal {
   height: 42px;
   justify-content: center;
   line-height: 1;
+  pointer-events: auto;
   position: absolute;
   right: 15px;
   top: 15px;
+  transform: translateZ(140px);
   width: 42px;
-  z-index: 3;
+  z-index: 12;
+}
+
+.discount-pop__close--floating {
+  position: absolute;
+  right: max(24px, calc((100vw - 780px) / 2 + 15px));
+  top: calc(50% - 200px);
+  transform: none !important;
+  z-index: 240;
 }
 
 .discount-pop__burst {
@@ -3015,6 +3025,13 @@ button:hover .arrow--diagonal {
     right: 12px;
     top: 12px;
     width: 36px;
+  }
+
+  .discount-pop .discount-pop__close--floating {
+    position: absolute !important;
+    right: 24px !important;
+    top: calc(50% - 200px) !important;
+    transform: none !important;
   }
 }
 

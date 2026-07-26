@@ -70,9 +70,6 @@ export function DiscountPopup() {
             : "discount-pop__card"
         }
       >
-        <button className="discount-pop__close" onClick={closePopup} aria-label="Close discount popup">
-          ×
-        </button>
         <div className="discount-pop__flipper">
           <section className="discount-pop__face discount-pop__face--front">
             <div className="discount-pop__burst" aria-hidden="true">
@@ -124,6 +121,9 @@ export function DiscountPopup() {
           </section>
         </div>
       </div>
+      <button className="discount-pop__close discount-pop__close--floating" onClick={closePopup} aria-label="Close discount popup">
+        ×
+      </button>
     </div>
   );
 }
