@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import { LeadChat } from "@/app/components/LeadChat";
 
 type Project = {
   title: string;
@@ -646,6 +647,7 @@ function Arrow({ diagonal = false }: { diagonal?: boolean }) {
 export default function Home() {
   const [filter, setFilter] = useState<"All" | Project["category"]>("All");
   const [menuOpen, setMenuOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
   const [brokenImages, setBrokenImages] = useState<Record<string, boolean>>({});
 
   const filteredProjects = useMemo(
@@ -656,29 +658,8 @@ export default function Home() {
     [filter],
   );
 
-  useEffect(() => {
-    const propertyId = process.env.NEXT_PUBLIC_TAWK_PROPERTY_ID;
-    const widgetId = process.env.NEXT_PUBLIC_TAWK_WIDGET_ID;
-    if (!propertyId || !widgetId || document.getElementById("tawk-script")) return;
-
-    const script = document.createElement("script");
-    script.id = "tawk-script";
-    script.async = true;
-    script.src = `https://embed.tawk.to/${propertyId}/${widgetId}`;
-    script.crossOrigin = "*";
-    document.head.appendChild(script);
-  }, []);
-
   const openChat = () => {
-    const chatWindow = window as typeof window & {
-      Tawk_API?: { maximize?: () => void };
-    };
-    if (chatWindow.Tawk_API?.maximize) {
-      chatWindow.Tawk_API.maximize();
-      return;
-    }
-    window.location.href =
-      "mailto:hello@openlimits.agency?subject=New%20website%20project&body=Hi%20Open%20Limits%2C%20I%27d%20like%20to%20talk%20about...";
+    setChatOpen(true);
   };
 
   return (
@@ -988,11 +969,7 @@ export default function Home() {
         </div>
       </footer>
 
-      <button className="chat-launcher" onClick={openChat} aria-label="Chat with Open Limits">
-        <span className="chat-pulse" />
-        <span>Let&apos;s talk</span>
-        <b>↗</b>
-      </button>
+      <LeadChat open={chatOpen} onOpenChange={setChatOpen} />
     </main>
   );
 }
