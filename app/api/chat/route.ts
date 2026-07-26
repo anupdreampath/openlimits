@@ -27,6 +27,8 @@ const MAX_MESSAGES = 16;
 const MAX_MESSAGE_LENGTH = 1200;
 const emailPattern = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i;
 const phonePattern = /(?:\+?\d[\d\s().-]{7,}\d)/;
+const lowBudgetPattern =
+  /(?:budget|spend|have|under|below|less than|only|around|approx|approximately|about)\D{0,24}\$?\s?([1-9]\d{1,3})(?:\s?usd|\s?dollars)?/i;
 
 function jsonResponse(body: unknown, status = 200) {
   return NextResponse.json(body, {
@@ -120,6 +122,18 @@ function hasHotLeadSignal(lead: LeadProfile, messages: ChatMessage[]) {
   );
 }
 
+function getBudgetAmount(messages: ChatMessage[]) {
+  const text = messages.map((message) => message.content).join("\n");
+  const match = text.match(lowBudgetPattern);
+  if (!match?.[1]) return null;
+  return Number.parseInt(match[1].replace(/,/g, ""), 10);
+}
+
+function isLowBudgetLead(messages: ChatMessage[]) {
+  const amount = getBudgetAmount(messages);
+  return amount !== null && amount < 2000;
+}
+
 function missingLeadDetails(lead: LeadProfile) {
   return [
     ["name", lead.name],
@@ -139,6 +153,10 @@ function answerFallback(messages: ChatMessage[], lead: LeadProfile) {
   const missing = missingLeadDetails(lead).slice(0, 3).join(", ");
   const hotCta = `\n\nBook a call: ${CALENDAR_LINK}\nFast-track on WhatsApp: ${WHATSAPP_NUMBER}`;
 
+  if (isLowBudgetLead(messages)) {
+    return answerLowBudget(lead);
+  }
+
   if (/price|cost|budget|quote|\$/.test(latest)) {
     return `Custom Shopify design projects usually run $2k-$10k, depending on design depth, animations, apps, and launch speed. Send ${missing || "your email and phone"} and we can route you to the right quote.${hasHotLeadSignal(lead, messages) ? hotCta : ""}`;
   }
@@ -156,6 +174,11 @@ function answerFallback(messages: ChatMessage[], lead: LeadProfile) {
   }
 
   return `I can help scope this fast. Share your name, email, phone, niche, website URL, budget, and timeline. For urgent projects, book here: ${CALENDAR_LINK} or WhatsApp ${WHATSAPP_NUMBER}.`;
+}
+
+function answerLowBudget(lead: LeadProfile) {
+  const missing = missingLeadDetails(lead).slice(0, 2).join(" and ");
+  return `We can surely help. Our custom fresh design packages start from $2,000, but do not be disheartened. We can still provide something that will work just fine for your stage.\n\n${missing ? `Share your ${missing}, or ` : ""}book a quick call and we will guide you to the best-fit option.\n\nBook a call: ${CALENDAR_LINK}\nFast-track on WhatsApp: ${WHATSAPP_NUMBER}`;
 }
 
 function addHotLeadCta(answer: string, lead: LeadProfile, messages: ChatMessage[]) {
@@ -288,6 +311,9 @@ export async function POST(request: NextRequest) {
       true,
     );
     lead = parseJsonObject<LeadProfile>(extraction) || extractFallbackLead(transcript);
+    if (isLowBudgetLead(transcript)) {
+      answer = answerLowBudget(lead);
+    }
     answer = addHotLeadCta(answer, lead, transcript);
     const hfIntent = await scoreWithHuggingFace(transcript);
     const saved = await safeSaveLead({

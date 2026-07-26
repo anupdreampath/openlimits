@@ -2,9 +2,11 @@
 
 import { FormEvent, useEffect, useRef, useState } from "react";
 import {
+  CALENDAR_LINK,
   ChatMessage,
   DEFAULT_ASSISTANT_MESSAGE,
   LeadProfile,
+  WHATSAPP_NUMBER,
 } from "@/app/lib/open-limits-brain";
 
 type LeadChatProps = {
@@ -24,6 +26,41 @@ const starterPrompts = [
   "Show me examples like my brand",
   "I need a premium redesign fast",
 ];
+
+function AssistantMessageContent({ content }: { content: string }) {
+  const lines = content.split("\n").map((line) => line.trim()).filter(Boolean);
+  const bodyLines = lines.filter(
+    (line) => !line.includes(CALENDAR_LINK) && !line.includes(WHATSAPP_NUMBER),
+  );
+  const showCalendar = content.includes(CALENDAR_LINK);
+  const showWhatsapp = content.includes(WHATSAPP_NUMBER);
+
+  return (
+    <>
+      {bodyLines.map((line, index) => (
+        <p key={`${line}-${index}`}>{line}</p>
+      ))}
+      {(showCalendar || showWhatsapp) ? (
+        <div className="lead-chat__ctas">
+          {showCalendar ? (
+            <a href={CALENDAR_LINK} target="_blank" rel="noreferrer">
+              Book a call
+            </a>
+          ) : null}
+          {showWhatsapp ? (
+            <a
+              href={`https://wa.me/${WHATSAPP_NUMBER.replace(/\D/g, "")}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Fast-track WhatsApp
+            </a>
+          ) : null}
+        </div>
+      ) : null}
+    </>
+  );
+}
 
 export function LeadChat({ open, onOpenChange }: LeadChatProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -131,7 +168,11 @@ export function LeadChat({ open, onOpenChange }: LeadChatProps) {
                 className={`lead-chat__bubble lead-chat__bubble--${message.role}`}
                 key={`${message.role}-${index}`}
               >
-                {message.content}
+                {message.role === "assistant" ? (
+                  <AssistantMessageContent content={message.content} />
+                ) : (
+                  message.content
+                )}
               </div>
             ))}
             {isSending ? (

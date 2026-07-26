@@ -1271,6 +1271,14 @@ button:hover .arrow--diagonal {
   white-space: pre-wrap;
 }
 
+.lead-chat__bubble p {
+  margin: 0;
+}
+
+.lead-chat__bubble p + p {
+  margin-top: 10px;
+}
+
 .lead-chat__bubble--assistant {
   align-self: flex-start;
   background: white;
@@ -1287,6 +1295,37 @@ button:hover .arrow--diagonal {
   color: rgba(17,17,17,.58);
   font-family: var(--font-geist-mono), monospace;
   font-size: .66rem;
+}
+
+.lead-chat__ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 13px;
+}
+
+.lead-chat__ctas a {
+  align-items: center;
+  background: var(--ink);
+  border: 0;
+  border-radius: 999px;
+  color: white;
+  display: inline-flex;
+  font-size: .72rem;
+  font-weight: 820;
+  justify-content: center;
+  min-height: 36px;
+  padding: 9px 13px;
+  transition: background .2s ease, transform .2s ease;
+}
+
+.lead-chat__ctas a:first-child {
+  background: var(--purple);
+}
+
+.lead-chat__ctas a:hover {
+  background: var(--ink);
+  transform: translateY(-2px);
 }
 
 .lead-chat__prompts {
@@ -1458,29 +1497,6 @@ button:hover .arrow--diagonal {
   text-align: center;
   transform: translateZ(40px);
   z-index: 1;
-}
-
-.discount-pop__burst::before,
-.discount-pop__burst::after {
-  background: var(--pink);
-  border: 2px solid var(--ink);
-  content: "";
-  height: 116px;
-  position: absolute;
-  width: 116px;
-}
-
-.discount-pop__burst::before {
-  right: -36px;
-  top: 38px;
-  transform: rotate(18deg);
-}
-
-.discount-pop__burst::after {
-  background: var(--blue);
-  bottom: 44px;
-  left: -34px;
-  transform: rotate(-14deg);
 }
 
 .discount-pop__burst span {
@@ -2116,12 +2132,6 @@ button:hover .arrow--diagonal {
   .discount-pop__burst {
     min-height: 150px;
     padding: 20px;
-  }
-
-  .discount-pop__burst::before,
-  .discount-pop__burst::after {
-    height: 76px;
-    width: 76px;
   }
 
   .discount-pop__burst span {
