@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import Script from "next/script";
 import { usePathname } from "next/navigation";
 
-const FACEBOOK_PIXEL_ID = "601198065432718";
+const FACEBOOK_PIXEL_IDS = ["601198065432718", "1788643449163395"];
 
 declare global {
   interface Window {
@@ -36,19 +36,21 @@ n.queue=[];t=b.createElement(e);t.async=!0;
 t.src=v;s=b.getElementsByTagName(e)[0];
 s.parentNode.insertBefore(t,s)}(window, document,'script',
 'https://connect.facebook.net/en_US/fbevents.js');
-fbq('init', '${FACEBOOK_PIXEL_ID}');
+${FACEBOOK_PIXEL_IDS.map((pixelId) => `fbq('init', '${pixelId}');`).join("\n")}
           `,
         }}
       />
-      <noscript>
-        <img
-          alt=""
-          height="1"
-          src={`https://www.facebook.com/tr?id=${FACEBOOK_PIXEL_ID}&ev=PageView&noscript=1`}
-          style={{ display: "none" }}
-          width="1"
-        />
-      </noscript>
+      {FACEBOOK_PIXEL_IDS.map((pixelId) => (
+        <noscript key={pixelId}>
+          <img
+            alt=""
+            height="1"
+            src={`https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1`}
+            style={{ display: "none" }}
+            width="1"
+          />
+        </noscript>
+      ))}
     </>
   );
 }
