@@ -9,8 +9,9 @@ async function read(path) {
 }
 
 test("Open Limits page uses the owned lead chat instead of third-party chat", async () => {
-  const [page, component, adminLogin, discount, splash, styles, about, refund, terms] = await Promise.all([
+  const [page, layout, component, adminLogin, discount, splash, styles, about, refund, terms] = await Promise.all([
     read("app/page.tsx"),
+    read("app/layout.tsx"),
     read("app/components/LeadChat.tsx"),
     read("app/components/AdminLogin.tsx"),
     read("app/components/DiscountPopup.tsx"),
@@ -25,6 +26,7 @@ test("Open Limits page uses the owned lead chat instead of third-party chat", as
   const adminLeadsPage = await read("app/admin/leads/page.tsx");
   const adminChatsPage = await read("app/admin/chats/page.tsx");
   const adminVisitorsPage = await read("app/admin/visitors/page.tsx");
+  const facebookPixel = await read("app/components/FacebookPixel.tsx");
 
   assert.doesNotMatch(page, /Open Limits is the award-winning Shopify website design agency/i);
   assert.match(page, /Talk to the team/);
@@ -50,6 +52,10 @@ test("Open Limits page uses the owned lead chat instead of third-party chat", as
   assert.match(adminLeadsPage, /view="leads"/);
   assert.match(adminChatsPage, /view="chats"/);
   assert.match(adminVisitorsPage, /view="visitors"/);
+  assert.match(layout, /FacebookPixel/);
+  assert.match(facebookPixel, /507936122170760/);
+  assert.match(facebookPixel, /fbq\('init'/);
+  assert.match(facebookPixel, /PageView/);
   assert.match(adminOverview, /buildAnalytics/);
   assert.match(adminOverview, /formatActivity/);
   assert.match(component, /Custom themes: \$2k-\$10k/);
