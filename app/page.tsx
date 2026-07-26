@@ -645,6 +645,78 @@ function Arrow({ diagonal = false }: { diagonal?: boolean }) {
   );
 }
 
+function ProjectMedia({
+  project,
+  index,
+  brokenImages,
+  setBrokenImages,
+}: {
+  project: Project;
+  index: number;
+  brokenImages: Record<string, boolean>;
+  setBrokenImages: (
+    update: (state: Record<string, boolean>) => Record<string, boolean>,
+  ) => void;
+}) {
+  const mediaContent = (
+    <>
+      {!brokenImages[project.title] ? (
+        <img
+          src={project.image}
+          alt={`${project.title} website screenshot`}
+          loading={index < 2 ? "eager" : "lazy"}
+          onError={() =>
+            setBrokenImages((state) => ({ ...state, [project.title]: true }))
+          }
+        />
+      ) : (
+        <div className="project-placeholder">
+          <span className="mock-nav" />
+          <div className="mock-copy">
+            <small>OPEN LIMITS / {String(index + 1).padStart(2, "0")}</small>
+            <strong>{project.title}</strong>
+            <i />
+            <i />
+          </div>
+          <div className="mock-window">
+            <span />
+            <span />
+            <span />
+          </div>
+        </div>
+      )}
+      <div className="browser-bar">
+        <span />
+        <span />
+        <span />
+        <small>openlimits / work / {String(index + 1).padStart(2, "0")}</small>
+      </div>
+      <span className="project-number">{String(index + 1).padStart(2, "0")}</span>
+    </>
+  );
+
+  if (!project.url) {
+    return (
+      <div className="project-media" style={{ background: project.color }}>
+        {mediaContent}
+      </div>
+    );
+  }
+
+  return (
+    <a
+      className="project-media project-media--link"
+      href={project.url}
+      target="_blank"
+      rel="noreferrer"
+      style={{ background: project.color }}
+      aria-label={`Visit ${project.title} website`}
+    >
+      {mediaContent}
+    </a>
+  );
+}
+
 export default function Home() {
   const [filter, setFilter] = useState<"All" | Project["category"]>("All");
   const [menuOpen, setMenuOpen] = useState(false);
@@ -796,40 +868,12 @@ export default function Home() {
         <div className="project-grid">
           {filteredProjects.map((project, index) => (
             <article className="project-card" key={project.title}>
-              <div className="project-media" style={{ background: project.color }}>
-                {!brokenImages[project.title] ? (
-                  <img
-                    src={project.image}
-                    alt={`${project.title} website screenshot`}
-                    loading={index < 2 ? "eager" : "lazy"}
-                    onError={() =>
-                      setBrokenImages((state) => ({ ...state, [project.title]: true }))
-                    }
-                  />
-                ) : (
-                  <div className="project-placeholder">
-                    <span className="mock-nav" />
-                    <div className="mock-copy">
-                      <small>OPEN LIMITS / {String(index + 1).padStart(2, "0")}</small>
-                      <strong>{project.title}</strong>
-                      <i />
-                      <i />
-                    </div>
-                    <div className="mock-window">
-                      <span />
-                      <span />
-                      <span />
-                    </div>
-                  </div>
-                )}
-                <div className="browser-bar">
-                  <span />
-                  <span />
-                  <span />
-                  <small>openlimits / work / {String(index + 1).padStart(2, "0")}</small>
-                </div>
-                <span className="project-number">{String(index + 1).padStart(2, "0")}</span>
-              </div>
+              <ProjectMedia
+                project={project}
+                index={index}
+                brokenImages={brokenImages}
+                setBrokenImages={setBrokenImages}
+              />
               <div className="project-details">
                 <div>
                   <p>{project.category}</p>

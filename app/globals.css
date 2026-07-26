@@ -547,8 +547,18 @@ button:hover .arrow--diagonal {
 .project-media {
   aspect-ratio: 16 / 10;
   border-radius: 24px;
+  display: block;
   overflow: hidden;
   position: relative;
+}
+
+.project-media--link {
+  cursor: pointer;
+}
+
+.project-media--link:focus-visible {
+  outline: 3px solid var(--acid);
+  outline-offset: 6px;
 }
 
 .project-media::after {
