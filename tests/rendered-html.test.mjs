@@ -28,7 +28,9 @@ test("Open Limits page uses the owned lead chat instead of third-party chat", as
   assert.match(page, /https:\/\/www\.upwork\.com\/freelancers\/~016de1057b0e843c6b/);
   assert.match(component, /Custom themes: \$2k-\$10k/);
   assert.match(component, /\/api\/chat/);
-  assert.match(discount, /Get 30% off now\./);
+  assert.match(discount, /Get 30% off\./);
+  assert.match(discount, /Unlock 30%/);
+  assert.match(discount, /Fill info\./);
   assert.match(discount, /\/api\/discount-lead/);
   assert.match(discount, /OPENLIMITS30|DISCOUNT_CODE/);
   assert.match(styles, /\.lead-chat__panel/);

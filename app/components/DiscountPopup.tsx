@@ -10,6 +10,7 @@ type DiscountResponse = {
 
 export function DiscountPopup() {
   const [open, setOpen] = useState(false);
+  const [showForm, setShowForm] = useState(false);
   const [claimedCode, setClaimedCode] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -62,44 +63,65 @@ export function DiscountPopup() {
   return (
     <div className="discount-pop" role="dialog" aria-modal="true" aria-label="30% off new store design">
       <button className="discount-pop__scrim" onClick={closePopup} aria-label="Close discount popup" />
-      <div className="discount-pop__card">
+      <div
+        className={
+          showForm || claimedCode
+            ? "discount-pop__card discount-pop__card--flipped"
+            : "discount-pop__card"
+        }
+      >
         <button className="discount-pop__close" onClick={closePopup} aria-label="Close discount popup">
           ×
         </button>
-        <div className="discount-pop__burst" aria-hidden="true">
-          <span>30%</span>
-          <b>OFF</b>
-        </div>
-        <div className="discount-pop__content">
-          <p className="discount-pop__kicker">New store design projects</p>
-          <h2>Get 30% off now.</h2>
-          <p>
-            Drop your details and unlock the code for a premium Shopify design sprint.
-          </p>
-
-          {claimedCode ? (
-            <div className="discount-pop__success">
-              <span>Your code</span>
-              <strong>{claimedCode}</strong>
-              <a href={CALENDAR_LINK} target="_blank" rel="noreferrer">
-                Book your call →
-              </a>
-              <a href={`https://wa.me/${WHATSAPP_NUMBER.replace(/\D/g, "")}`} target="_blank" rel="noreferrer">
-                Fast-track WhatsApp →
-              </a>
+        <div className="discount-pop__flipper">
+          <section className="discount-pop__face discount-pop__face--front">
+            <div className="discount-pop__burst" aria-hidden="true">
+              <span>30%</span>
+              <b>OFF</b>
             </div>
-          ) : (
-            <form className="discount-pop__form" onSubmit={handleSubmit}>
-              <input name="name" placeholder="Name" autoComplete="name" />
-              <input name="email" type="email" placeholder="Email" autoComplete="email" required />
-              <input name="phone" type="tel" placeholder="Phone / WhatsApp" autoComplete="tel" required />
-              <input name="niche" placeholder="Niche, e.g. skincare" autoComplete="organization-title" />
-              {error ? <div className="discount-pop__error">{error}</div> : null}
-              <button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Unlocking..." : "Unlock my 30% code"}
+            <div className="discount-pop__tease">
+              <p className="discount-pop__kicker">New store design projects</p>
+              <h2>Get 30% off.</h2>
+              <p>Unlock the code for a premium Shopify design sprint.</p>
+              <button type="button" onClick={() => setShowForm(true)}>
+                Unlock 30% <span aria-hidden="true">→</span>
               </button>
-            </form>
-          )}
+            </div>
+          </section>
+
+          <section className="discount-pop__face discount-pop__face--back">
+            <div className="discount-pop__content">
+              <p className="discount-pop__kicker">Claim your code</p>
+              <h2>Fill info.</h2>
+              <p>
+                Drop your details and we will reveal the code instantly.
+              </p>
+
+              {claimedCode ? (
+                <div className="discount-pop__success">
+                  <span>Your code</span>
+                  <strong>{claimedCode}</strong>
+                  <a href={CALENDAR_LINK} target="_blank" rel="noreferrer">
+                    Book your call →
+                  </a>
+                  <a href={`https://wa.me/${WHATSAPP_NUMBER.replace(/\D/g, "")}`} target="_blank" rel="noreferrer">
+                    Fast-track WhatsApp →
+                  </a>
+                </div>
+              ) : (
+                <form className="discount-pop__form" onSubmit={handleSubmit}>
+                  <input name="name" placeholder="Name" autoComplete="name" />
+                  <input name="email" type="email" placeholder="Email" autoComplete="email" required />
+                  <input name="phone" type="tel" placeholder="Phone / WhatsApp" autoComplete="tel" required />
+                  <input name="niche" placeholder="Niche, e.g. skincare" autoComplete="organization-title" />
+                  {error ? <div className="discount-pop__error">{error}</div> : null}
+                  <button type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? "Unlocking..." : "Reveal my code"}
+                  </button>
+                </form>
+              )}
+            </div>
+          </section>
         </div>
       </div>
     </div>

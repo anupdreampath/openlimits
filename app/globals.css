@@ -1728,6 +1728,30 @@ button:hover .arrow--diagonal {
 }
 
 .discount-pop__card {
+  background: transparent;
+  height: 430px;
+  max-width: 780px;
+  overflow: visible;
+  position: relative;
+  transform: rotateX(7deg) rotateY(-9deg) rotateZ(1deg);
+  transform-style: preserve-3d;
+  width: min(100%, 780px);
+}
+
+.discount-pop__flipper {
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform .58s cubic-bezier(.2,.78,.22,1);
+  width: 100%;
+}
+
+.discount-pop__card--flipped .discount-pop__flipper {
+  transform: rotateY(180deg);
+}
+
+.discount-pop__face {
+  backface-visibility: hidden;
   background:
     linear-gradient(135deg, #fff6e9 0%, #ffb7db 48%, #b7ef66 100%);
   border: 3px solid var(--ink);
@@ -1736,18 +1760,13 @@ button:hover .arrow--diagonal {
     14px 14px 0 var(--ink),
     28px 28px 0 rgba(107,78,255,.72),
     0 34px 90px rgba(0,0,0,.34);
-  display: grid;
-  grid-template-columns: .8fr 1.2fr;
-  max-width: 780px;
-  min-height: 430px;
+  inset: 0;
   overflow: hidden;
-  position: relative;
-  transform: rotateX(7deg) rotateY(-9deg) rotateZ(1deg);
-  transform-style: preserve-3d;
-  width: min(100%, 780px);
+  pointer-events: none;
+  position: absolute;
 }
 
-.discount-pop__card::before {
+.discount-pop__face::before {
   background:
     repeating-linear-gradient(90deg, rgba(17,17,17,.09) 0 1px, transparent 1px 18px),
     repeating-linear-gradient(0deg, rgba(17,17,17,.08) 0 1px, transparent 1px 18px);
@@ -1756,6 +1775,20 @@ button:hover .arrow--diagonal {
   opacity: .55;
   pointer-events: none;
   position: absolute;
+}
+
+.discount-pop__face--front {
+  display: grid;
+  grid-template-columns: .82fr 1.18fr;
+}
+
+.discount-pop__card:not(.discount-pop__card--flipped) .discount-pop__face--front,
+.discount-pop__card--flipped .discount-pop__face--back {
+  pointer-events: auto;
+}
+
+.discount-pop__face--back {
+  transform: rotateY(180deg);
 }
 
 .discount-pop__close {
@@ -1821,6 +1854,16 @@ button:hover .arrow--diagonal {
   z-index: 2;
 }
 
+.discount-pop__tease {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 44px 42px 34px;
+  position: relative;
+  transform: translateZ(68px);
+  z-index: 2;
+}
+
 .discount-pop__kicker {
   font-family: var(--font-geist-mono), monospace;
   font-size: .62rem;
@@ -1830,7 +1873,8 @@ button:hover .arrow--diagonal {
   text-transform: uppercase;
 }
 
-.discount-pop__content h2 {
+.discount-pop__content h2,
+.discount-pop__tease h2 {
   font-size: clamp(3.4rem, 7vw, 5.5rem);
   font-weight: 950;
   letter-spacing: -.09em;
@@ -1838,7 +1882,8 @@ button:hover .arrow--diagonal {
   margin: 0;
 }
 
-.discount-pop__content > p {
+.discount-pop__content > p,
+.discount-pop__tease > p {
   color: rgba(17,17,17,.68);
   font-size: .92rem;
   line-height: 1.45;
@@ -1868,6 +1913,7 @@ button:hover .arrow--diagonal {
   box-shadow: 4px 4px 0 var(--purple);
 }
 
+.discount-pop__tease button,
 .discount-pop__form button,
 .discount-pop__success a {
   align-items: center;
@@ -1884,6 +1930,16 @@ button:hover .arrow--diagonal {
   transition: transform .2s ease, background .2s ease;
 }
 
+.discount-pop__tease button {
+  gap: 12px;
+  max-width: 260px;
+}
+
+.discount-pop__tease button span {
+  font-size: 1.25rem;
+}
+
+.discount-pop__tease button:hover,
 .discount-pop__form button:hover,
 .discount-pop__success a:hover {
   background: var(--purple);
@@ -2754,45 +2810,104 @@ button:hover .arrow--diagonal {
   }
 
   .discount-pop {
-    align-items: flex-end;
+    align-items: center;
     padding: 12px;
   }
 
   .discount-pop__card {
     border-radius: 18px;
-    box-shadow: 7px 7px 0 var(--ink), 14px 14px 0 rgba(107,78,255,.72);
-    grid-template-columns: 1fr;
-    max-height: calc(100svh - 24px);
-    min-height: 0;
-    overflow-y: auto;
+    height: min(430px, calc(100svh - 96px));
+    max-width: 390px;
+    overflow: visible;
     transform: none;
+    transition: height .34s ease;
+    width: min(100%, 390px);
+  }
+
+  .discount-pop__card--flipped {
+    height: min(560px, calc(100svh - 56px));
+  }
+
+  .discount-pop__face {
+    border-radius: 18px;
+    box-shadow: 7px 7px 0 var(--ink), 14px 14px 0 rgba(107,78,255,.72);
+  }
+
+  .discount-pop__face--front {
+    grid-template-columns: 1fr;
   }
 
   .discount-pop__burst {
-    min-height: 150px;
-    padding: 20px;
+    min-height: 152px;
+    padding: 18px 20px 14px;
   }
 
   .discount-pop__burst span {
-    font-size: 4.6rem;
+    font-size: clamp(4rem, 18vw, 5.2rem);
   }
 
   .discount-pop__burst b {
-    margin-top: 12px;
+    font-size: .68rem;
+    margin-top: 10px;
+    padding: 9px 15px;
   }
 
-  .discount-pop__content {
-    padding: 28px 18px 20px;
+  .discount-pop__tease {
+    justify-content: flex-start;
+    padding: 20px 20px 22px;
     transform: none;
   }
 
-  .discount-pop__content h2 {
-    font-size: clamp(3rem, 16vw, 4.2rem);
+  .discount-pop__content {
+    padding: 52px 20px 20px;
+    transform: none;
+  }
+
+  .discount-pop__kicker {
+    font-size: .54rem;
+    margin-bottom: 12px;
+  }
+
+  .discount-pop__content h2,
+  .discount-pop__tease h2 {
+    font-size: clamp(3rem, 15vw, 4rem);
+  }
+
+  .discount-pop__content > p,
+  .discount-pop__tease > p {
+    font-size: .84rem;
+    margin: 12px 0 14px;
+  }
+
+  .discount-pop__tease button {
+    min-height: 50px;
+    max-width: none;
+    width: 100%;
+  }
+
+  .discount-pop__form {
+    gap: 8px;
+  }
+
+  .discount-pop__form input {
+    border-radius: 12px;
+    font-size: .8rem;
+    min-height: 42px;
+    padding: 10px 12px;
+  }
+
+  .discount-pop__form button,
+  .discount-pop__success a {
+    min-height: 44px;
+    padding: 11px 16px;
   }
 
   .discount-pop__close {
-    height: 38px;
-    width: 38px;
+    font-size: 1.35rem;
+    height: 36px;
+    right: 12px;
+    top: 12px;
+    width: 36px;
   }
 }
 
