@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { Arrow, Mark, SectionWave } from "@/app/components/BrandPrimitives";
 import { DiscountPopup } from "@/app/components/DiscountPopup";
 import { LeadChat } from "@/app/components/LeadChat";
+import { SplashScreen } from "@/app/components/SplashScreen";
 import { VisitorTracker } from "@/app/components/VisitorTracker";
 
 type Project = {
@@ -988,6 +989,7 @@ export default function Home() {
         </div>
       </footer>
 
+      <SplashScreen />
       <DiscountPopup />
       <VisitorTracker />
       <LeadChat open={chatOpen} onOpenChange={setChatOpen} />

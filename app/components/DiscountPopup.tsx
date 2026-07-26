@@ -17,7 +17,7 @@ export function DiscountPopup() {
 
   useEffect(() => {
     if (sessionStorage.getItem("open-limits-discount-seen")) return;
-    const timer = window.setTimeout(() => setOpen(true), 1300);
+    const timer = window.setTimeout(() => setOpen(true), 5600);
     return () => window.clearTimeout(timer);
   }, []);
 

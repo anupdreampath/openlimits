@@ -1706,6 +1706,86 @@ button:hover .arrow--diagonal {
   transform: translateY(-2px);
 }
 
+.site-splash {
+  align-items: center;
+  background:
+    radial-gradient(circle at 28% 22%, rgba(183,239,102,.5), transparent 24%),
+    radial-gradient(circle at 76% 70%, rgba(255,183,219,.42), transparent 26%),
+    var(--ink);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  inset: 0;
+  justify-content: center;
+  overflow: hidden;
+  position: fixed;
+  text-align: center;
+  transition: opacity .55s ease, transform .55s ease;
+  z-index: 220;
+}
+
+.site-splash::before {
+  background:
+    repeating-linear-gradient(90deg, rgba(255,255,255,.07) 0 1px, transparent 1px 34px),
+    repeating-linear-gradient(0deg, rgba(255,255,255,.06) 0 1px, transparent 1px 34px);
+  content: "";
+  inset: 0;
+  opacity: .45;
+  position: absolute;
+}
+
+.site-splash::after {
+  background: var(--acid);
+  border: 2px solid var(--ink);
+  border-radius: 32px;
+  box-shadow: 12px 12px 0 var(--purple);
+  content: "";
+  height: clamp(120px, 18vw, 210px);
+  position: absolute;
+  right: 10vw;
+  top: 17vh;
+  transform: rotate(10deg);
+  width: clamp(120px, 18vw, 210px);
+}
+
+.site-splash--leaving {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-18px) scale(1.02);
+}
+
+.site-splash__mark {
+  color: var(--acid);
+  position: relative;
+  transform: scale(2.2);
+  z-index: 1;
+}
+
+.site-splash__wordmark {
+  display: grid;
+  font-size: clamp(3.6rem, 11vw, 8rem);
+  font-weight: 950;
+  gap: 0;
+  letter-spacing: -.09em;
+  line-height: .76;
+  position: relative;
+  text-shadow: 6px 6px 0 var(--purple);
+  z-index: 1;
+}
+
+.site-splash p {
+  color: rgba(255,255,255,.68);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: .72rem;
+  font-weight: 760;
+  letter-spacing: .1em;
+  margin: 4px 0 0;
+  position: relative;
+  text-transform: uppercase;
+  z-index: 1;
+}
+
 .discount-pop {
   align-items: center;
   display: flex;
@@ -2809,6 +2889,33 @@ button:hover .arrow--diagonal {
     padding: 10px 12px;
   }
 
+  .site-splash {
+    gap: 15px;
+    padding: 24px;
+  }
+
+  .site-splash::after {
+    border-radius: 22px;
+    height: 92px;
+    right: 24px;
+    top: 20vh;
+    width: 92px;
+  }
+
+  .site-splash__mark {
+    transform: scale(1.8);
+  }
+
+  .site-splash__wordmark {
+    font-size: clamp(4rem, 19vw, 5.8rem);
+  }
+
+  .site-splash p {
+    font-size: .58rem;
+    line-height: 1.45;
+    max-width: 280px;
+  }
+
   .discount-pop {
     align-items: center;
     padding: 12px;
@@ -2908,6 +3015,14 @@ button:hover .arrow--diagonal {
     right: 12px;
     top: 12px;
     width: 36px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-splash,
+  .discount-pop__flipper,
+  .discount-pop__card {
+    transition: none;
   }
 }
 

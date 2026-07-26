@@ -9,10 +9,11 @@ async function read(path) {
 }
 
 test("Open Limits page uses the owned lead chat instead of third-party chat", async () => {
-  const [page, component, discount, styles, about, refund, terms] = await Promise.all([
+  const [page, component, discount, splash, styles, about, refund, terms] = await Promise.all([
     read("app/page.tsx"),
     read("app/components/LeadChat.tsx"),
     read("app/components/DiscountPopup.tsx"),
+    read("app/components/SplashScreen.tsx"),
     read("app/globals.css"),
     read("app/about/page.tsx"),
     read("app/refund-policy/page.tsx"),
@@ -21,6 +22,7 @@ test("Open Limits page uses the owned lead chat instead of third-party chat", as
 
   assert.match(page, /Award-winning Shopify website design agency/i);
   assert.match(page, /<LeadChat open=\{chatOpen\} onOpenChange=\{setChatOpen\} \/>/);
+  assert.match(page, /<SplashScreen \/>/);
   assert.match(page, /<DiscountPopup \/>/);
   assert.doesNotMatch(page, /Tawk|NEXT_PUBLIC_TAWK|mailto:hello@openlimits\.agency/);
   assert.doesNotMatch(page, /href="#"/);
@@ -31,10 +33,13 @@ test("Open Limits page uses the owned lead chat instead of third-party chat", as
   assert.match(discount, /Get 30% off\./);
   assert.match(discount, /Unlock 30%/);
   assert.match(discount, /Fill info\./);
+  assert.match(discount, /setTimeout\(\(\) => setOpen\(true\), 5600\)/);
   assert.match(discount, /\/api\/discount-lead/);
   assert.match(discount, /OPENLIMITS30|DISCOUNT_CODE/);
+  assert.match(splash, /Websites that refuse to blend in\./);
   assert.match(styles, /\.lead-chat__panel/);
   assert.match(styles, /\.chat-launcher/);
+  assert.match(styles, /\.site-splash/);
   assert.match(styles, /\.discount-pop__card/);
   assert.match(styles, /\.info-page/);
   assert.match(styles, /visibility: hidden/);
