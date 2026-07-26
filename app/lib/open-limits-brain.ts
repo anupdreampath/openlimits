@@ -1,6 +1,7 @@
 export type ChatMessage = {
-  role: "user" | "assistant";
+  role: "user" | "assistant" | "admin";
   content: string;
+  createdAt?: string;
 };
 
 export type LeadProfile = {

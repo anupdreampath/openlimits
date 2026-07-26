@@ -1,5 +1,5 @@
-import { neon } from "@neondatabase/serverless";
 import { ChatMessage, LeadProfile } from "@/app/lib/open-limits-brain";
+import { getSql } from "@/app/lib/neon";
 
 type SaveLeadInput = {
   lead: LeadProfile;
@@ -25,10 +25,9 @@ export async function saveLead({
   userAgent,
   hfIntent,
 }: SaveLeadInput) {
-  const databaseUrl = process.env.DATABASE_URL || process.env.NEON_DATABASE_URL;
-  if (!databaseUrl || !shouldStoreLead(lead)) return false;
+  if (!shouldStoreLead(lead)) return false;
 
-  const sql = neon(databaseUrl);
+  const sql = getSql();
   await sql`
     CREATE TABLE IF NOT EXISTS open_limits_leads (
       id BIGSERIAL PRIMARY KEY,

@@ -31,10 +31,11 @@ test("Open Limits page uses the owned lead chat instead of third-party chat", as
 });
 
 test("chat API is wired to Groq, fallback answers, CTAs, and Neon leads", async () => {
-  const [route, brain, storage, discountRoute, envExample, packageJson] = await Promise.all([
+  const [route, brain, storage, neon, discountRoute, envExample, packageJson] = await Promise.all([
     read("app/api/chat/route.ts"),
     read("app/lib/open-limits-brain.ts"),
     read("app/lib/lead-storage.ts"),
+    read("app/lib/neon.ts"),
     read("app/api/discount-lead/route.ts"),
     read(".env.example"),
     read("package.json"),
@@ -57,7 +58,7 @@ test("chat API is wired to Groq, fallback answers, CTAs, and Neon leads", async 
   assert.match(discountRoute, /New store design discount lead/);
   assert.match(route, /GROQ_API_KEY/);
   assert.match(route, /HUGGINGFACE_API_KEY|HF_TOKEN/);
-  assert.match(storage, /DATABASE_URL|NEON_DATABASE_URL/);
+  assert.match(neon, /DATABASE_URL|NEON_DATABASE_URL/);
   assert.match(envExample, /GROQ_MODEL=llama-3\.3-70b-versatile/);
   assert.match(envExample, /HUGGINGFACE_API_KEY=/);
   assert.match(envExample, /DATABASE_URL=/);

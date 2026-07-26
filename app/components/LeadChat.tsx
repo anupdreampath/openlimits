@@ -8,6 +8,7 @@ import {
   LeadProfile,
   WHATSAPP_NUMBER,
 } from "@/app/lib/open-limits-brain";
+import { getBrowserSessionId } from "@/app/lib/browser-session";
 
 type LeadChatProps = {
   open: boolean;
@@ -18,7 +19,12 @@ type ChatApiResponse = {
   answer?: string;
   lead?: LeadProfile;
   saved?: boolean;
+  sessionId?: string;
   error?: string;
+};
+
+type ChatSessionResponse = {
+  messages?: ChatMessage[];
 };
 
 const starterPrompts = [
@@ -69,6 +75,9 @@ export function LeadChat({ open, onOpenChange }: LeadChatProps) {
   const [input, setInput] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [leadSaved, setLeadSaved] = useState(false);
+  const [sessionId, setSessionId] = useState(() =>
+    typeof window === "undefined" ? "" : getBrowserSessionId(),
+  );
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -84,6 +93,32 @@ export function LeadChat({ open, onOpenChange }: LeadChatProps) {
       window.setTimeout(() => inputRef.current?.focus(), 120);
     }
   }, [open]);
+
+  useEffect(() => {
+    if (!open || !sessionId) return;
+
+    const poll = async () => {
+      const response = await fetch(`/api/chat?sessionId=${encodeURIComponent(sessionId)}`);
+      if (!response.ok) return;
+      const data = (await response.json()) as ChatSessionResponse;
+      if (data.messages?.length) {
+        setMessages((current) => {
+          const currentLast = current[current.length - 1];
+          const nextLast = data.messages?.[data.messages.length - 1];
+          if (
+            nextLast &&
+            (currentLast?.content !== nextLast.content || currentLast?.role !== nextLast.role)
+          ) {
+            return data.messages || current;
+          }
+          return current;
+        });
+      }
+    };
+
+    const interval = window.setInterval(() => void poll().catch(() => undefined), 4000);
+    return () => window.clearInterval(interval);
+  }, [messages.length, open, sessionId]);
 
   async function sendMessage(value: string) {
     const content = value.trim();
@@ -101,6 +136,7 @@ export function LeadChat({ open, onOpenChange }: LeadChatProps) {
         body: JSON.stringify({
           messages: nextMessages,
           page: window.location.pathname,
+          sessionId: sessionId || getBrowserSessionId(),
         }),
       });
       const data = (await response.json()) as ChatApiResponse;
@@ -113,6 +149,7 @@ export function LeadChat({ open, onOpenChange }: LeadChatProps) {
             "Tell me your brand URL, ideal launch date, budget range, and the best email. The Open Limits team can take it from there.",
         },
       ]);
+      if (data.sessionId && data.sessionId !== sessionId) setSessionId(data.sessionId);
       if (data.saved) setLeadSaved(true);
     } catch {
       setMessages((current) => [

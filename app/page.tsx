@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { DiscountPopup } from "@/app/components/DiscountPopup";
 import { LeadChat } from "@/app/components/LeadChat";
+import { VisitorTracker } from "@/app/components/VisitorTracker";
 
 type Project = {
   title: string;
@@ -1015,6 +1016,7 @@ export default function Home() {
       </footer>
 
       <DiscountPopup />
+      <VisitorTracker />
       <LeadChat open={chatOpen} onOpenChange={setChatOpen} />
     </main>
   );

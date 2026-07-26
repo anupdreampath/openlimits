@@ -9,6 +9,7 @@ import {
   SYSTEM_PROMPT,
   WHATSAPP_NUMBER,
 } from "@/app/lib/open-limits-brain";
+import { getChatSession, saveChatTurn, toClientMessages } from "@/app/lib/chat-storage";
 import { saveLead } from "@/app/lib/lead-storage";
 
 type GroqMessage = {
@@ -19,6 +20,7 @@ type GroqMessage = {
 type ChatRequestBody = {
   messages?: ChatMessage[];
   page?: string;
+  sessionId?: string;
 };
 
 const GROQ_CHAT_URL = "https://api.groq.com/openai/v1/chat/completions";
@@ -45,7 +47,9 @@ function cleanMessages(messages: ChatMessage[] = []): ChatMessage[] {
   return messages
     .filter(
       (message) =>
-        (message.role === "user" || message.role === "assistant") &&
+        (message.role === "user" ||
+          message.role === "assistant" ||
+          message.role === "admin") &&
         typeof message.content === "string" &&
         message.content.trim().length > 0,
     )
@@ -388,6 +392,21 @@ async function safeSaveLead(input: Parameters<typeof saveLead>[0]) {
   }
 }
 
+async function safeSaveChatTurn(input: Parameters<typeof saveChatTurn>[0]) {
+  try {
+    await saveChatTurn(input);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+function toGroqHistory(messages: ChatMessage[]): GroqMessage[] {
+  return messages.map((message) => ({
+    role: message.role === "user" ? "user" : "assistant",
+    content: message.content,
+  }));
+}
+
 export async function POST(request: NextRequest) {
   let body: ChatRequestBody;
   try {
@@ -401,6 +420,8 @@ export async function POST(request: NextRequest) {
     return jsonResponse({ error: "Send at least one user message." }, 400);
   }
 
+  const sessionId = body.sessionId || crypto.randomUUID();
+  const latestUserMessage = messages[messages.length - 1]?.content || "";
   let answer: string;
   let lead: LeadProfile;
   let source: "groq" | "fallback" = "groq";
@@ -409,7 +430,7 @@ export async function POST(request: NextRequest) {
   try {
     answer = await callGroq([
       { role: "system", content: SYSTEM_PROMPT },
-      ...messages,
+      ...toGroqHistory(messages),
     ]);
 
     const transcript = [...messages, { role: "assistant" as const, content: answer }];
@@ -437,6 +458,14 @@ export async function POST(request: NextRequest) {
       userAgent: request.headers.get("user-agent"),
       hfIntent,
     });
+    await safeSaveChatTurn({
+      sessionId,
+      userMessage: latestUserMessage,
+      assistantMessage: answer,
+      lead,
+      page: body.page,
+      userAgent: request.headers.get("user-agent"),
+    });
 
     return jsonResponse({
       answer,
@@ -444,6 +473,7 @@ export async function POST(request: NextRequest) {
       saved,
       hfIntent,
       source,
+      sessionId,
     });
   } catch (error) {
     console.error(error);
@@ -458,6 +488,14 @@ export async function POST(request: NextRequest) {
       userAgent: request.headers.get("user-agent"),
       hfIntent: "fallback",
     });
+    await safeSaveChatTurn({
+      sessionId,
+      userMessage: latestUserMessage,
+      assistantMessage: answer,
+      lead,
+      page: body.page,
+      userAgent: request.headers.get("user-agent"),
+    });
 
     return jsonResponse({
       answer,
@@ -465,6 +503,25 @@ export async function POST(request: NextRequest) {
       saved,
       hfIntent: null,
       source,
+      sessionId,
     });
+  }
+}
+
+export async function GET(request: NextRequest) {
+  const sessionId = request.nextUrl.searchParams.get("sessionId");
+  if (!sessionId) {
+    return jsonResponse({ error: "Missing sessionId." }, 400);
+  }
+
+  try {
+    const { session, messages } = await getChatSession(sessionId);
+    return jsonResponse({
+      session,
+      messages: toClientMessages(messages),
+    });
+  } catch (error) {
+    console.error(error);
+    return jsonResponse({ error: "Chat session unavailable." }, 503);
   }
 }
