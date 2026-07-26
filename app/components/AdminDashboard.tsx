@@ -43,21 +43,34 @@ type ChatMessageRow = {
   content: string;
 };
 
-type HeatmapEvent = {
-  id: number;
-  event_type: string;
-  x: number | null;
-  y: number | null;
-  viewport_width: number | null;
-  viewport_height: number | null;
-  metadata: Record<string, unknown> | null;
+type Analytics = {
+  totalSessions: number;
+  deviceCounts: Record<string, number>;
+  avgTimeSpentSeconds: number;
+  sessionStats: Array<{
+    sessionId: string;
+    path: string;
+    device: string;
+    eventCount: number;
+    clicks: number;
+    maxScroll: number;
+    timeSpentSeconds: number;
+    lastSeen: string;
+  }>;
+  topPages: Array<{ path: string; count: number }>;
+  recentActivity: Array<{
+    id: number;
+    created_at: string;
+    label: string;
+    detail: string;
+  }>;
 };
 
 type Overview = {
   leads: LeadRow[];
   sessions: ChatSession[];
   messages: ChatMessageRow[];
-  heatmap: HeatmapEvent[];
+  analytics: Analytics;
 };
 
 function timeAgo(value: string) {
@@ -68,6 +81,31 @@ function timeAgo(value: string) {
   const hours = Math.floor(minutes / 60);
   if (hours < 24) return `${hours}h`;
   return `${Math.floor(hours / 24)}d`;
+}
+
+function duration(seconds: number) {
+  if (seconds < 60) return `${seconds}s`;
+  const minutes = Math.floor(seconds / 60);
+  const remaining = seconds % 60;
+  if (minutes < 60) return remaining ? `${minutes}m ${remaining}s` : `${minutes}m`;
+  const hours = Math.floor(minutes / 60);
+  return `${hours}h ${minutes % 60}m`;
+}
+
+function formatDate(value: string) {
+  return new Intl.DateTimeFormat("en", {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(new Date(value));
+}
+
+function scoreLabel(score?: number | null) {
+  if (!score) return "New";
+  if (score >= 75) return "Hot";
+  if (score >= 45) return "Warm";
+  return "New";
 }
 
 export function AdminDashboard({ admin }: { admin: string }) {
@@ -104,9 +142,11 @@ export function AdminDashboard({ admin }: { admin: string }) {
 
   const selectedSession = data?.sessions?.find((session) => session.id === selectedId);
   const selectedMessages = selectedId ? messagesBySession.get(selectedId) || [] : [];
-  const hotLeads = data?.leads?.filter((lead) => lead.intent === "high").length || 0;
-  const clicks = data?.heatmap?.filter((event) => event.event_type === "click") || [];
-  const scrolls = data?.heatmap?.filter((event) => event.event_type === "scroll") || [];
+  const hotLeads =
+    data?.leads?.filter((lead) => lead.intent === "high" || (lead.lead_score || 0) >= 75).length || 0;
+  const deviceCounts = data?.analytics?.deviceCounts || {};
+  const topDevice =
+    Object.entries(deviceCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || "Unknown";
 
   async function handleLogout() {
     await fetch("/api/admin/logout", { method: "POST" });
@@ -142,109 +182,192 @@ export function AdminDashboard({ admin }: { admin: string }) {
 
   return (
     <main className="admin-shell">
-      <header className="admin-topbar">
+      <aside className="admin-sidebar">
         <div>
-          <span>OPEN LIMITS ADMIN</span>
-          <h1>Incoming leads</h1>
-        </div>
-        <div className="admin-topbar__right">
+          <span>OPEN LIMITS</span>
+          <h1>Admin</h1>
           <small>{admin}</small>
-          <button onClick={handleLogout}>Logout</button>
         </div>
-      </header>
+        <nav aria-label="Admin sections">
+          <a href="#overview">Overview</a>
+          <a href="#leads">Leads</a>
+          <a href="#chats">Chats</a>
+          <a href="#visitors">Visitors</a>
+        </nav>
+        <button onClick={handleLogout}>Logout</button>
+      </aside>
 
-      <section className="admin-metrics">
-        <div><span>Total leads</span><strong>{data?.leads?.length || 0}</strong></div>
-        <div><span>Hot leads</span><strong>{hotLeads}</strong></div>
-        <div><span>Chat sessions</span><strong>{data?.sessions?.length || 0}</strong></div>
-        <div><span>Heat events</span><strong>{data?.heatmap?.length || 0}</strong></div>
-      </section>
-
-      <section className="admin-grid">
-        <aside className="admin-panel admin-leads">
-          <h2>Leads</h2>
-          <div className="admin-leads__list">
-            {(data?.leads || []).map((lead) => (
-              <div className="admin-lead-row" key={lead.id}>
-                <strong>{lead.name || lead.email || "Unknown lead"}</strong>
-                <span>{lead.niche || lead.company || lead.summary || "No niche yet"}</span>
-                <small>{lead.email || "No email"} · {lead.phone || "No phone"}</small>
-              </div>
-            ))}
+      <section className="admin-workspace">
+        <header className="admin-topbar" id="overview">
+          <div>
+            <span>Lead command center</span>
+            <h1>Incoming leads</h1>
           </div>
-        </aside>
-
-        <section className="admin-panel admin-chat-review">
-          <div className="admin-chat-list">
-            <h2>Chats</h2>
-            {(data?.sessions || []).map((session) => (
-              <button
-                key={session.id}
-                className={session.id === selectedId ? "admin-session admin-session--active" : "admin-session"}
-                onClick={() => setSelectedId(session.id)}
-              >
-                <strong>{session.visitor_name || session.visitor_email || "Visitor"}</strong>
-                <span>{session.last_message || "No message preview"}</span>
-                <small>{session.intent || "new"} · {timeAgo(session.updated_at)} ago</small>
-              </button>
-            ))}
+          <div className="admin-topbar__right">
+            <small>Live refresh: 6s</small>
+            <strong>{data ? "Online" : "Loading"}</strong>
           </div>
+        </header>
 
-          <div className="admin-chat-window">
-            <div className="admin-chat-window__head">
-              <div>
-                <h2>{selectedSession?.visitor_name || selectedSession?.visitor_email || "Select a chat"}</h2>
-                <p>
-                  {selectedSession?.niche || "No niche"} · {selectedSession?.budget || "No budget"} ·{" "}
-                  {selectedSession?.timeline || "No timeline"}
-                </p>
-              </div>
-              {selectedSession ? (
-                <button onClick={handleJoin}>
-                  {selectedSession.human_joined ? "Joined" : "Join chat"}
-                </button>
-              ) : null}
+        <section className="admin-metrics">
+          <div><span>Total leads</span><strong>{data?.leads?.length || 0}</strong></div>
+          <div><span>Hot leads</span><strong>{hotLeads}</strong></div>
+          <div><span>Sessions</span><strong>{data?.analytics?.totalSessions || 0}</strong></div>
+          <div><span>Avg time</span><strong>{duration(data?.analytics?.avgTimeSpentSeconds || 0)}</strong></div>
+          <div><span>Top device</span><strong>{topDevice}</strong></div>
+        </section>
+
+        <section className="admin-main-grid">
+          <section className="admin-panel admin-leads" id="leads">
+            <div className="admin-panel__head">
+              <h2>Leads</h2>
+              <span>{data?.leads?.length || 0} total</span>
             </div>
+            <div className="admin-leads__list">
+              {(data?.leads || []).map((lead) => (
+                <article className="admin-lead-card" key={lead.id}>
+                  <div>
+                    <strong>{lead.name || "Unknown lead"}</strong>
+                    <b className={`admin-pill admin-pill--${scoreLabel(lead.lead_score).toLowerCase()}`}>
+                      {scoreLabel(lead.lead_score)}
+                    </b>
+                  </div>
+                  <p>{lead.summary || lead.niche || lead.company || "No project summary yet."}</p>
+                  <dl>
+                    <div><dt>Email</dt><dd>{lead.email || "Missing"}</dd></div>
+                    <div><dt>Phone</dt><dd>{lead.phone || "Missing"}</dd></div>
+                    <div><dt>Niche</dt><dd>{lead.niche || "Missing"}</dd></div>
+                    <div><dt>Budget</dt><dd>{lead.budget || "Missing"}</dd></div>
+                    <div><dt>Timeline</dt><dd>{lead.timeline || "Missing"}</dd></div>
+                    <div><dt>Added</dt><dd>{formatDate(lead.created_at)}</dd></div>
+                  </dl>
+                </article>
+              ))}
+            </div>
+          </section>
 
-            <div className="admin-chat-bubbles">
-              {selectedMessages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`admin-chat-bubble admin-chat-bubble--${message.role}`}
+          <section className="admin-panel admin-chat-review" id="chats">
+            <div className="admin-chat-list">
+              <div className="admin-panel__head">
+                <h2>Chats</h2>
+                <span>{data?.sessions?.length || 0}</span>
+              </div>
+              {(data?.sessions || []).map((session) => (
+                <button
+                  key={session.id}
+                  className={session.id === selectedId ? "admin-session admin-session--active" : "admin-session"}
+                  onClick={() => setSelectedId(session.id)}
                 >
-                  <span>{message.role}</span>
-                  <p>{message.content}</p>
-                </div>
+                  <strong>{session.visitor_name || session.visitor_email || "Visitor"}</strong>
+                  <span>{session.last_message || "No message preview"}</span>
+                  <small>
+                    {session.intent || "new"} · {session.status || "bot"} · {timeAgo(session.updated_at)} ago
+                  </small>
+                </button>
               ))}
             </div>
 
-            <form className="admin-reply" onSubmit={handleSend}>
-              <input name="message" placeholder="Join and reply as human..." disabled={!selectedSession} />
-              <button disabled={!selectedSession || sending}>{sending ? "Sending" : "Send"}</button>
-            </form>
-          </div>
+            <div className="admin-chat-window">
+              <div className="admin-chat-window__head">
+                <div>
+                  <h2>{selectedSession?.visitor_name || selectedSession?.visitor_email || "Select a chat"}</h2>
+                  <p>
+                    {selectedSession?.niche || "No niche"} · {selectedSession?.budget || "No budget"} ·{" "}
+                    {selectedSession?.timeline || "No timeline"}
+                  </p>
+                </div>
+                {selectedSession ? (
+                  <button onClick={handleJoin}>
+                    {selectedSession.human_joined ? "Joined" : "Join chat"}
+                  </button>
+                ) : null}
+              </div>
+
+              <div className="admin-chat-bubbles">
+                {selectedMessages.length ? (
+                  selectedMessages.map((message) => (
+                    <div
+                      key={message.id}
+                      className={`admin-chat-bubble admin-chat-bubble--${message.role}`}
+                    >
+                      <span>{message.role} · {formatDate(message.created_at)}</span>
+                      <p>{message.content}</p>
+                    </div>
+                  ))
+                ) : (
+                  <div className="admin-empty">Pick a chat to review the full conversation.</div>
+                )}
+              </div>
+
+              <form className="admin-reply" onSubmit={handleSend}>
+                <input name="message" placeholder="Join and reply as human..." disabled={!selectedSession} />
+                <button disabled={!selectedSession || sending}>{sending ? "Sending" : "Send"}</button>
+              </form>
+            </div>
+          </section>
         </section>
 
-        <aside className="admin-panel admin-heatmap">
-          <h2>Visitor heatmap</h2>
-          <div className="admin-heatmap__canvas">
-            {clicks.slice(0, 120).map((event) => {
-              const left = event.viewport_width ? ((event.x || 0) / event.viewport_width) * 100 : 50;
-              const top = event.viewport_height ? ((event.y || 0) / event.viewport_height) * 100 : 50;
-              return (
-                <span
-                  key={event.id}
-                  className="admin-heatmap__dot"
-                  style={{ left: `${left}%`, top: `${top}%` }}
-                />
-              );
-            })}
-          </div>
-          <div className="admin-heatmap__stats">
-            <span>Clicks: {clicks.length}</span>
-            <span>Scroll samples: {scrolls.length}</span>
-          </div>
-        </aside>
+        <section className="admin-visitor-grid" id="visitors">
+          <section className="admin-panel admin-visitor-panel">
+            <div className="admin-panel__head">
+              <h2>Visitor activity</h2>
+              <span>Written heatmap</span>
+            </div>
+            <div className="admin-activity-list">
+              {(data?.analytics?.recentActivity || []).map((event) => (
+                <article key={event.id} className="admin-activity-row">
+                  <div>
+                    <strong>{event.label}</strong>
+                    <span>{event.detail}</span>
+                  </div>
+                  <time>{timeAgo(event.created_at)} ago</time>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <section className="admin-panel admin-visitor-panel">
+            <div className="admin-panel__head">
+              <h2>Sessions</h2>
+              <span>Devices and time</span>
+            </div>
+            <div className="admin-device-row">
+              {["Desktop", "Tablet", "Mobile", "Unknown"].map((device) => (
+                <div key={device}>
+                  <span>{device}</span>
+                  <strong>{deviceCounts[device] || 0}</strong>
+                </div>
+              ))}
+            </div>
+            <div className="admin-session-stats">
+              {(data?.analytics?.sessionStats || []).map((session) => (
+                <article key={session.sessionId}>
+                  <strong>{session.device} · {session.path}</strong>
+                  <span>
+                    {duration(session.timeSpentSeconds)} · {session.eventCount} events · {session.clicks} clicks ·{" "}
+                    {session.maxScroll}% scroll
+                  </span>
+                  <small>{timeAgo(session.lastSeen)} ago</small>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <section className="admin-panel admin-visitor-panel">
+            <div className="admin-panel__head">
+              <h2>Top pages</h2>
+              <span>Pageviews</span>
+            </div>
+            <div className="admin-top-pages">
+              {(data?.analytics?.topPages || []).map((page) => (
+                <div key={page.path}>
+                  <span>{page.path}</span>
+                  <strong>{page.count}</strong>
+                </div>
+              ))}
+            </div>
+          </section>
+        </section>
       </section>
     </main>
   );

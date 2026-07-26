@@ -20,6 +20,8 @@ test("Open Limits page uses the owned lead chat instead of third-party chat", as
     read("app/refund-policy/page.tsx"),
     read("app/terms-of-use/page.tsx"),
   ]);
+  const adminDashboard = await read("app/components/AdminDashboard.tsx");
+  const adminOverview = await read("app/api/admin/overview/route.ts");
 
   assert.doesNotMatch(page, /Open Limits is the award-winning Shopify website design agency/i);
   assert.match(page, /Talk to the team/);
@@ -34,6 +36,12 @@ test("Open Limits page uses the owned lead chat instead of third-party chat", as
   assert.match(page, /href="\/admin"|href=\{["']\/admin["']\}/);
   assert.match(adminLogin, /defaultValue="admin@theopenlimits\.com"/);
   assert.match(adminLogin, /Lead command center/);
+  assert.match(adminDashboard, /admin-sidebar/);
+  assert.match(adminDashboard, /Visitor activity/);
+  assert.match(adminDashboard, /Devices and time/);
+  assert.match(adminDashboard, /timeSpentSeconds/);
+  assert.match(adminOverview, /buildAnalytics/);
+  assert.match(adminOverview, /formatActivity/);
   assert.match(component, /Custom themes: \$2k-\$10k/);
   assert.match(component, /\/api\/chat/);
   assert.match(discount, /Get 30% off\./);
@@ -56,6 +64,10 @@ test("Open Limits page uses the owned lead chat instead of third-party chat", as
   assert.doesNotMatch(styles, /@keyframes splashTile/);
   assert.match(styles, /\.hero-slide__actions[\s\S]*gap: 28px[\s\S]*margin-top: 44px/);
   assert.match(styles, /\.hero-slide__actions \.hero-slide__team-button[\s\S]*background: var\(--acid\)/);
+  assert.match(styles, /\.admin-sidebar/);
+  assert.match(styles, /\.admin-main-grid/);
+  assert.match(styles, /\.admin-visitor-grid/);
+  assert.doesNotMatch(styles, /\.admin-heatmap__dot/);
   assert.match(styles, /\.discount-pop__card/);
   assert.match(styles, /\.info-page/);
   assert.match(styles, /visibility: hidden/);
