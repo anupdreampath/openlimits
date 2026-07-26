@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 
 type LeadRow = {
@@ -73,6 +74,22 @@ type Overview = {
   analytics: Analytics;
 };
 
+export type AdminView = "overview" | "leads" | "chats" | "visitors";
+
+const adminTabs: Array<{ view: AdminView; label: string; href: string }> = [
+  { view: "overview", label: "Overview", href: "/admin" },
+  { view: "leads", label: "Leads", href: "/admin/leads" },
+  { view: "chats", label: "Chats", href: "/admin/chats" },
+  { view: "visitors", label: "Visitors", href: "/admin/visitors" },
+];
+
+const viewTitles: Record<AdminView, { eyebrow: string; title: string }> = {
+  overview: { eyebrow: "Lead command center", title: "Overview" },
+  leads: { eyebrow: "Lead pipeline", title: "Organized leads" },
+  chats: { eyebrow: "Conversation review", title: "Chat inbox" },
+  visitors: { eyebrow: "Visitor intelligence", title: "Sessions and activity" },
+};
+
 function timeAgo(value: string) {
   const seconds = Math.max(1, Math.floor((Date.now() - new Date(value).getTime()) / 1000));
   if (seconds < 60) return `${seconds}s`;
@@ -108,7 +125,7 @@ function scoreLabel(score?: number | null) {
   return "New";
 }
 
-export function AdminDashboard({ admin }: { admin: string }) {
+export function AdminDashboard({ admin, view = "overview" }: { admin: string; view?: AdminView }) {
   const [data, setData] = useState<Overview | null>(null);
   const [selectedId, setSelectedId] = useState("");
   const [sending, setSending] = useState(false);
@@ -147,6 +164,7 @@ export function AdminDashboard({ admin }: { admin: string }) {
   const deviceCounts = data?.analytics?.deviceCounts || {};
   const topDevice =
     Object.entries(deviceCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || "Unknown";
+  const activeTitle = viewTitles[view];
 
   async function handleLogout() {
     await fetch("/api/admin/logout", { method: "POST" });
@@ -180,6 +198,172 @@ export function AdminDashboard({ admin }: { admin: string }) {
     await load();
   }
 
+  const metrics = (
+    <section className="admin-metrics">
+      <div><span>Total leads</span><strong>{data?.leads?.length || 0}</strong></div>
+      <div><span>Hot leads</span><strong>{hotLeads}</strong></div>
+      <div><span>Sessions</span><strong>{data?.analytics?.totalSessions || 0}</strong></div>
+      <div><span>Avg time</span><strong>{duration(data?.analytics?.avgTimeSpentSeconds || 0)}</strong></div>
+      <div><span>Top device</span><strong>{topDevice}</strong></div>
+    </section>
+  );
+
+  const leadsPanel = (
+    <section className="admin-panel admin-leads" id="leads">
+      <div className="admin-panel__head">
+        <h2>Leads</h2>
+        <span>{data?.leads?.length || 0} total</span>
+      </div>
+      <div className="admin-leads__list">
+        {(data?.leads || []).map((lead) => (
+          <article className="admin-lead-card" key={lead.id}>
+            <div>
+              <strong>{lead.name || "Unknown lead"}</strong>
+              <b className={`admin-pill admin-pill--${scoreLabel(lead.lead_score).toLowerCase()}`}>
+                {scoreLabel(lead.lead_score)}
+              </b>
+            </div>
+            <p>{lead.summary || lead.niche || lead.company || "No project summary yet."}</p>
+            <dl>
+              <div><dt>Email</dt><dd>{lead.email || "Missing"}</dd></div>
+              <div><dt>Phone</dt><dd>{lead.phone || "Missing"}</dd></div>
+              <div><dt>Niche</dt><dd>{lead.niche || "Missing"}</dd></div>
+              <div><dt>Budget</dt><dd>{lead.budget || "Missing"}</dd></div>
+              <div><dt>Timeline</dt><dd>{lead.timeline || "Missing"}</dd></div>
+              <div><dt>Added</dt><dd>{formatDate(lead.created_at)}</dd></div>
+            </dl>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+
+  const chatsPanel = (
+    <section className="admin-panel admin-chat-review" id="chats">
+      <div className="admin-chat-list">
+        <div className="admin-panel__head">
+          <h2>Chats</h2>
+          <span>{data?.sessions?.length || 0}</span>
+        </div>
+        {(data?.sessions || []).map((session) => (
+          <button
+            key={session.id}
+            className={session.id === selectedId ? "admin-session admin-session--active" : "admin-session"}
+            onClick={() => setSelectedId(session.id)}
+          >
+            <strong>{session.visitor_name || session.visitor_email || "Visitor"}</strong>
+            <span>{session.last_message || "No message preview"}</span>
+            <small>
+              {session.intent || "new"} · {session.status || "bot"} · {timeAgo(session.updated_at)} ago
+            </small>
+          </button>
+        ))}
+      </div>
+
+      <div className="admin-chat-window">
+        <div className="admin-chat-window__head">
+          <div>
+            <h2>{selectedSession?.visitor_name || selectedSession?.visitor_email || "Select a chat"}</h2>
+            <p>
+              {selectedSession?.niche || "No niche"} · {selectedSession?.budget || "No budget"} ·{" "}
+              {selectedSession?.timeline || "No timeline"}
+            </p>
+          </div>
+          {selectedSession ? (
+            <button onClick={handleJoin}>
+              {selectedSession.human_joined ? "Joined" : "Join chat"}
+            </button>
+          ) : null}
+        </div>
+
+        <div className="admin-chat-bubbles">
+          {selectedMessages.length ? (
+            selectedMessages.map((message) => (
+              <div
+                key={message.id}
+                className={`admin-chat-bubble admin-chat-bubble--${message.role}`}
+              >
+                <span>{message.role} · {formatDate(message.created_at)}</span>
+                <p>{message.content}</p>
+              </div>
+            ))
+          ) : (
+            <div className="admin-empty">Pick a chat to review the full conversation.</div>
+          )}
+        </div>
+
+        <form className="admin-reply" onSubmit={handleSend}>
+          <input name="message" placeholder="Join and reply as human..." disabled={!selectedSession} />
+          <button disabled={!selectedSession || sending}>{sending ? "Sending" : "Send"}</button>
+        </form>
+      </div>
+    </section>
+  );
+
+  const visitorsPanel = (
+    <section className="admin-visitor-grid" id="visitors">
+      <section className="admin-panel admin-visitor-panel">
+        <div className="admin-panel__head">
+          <h2>Visitor activity</h2>
+          <span>Written heatmap</span>
+        </div>
+        <div className="admin-activity-list">
+          {(data?.analytics?.recentActivity || []).map((event) => (
+            <article key={event.id} className="admin-activity-row">
+              <div>
+                <strong>{event.label}</strong>
+                <span>{event.detail}</span>
+              </div>
+              <time>{timeAgo(event.created_at)} ago</time>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="admin-panel admin-visitor-panel">
+        <div className="admin-panel__head">
+          <h2>Sessions</h2>
+          <span>Devices and time</span>
+        </div>
+        <div className="admin-device-row">
+          {["Desktop", "Tablet", "Mobile", "Unknown"].map((device) => (
+            <div key={device}>
+              <span>{device}</span>
+              <strong>{deviceCounts[device] || 0}</strong>
+            </div>
+          ))}
+        </div>
+        <div className="admin-session-stats">
+          {(data?.analytics?.sessionStats || []).map((session) => (
+            <article key={session.sessionId}>
+              <strong>{session.device} · {session.path}</strong>
+              <span>
+                {duration(session.timeSpentSeconds)} · {session.eventCount} events · {session.clicks} clicks ·{" "}
+                {session.maxScroll}% scroll
+              </span>
+              <small>{timeAgo(session.lastSeen)} ago</small>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="admin-panel admin-visitor-panel">
+        <div className="admin-panel__head">
+          <h2>Top pages</h2>
+          <span>Pageviews</span>
+        </div>
+        <div className="admin-top-pages">
+          {(data?.analytics?.topPages || []).map((page) => (
+            <div key={page.path}>
+              <span>{page.path}</span>
+              <strong>{page.count}</strong>
+            </div>
+          ))}
+        </div>
+      </section>
+    </section>
+  );
+
   return (
     <main className="admin-shell">
       <aside className="admin-sidebar">
@@ -189,10 +373,15 @@ export function AdminDashboard({ admin }: { admin: string }) {
           <small>{admin}</small>
         </div>
         <nav aria-label="Admin sections">
-          <a href="#overview">Overview</a>
-          <a href="#leads">Leads</a>
-          <a href="#chats">Chats</a>
-          <a href="#visitors">Visitors</a>
+          {adminTabs.map((tab) => (
+            <Link
+              className={tab.view === view ? "admin-sidebar__link--active" : ""}
+              href={tab.href}
+              key={tab.view}
+            >
+              {tab.label}
+            </Link>
+          ))}
         </nav>
         <button onClick={handleLogout}>Logout</button>
       </aside>
@@ -200,8 +389,8 @@ export function AdminDashboard({ admin }: { admin: string }) {
       <section className="admin-workspace">
         <header className="admin-topbar" id="overview">
           <div>
-            <span>Lead command center</span>
-            <h1>Incoming leads</h1>
+            <span>{activeTitle.eyebrow}</span>
+            <h1>{activeTitle.title}</h1>
           </div>
           <div className="admin-topbar__right">
             <small>Live refresh: 6s</small>
@@ -209,165 +398,21 @@ export function AdminDashboard({ admin }: { admin: string }) {
           </div>
         </header>
 
-        <section className="admin-metrics">
-          <div><span>Total leads</span><strong>{data?.leads?.length || 0}</strong></div>
-          <div><span>Hot leads</span><strong>{hotLeads}</strong></div>
-          <div><span>Sessions</span><strong>{data?.analytics?.totalSessions || 0}</strong></div>
-          <div><span>Avg time</span><strong>{duration(data?.analytics?.avgTimeSpentSeconds || 0)}</strong></div>
-          <div><span>Top device</span><strong>{topDevice}</strong></div>
-        </section>
+        {metrics}
 
-        <section className="admin-main-grid">
-          <section className="admin-panel admin-leads" id="leads">
-            <div className="admin-panel__head">
-              <h2>Leads</h2>
-              <span>{data?.leads?.length || 0} total</span>
-            </div>
-            <div className="admin-leads__list">
-              {(data?.leads || []).map((lead) => (
-                <article className="admin-lead-card" key={lead.id}>
-                  <div>
-                    <strong>{lead.name || "Unknown lead"}</strong>
-                    <b className={`admin-pill admin-pill--${scoreLabel(lead.lead_score).toLowerCase()}`}>
-                      {scoreLabel(lead.lead_score)}
-                    </b>
-                  </div>
-                  <p>{lead.summary || lead.niche || lead.company || "No project summary yet."}</p>
-                  <dl>
-                    <div><dt>Email</dt><dd>{lead.email || "Missing"}</dd></div>
-                    <div><dt>Phone</dt><dd>{lead.phone || "Missing"}</dd></div>
-                    <div><dt>Niche</dt><dd>{lead.niche || "Missing"}</dd></div>
-                    <div><dt>Budget</dt><dd>{lead.budget || "Missing"}</dd></div>
-                    <div><dt>Timeline</dt><dd>{lead.timeline || "Missing"}</dd></div>
-                    <div><dt>Added</dt><dd>{formatDate(lead.created_at)}</dd></div>
-                  </dl>
-                </article>
-              ))}
-            </div>
-          </section>
+        {view === "overview" ? (
+          <>
+            <section className="admin-overview-grid">
+              {leadsPanel}
+              {chatsPanel}
+            </section>
+            {visitorsPanel}
+          </>
+        ) : null}
 
-          <section className="admin-panel admin-chat-review" id="chats">
-            <div className="admin-chat-list">
-              <div className="admin-panel__head">
-                <h2>Chats</h2>
-                <span>{data?.sessions?.length || 0}</span>
-              </div>
-              {(data?.sessions || []).map((session) => (
-                <button
-                  key={session.id}
-                  className={session.id === selectedId ? "admin-session admin-session--active" : "admin-session"}
-                  onClick={() => setSelectedId(session.id)}
-                >
-                  <strong>{session.visitor_name || session.visitor_email || "Visitor"}</strong>
-                  <span>{session.last_message || "No message preview"}</span>
-                  <small>
-                    {session.intent || "new"} · {session.status || "bot"} · {timeAgo(session.updated_at)} ago
-                  </small>
-                </button>
-              ))}
-            </div>
-
-            <div className="admin-chat-window">
-              <div className="admin-chat-window__head">
-                <div>
-                  <h2>{selectedSession?.visitor_name || selectedSession?.visitor_email || "Select a chat"}</h2>
-                  <p>
-                    {selectedSession?.niche || "No niche"} · {selectedSession?.budget || "No budget"} ·{" "}
-                    {selectedSession?.timeline || "No timeline"}
-                  </p>
-                </div>
-                {selectedSession ? (
-                  <button onClick={handleJoin}>
-                    {selectedSession.human_joined ? "Joined" : "Join chat"}
-                  </button>
-                ) : null}
-              </div>
-
-              <div className="admin-chat-bubbles">
-                {selectedMessages.length ? (
-                  selectedMessages.map((message) => (
-                    <div
-                      key={message.id}
-                      className={`admin-chat-bubble admin-chat-bubble--${message.role}`}
-                    >
-                      <span>{message.role} · {formatDate(message.created_at)}</span>
-                      <p>{message.content}</p>
-                    </div>
-                  ))
-                ) : (
-                  <div className="admin-empty">Pick a chat to review the full conversation.</div>
-                )}
-              </div>
-
-              <form className="admin-reply" onSubmit={handleSend}>
-                <input name="message" placeholder="Join and reply as human..." disabled={!selectedSession} />
-                <button disabled={!selectedSession || sending}>{sending ? "Sending" : "Send"}</button>
-              </form>
-            </div>
-          </section>
-        </section>
-
-        <section className="admin-visitor-grid" id="visitors">
-          <section className="admin-panel admin-visitor-panel">
-            <div className="admin-panel__head">
-              <h2>Visitor activity</h2>
-              <span>Written heatmap</span>
-            </div>
-            <div className="admin-activity-list">
-              {(data?.analytics?.recentActivity || []).map((event) => (
-                <article key={event.id} className="admin-activity-row">
-                  <div>
-                    <strong>{event.label}</strong>
-                    <span>{event.detail}</span>
-                  </div>
-                  <time>{timeAgo(event.created_at)} ago</time>
-                </article>
-              ))}
-            </div>
-          </section>
-
-          <section className="admin-panel admin-visitor-panel">
-            <div className="admin-panel__head">
-              <h2>Sessions</h2>
-              <span>Devices and time</span>
-            </div>
-            <div className="admin-device-row">
-              {["Desktop", "Tablet", "Mobile", "Unknown"].map((device) => (
-                <div key={device}>
-                  <span>{device}</span>
-                  <strong>{deviceCounts[device] || 0}</strong>
-                </div>
-              ))}
-            </div>
-            <div className="admin-session-stats">
-              {(data?.analytics?.sessionStats || []).map((session) => (
-                <article key={session.sessionId}>
-                  <strong>{session.device} · {session.path}</strong>
-                  <span>
-                    {duration(session.timeSpentSeconds)} · {session.eventCount} events · {session.clicks} clicks ·{" "}
-                    {session.maxScroll}% scroll
-                  </span>
-                  <small>{timeAgo(session.lastSeen)} ago</small>
-                </article>
-              ))}
-            </div>
-          </section>
-
-          <section className="admin-panel admin-visitor-panel">
-            <div className="admin-panel__head">
-              <h2>Top pages</h2>
-              <span>Pageviews</span>
-            </div>
-            <div className="admin-top-pages">
-              {(data?.analytics?.topPages || []).map((page) => (
-                <div key={page.path}>
-                  <span>{page.path}</span>
-                  <strong>{page.count}</strong>
-                </div>
-              ))}
-            </div>
-          </section>
-        </section>
+        {view === "leads" ? <section className="admin-single-page">{leadsPanel}</section> : null}
+        {view === "chats" ? <section className="admin-single-page admin-single-page--chat">{chatsPanel}</section> : null}
+        {view === "visitors" ? visitorsPanel : null}
       </section>
     </main>
   );

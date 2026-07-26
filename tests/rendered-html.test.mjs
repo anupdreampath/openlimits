@@ -22,6 +22,9 @@ test("Open Limits page uses the owned lead chat instead of third-party chat", as
   ]);
   const adminDashboard = await read("app/components/AdminDashboard.tsx");
   const adminOverview = await read("app/api/admin/overview/route.ts");
+  const adminLeadsPage = await read("app/admin/leads/page.tsx");
+  const adminChatsPage = await read("app/admin/chats/page.tsx");
+  const adminVisitorsPage = await read("app/admin/visitors/page.tsx");
 
   assert.doesNotMatch(page, /Open Limits is the award-winning Shopify website design agency/i);
   assert.match(page, /Talk to the team/);
@@ -37,9 +40,16 @@ test("Open Limits page uses the owned lead chat instead of third-party chat", as
   assert.match(adminLogin, /defaultValue="admin@theopenlimits\.com"/);
   assert.match(adminLogin, /Lead command center/);
   assert.match(adminDashboard, /admin-sidebar/);
+  assert.match(adminDashboard, /\/admin\/leads/);
+  assert.match(adminDashboard, /\/admin\/chats/);
+  assert.match(adminDashboard, /\/admin\/visitors/);
+  assert.match(adminDashboard, /admin-sidebar__link--active/);
   assert.match(adminDashboard, /Visitor activity/);
   assert.match(adminDashboard, /Devices and time/);
   assert.match(adminDashboard, /timeSpentSeconds/);
+  assert.match(adminLeadsPage, /view="leads"/);
+  assert.match(adminChatsPage, /view="chats"/);
+  assert.match(adminVisitorsPage, /view="visitors"/);
   assert.match(adminOverview, /buildAnalytics/);
   assert.match(adminOverview, /formatActivity/);
   assert.match(component, /Custom themes: \$2k-\$10k/);
@@ -65,7 +75,8 @@ test("Open Limits page uses the owned lead chat instead of third-party chat", as
   assert.match(styles, /\.hero-slide__actions[\s\S]*gap: 28px[\s\S]*margin-top: 44px/);
   assert.match(styles, /\.hero-slide__actions \.hero-slide__team-button[\s\S]*background: var\(--acid\)/);
   assert.match(styles, /\.admin-sidebar/);
-  assert.match(styles, /\.admin-main-grid/);
+  assert.match(styles, /\.admin-overview-grid/);
+  assert.match(styles, /\.admin-single-page/);
   assert.match(styles, /\.admin-visitor-grid/);
   assert.doesNotMatch(styles, /\.admin-heatmap__dot/);
   assert.match(styles, /\.discount-pop__card/);

@@ -2338,6 +2338,12 @@ button:hover .arrow--diagonal {
   color: var(--ink);
 }
 
+.admin-sidebar nav a.admin-sidebar__link--active {
+  background: var(--acid);
+  box-shadow: inset 0 0 0 2px white;
+  color: var(--ink);
+}
+
 .admin-sidebar button {
   background: white;
   border: 0;
@@ -2415,11 +2421,20 @@ button:hover .arrow--diagonal {
   line-height: .95;
 }
 
-.admin-main-grid {
+.admin-overview-grid {
   display: grid;
   gap: 14px;
   grid-template-columns: minmax(320px, .9fr) minmax(560px, 1.45fr);
   min-height: 0;
+}
+
+.admin-single-page {
+  min-height: 0;
+}
+
+.admin-single-page .admin-leads,
+.admin-single-page--chat .admin-chat-review {
+  height: calc(100svh - 238px);
 }
 
 .admin-panel {
@@ -2799,7 +2814,7 @@ button:hover .arrow--diagonal {
     grid-column: 1 / -1;
   }
 
-  .admin-main-grid,
+  .admin-overview-grid,
   .admin-visitor-grid {
     grid-template-columns: 1fr;
   }
