@@ -102,6 +102,7 @@ export function InfoPage({ content }: { content: InfoPageContent }) {
           <Link href="/privacy-policy">Privacy</Link>
           <Link href="/refund-policy">Refunds</Link>
           <Link href="/terms-of-use">Terms</Link>
+          <Link href="/admin">Admin panel</Link>
         </div>
       </footer>
     </main>

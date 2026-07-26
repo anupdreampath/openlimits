@@ -2213,6 +2213,14 @@ button:hover .arrow--diagonal {
   margin: 0 0 12px;
 }
 
+.admin-login__box small {
+  color: rgba(17,17,17,.62);
+  display: block;
+  font-size: .86rem;
+  line-height: 1.45;
+  margin: -2px 0 6px;
+}
+
 .admin-login__box input,
 .admin-reply input {
   background: #fffaf0;
@@ -2241,6 +2249,17 @@ button:hover .arrow--diagonal {
   color: #a32020;
   font-size: .8rem;
   margin: 0;
+}
+
+.admin-login__home {
+  color: rgba(17,17,17,.64);
+  font-size: .78rem;
+  font-weight: 760;
+  justify-self: center;
+}
+
+.admin-login__home:hover {
+  color: var(--purple);
 }
 
 .admin-shell {

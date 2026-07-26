@@ -970,6 +970,7 @@ export default function Home() {
             <Link href="/privacy-policy">Privacy</Link>
             <Link href="/refund-policy">Refunds</Link>
             <Link href="/terms-of-use">Terms</Link>
+            <Link href="/admin">Admin panel</Link>
             <a href="mailto:admin@theopenlimits.com">Email us</a>
           </div>
           <div className="footer-social">

@@ -9,9 +9,10 @@ async function read(path) {
 }
 
 test("Open Limits page uses the owned lead chat instead of third-party chat", async () => {
-  const [page, component, discount, splash, styles, about, refund, terms] = await Promise.all([
+  const [page, component, adminLogin, discount, splash, styles, about, refund, terms] = await Promise.all([
     read("app/page.tsx"),
     read("app/components/LeadChat.tsx"),
+    read("app/components/AdminLogin.tsx"),
     read("app/components/DiscountPopup.tsx"),
     read("app/components/SplashScreen.tsx"),
     read("app/globals.css"),
@@ -30,6 +31,9 @@ test("Open Limits page uses the owned lead chat instead of third-party chat", as
   assert.doesNotMatch(page, /href="#"/);
   assert.match(page, /https:\/\/www\.fiverr\.com\/s\/m5qDeDN/);
   assert.match(page, /https:\/\/www\.upwork\.com\/freelancers\/~016de1057b0e843c6b/);
+  assert.match(page, /href="\/admin"|href=\{["']\/admin["']\}/);
+  assert.match(adminLogin, /defaultValue="admin@theopenlimits\.com"/);
+  assert.match(adminLogin, /Lead command center/);
   assert.match(component, /Custom themes: \$2k-\$10k/);
   assert.match(component, /\/api\/chat/);
   assert.match(discount, /Get 30% off\./);

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { FormEvent, useState } from "react";
 
 export function AdminLogin() {
@@ -33,7 +34,18 @@ export function AdminLogin() {
       <form className="admin-login__box" onSubmit={handleSubmit}>
         <span>OPEN LIMITS ADMIN</span>
         <h1>Lead command center</h1>
-        <input name="email" type="email" placeholder="Email" autoComplete="username" required />
+        <small>
+          Sign in with the Open Limits admin account to review leads, heatmaps,
+          and chatbot conversations.
+        </small>
+        <input
+          name="email"
+          type="email"
+          placeholder="Email"
+          autoComplete="username"
+          defaultValue="admin@theopenlimits.com"
+          required
+        />
         <input
           name="password"
           type="password"
@@ -45,6 +57,9 @@ export function AdminLogin() {
         <button type="submit" disabled={loading}>
           {loading ? "Checking..." : "Enter admin"}
         </button>
+        <Link className="admin-login__home" href="/">
+          Back to website
+        </Link>
       </form>
     </main>
   );
