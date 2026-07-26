@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import Script from "next/script";
 import { usePathname } from "next/navigation";
 
-const FACEBOOK_PIXEL_IDS = ["601198065432718", "1788643449163395"];
+const FACEBOOK_PIXEL_IDS = ["601198065432718"];
 
 declare global {
   interface Window {
