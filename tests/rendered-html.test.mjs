@@ -43,10 +43,13 @@ test("Open Limits page uses the owned lead chat instead of third-party chat", as
   assert.match(splash, /onPointerMove/);
   assert.match(splash, /Tap to enter/);
   assert.match(splash, /site-splash__progress/);
+  assert.match(splash, /site-splash__glyph/);
   assert.match(styles, /\.lead-chat__panel/);
   assert.match(styles, /\.chat-launcher/);
   assert.match(styles, /\.site-splash/);
   assert.match(styles, /@keyframes splashProgress/);
+  assert.match(styles, /@keyframes splashGlyph/);
+  assert.doesNotMatch(styles, /@keyframes splashTile/);
   assert.match(styles, /\.hero-slide__actions[\s\S]*gap: 28px[\s\S]*margin-top: 44px/);
   assert.match(styles, /\.hero-slide__actions \.hero-slide__team-button[\s\S]*background: var\(--acid\)/);
   assert.match(styles, /\.discount-pop__card/);

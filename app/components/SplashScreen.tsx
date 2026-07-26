@@ -53,9 +53,22 @@ export function SplashScreen() {
       <div className="site-splash__mark">
         <Mark />
       </div>
-      <div className="site-splash__wordmark">
-        <span>OPEN</span>
-        <span>LIMITS</span>
+      <div className="site-splash__wordmark" aria-label="OPEN LIMITS">
+        {["OPEN", "LIMITS"].map((word, wordIndex) => (
+          <span className="site-splash__word" key={word} aria-hidden="true">
+            {word.split("").map((letter, letterIndex) => (
+              <span
+                className="site-splash__glyph"
+                key={`${word}-${letterIndex}`}
+                style={{
+                  "--glyph-delay": `${wordIndex * 120 + letterIndex * 54}ms`,
+                } as CSSProperties}
+              >
+                {letter}
+              </span>
+            ))}
+          </span>
+        ))}
       </div>
       <p>Websites that refuse to blend in.</p>
       <div className="site-splash__progress" aria-hidden="true">

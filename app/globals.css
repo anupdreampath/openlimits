@@ -1737,21 +1737,6 @@ button:hover .arrow--diagonal {
   position: absolute;
 }
 
-.site-splash::after {
-  animation: splashTile 1.8s ease-in-out infinite alternate;
-  background: var(--acid);
-  border: 2px solid var(--ink);
-  border-radius: 32px;
-  box-shadow: 12px 12px 0 var(--purple);
-  content: "";
-  height: clamp(120px, 18vw, 210px);
-  position: absolute;
-  right: 10vw;
-  top: 17vh;
-  transform: rotate(10deg);
-  width: clamp(120px, 18vw, 210px);
-}
-
 .site-splash__cursor {
   background: rgba(255,255,255,.16);
   border: 1px solid rgba(255,255,255,.28);
@@ -1783,7 +1768,7 @@ button:hover .arrow--diagonal {
 }
 
 .site-splash__wordmark {
-  animation: splashWord 1.7s ease-in-out infinite alternate;
+  animation: splashWord 1.8s cubic-bezier(.2,.8,.2,1) infinite alternate;
   display: grid;
   font-size: clamp(3.6rem, 11vw, 8rem);
   font-weight: 950;
@@ -1793,6 +1778,18 @@ button:hover .arrow--diagonal {
   position: relative;
   text-shadow: 6px 6px 0 var(--purple);
   z-index: 1;
+}
+
+.site-splash__word {
+  display: flex;
+  justify-content: center;
+}
+
+.site-splash__glyph {
+  animation: splashGlyph 1.28s cubic-bezier(.2,.8,.2,1) infinite alternate;
+  animation-delay: var(--glyph-delay);
+  display: inline-block;
+  transform-origin: 50% 70%;
 }
 
 .site-splash p {
@@ -1841,15 +1838,6 @@ button:hover .arrow--diagonal {
   z-index: 1;
 }
 
-@keyframes splashTile {
-  from {
-    transform: rotate(10deg) translate3d(0,0,0);
-  }
-  to {
-    transform: rotate(4deg) translate3d(-18px,18px,0);
-  }
-}
-
 @keyframes splashMark {
   from {
     transform: scale(2.2) rotate(-3deg);
@@ -1862,9 +1850,26 @@ button:hover .arrow--diagonal {
 @keyframes splashWord {
   from {
     text-shadow: 6px 6px 0 var(--purple);
+    transform: rotateX(0deg) skewX(0deg);
   }
   to {
     text-shadow: -6px 7px 0 var(--pink), 6px 12px 0 rgba(183,239,102,.28);
+    transform: rotateX(8deg) skewX(-2deg);
+  }
+}
+
+@keyframes splashGlyph {
+  0% {
+    color: white;
+    transform: translateY(0) scaleX(1);
+  }
+  50% {
+    color: var(--acid);
+    transform: translateY(-10px) scaleX(1.08);
+  }
+  100% {
+    color: white;
+    transform: translateY(3px) scaleX(.94);
   }
 }
 
@@ -2995,14 +3000,6 @@ button:hover .arrow--diagonal {
     padding: 24px;
   }
 
-  .site-splash::after {
-    border-radius: 22px;
-    height: 92px;
-    right: 24px;
-    top: 20vh;
-    width: 92px;
-  }
-
   .site-splash__mark {
     transform: scale(1.8);
   }
@@ -3142,9 +3139,9 @@ button:hover .arrow--diagonal {
     transition: none;
   }
 
-  .site-splash::after,
   .site-splash__mark,
   .site-splash__wordmark,
+  .site-splash__glyph,
   .site-splash__progress span {
     animation: none;
   }
