@@ -43,6 +43,10 @@ test("chat API is wired to Groq, fallback answers, CTAs, and Neon leads", async 
   assert.match(route, /api\.groq\.com\/openai\/v1\/chat\/completions/);
   assert.match(route, /facebook\/bart-large-mnli/);
   assert.match(route, /answerFallback/);
+  assert.match(route, /mergeLeadProfiles/);
+  assert.match(route, /extractName/);
+  assert.match(route, /extractCompanyOrUrl/);
+  assert.match(route, /anme/);
   assert.match(route, /Fast-track on WhatsApp/);
   assert.match(route, /safeSaveLead/);
   assert.match(brain, /admin@theopenlimits\.com/);
