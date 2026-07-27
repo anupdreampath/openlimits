@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { getBrowserSessionId } from "@/app/lib/browser-session";
+import { getBrowserSessionId, getBrowserVisitorId } from "@/app/lib/browser-session";
 
 function sendEvent(event: {
   eventType: string;
@@ -15,6 +15,10 @@ function sendEvent(event: {
     viewportWidth: window.innerWidth,
     viewportHeight: window.innerHeight,
     ...event,
+    metadata: {
+      visitorId: getBrowserVisitorId(),
+      ...(event.metadata || {}),
+    },
   };
 
   void fetch("/api/track", {

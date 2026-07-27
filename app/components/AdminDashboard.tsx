@@ -46,18 +46,11 @@ type ChatMessageRow = {
 
 type Analytics = {
   totalSessions: number;
+  totalVisitors: number;
   deviceCounts: Record<string, number>;
   avgTimeSpentSeconds: number;
-  sessionStats: Array<{
-    sessionId: string;
-    path: string;
-    device: string;
-    eventCount: number;
-    clicks: number;
-    maxScroll: number;
-    timeSpentSeconds: number;
-    lastSeen: string;
-  }>;
+  sessionStats: VisitorSessionStats[];
+  visitors: VisitorGroup[];
   topPages: Array<{ path: string; count: number }>;
   recentActivity: Array<{
     id: number;
@@ -65,6 +58,37 @@ type Analytics = {
     label: string;
     detail: string;
   }>;
+};
+
+type VisitorSessionStats = {
+  sessionId: string;
+  visitorId: string;
+  path: string;
+  device: string;
+  eventCount: number;
+  clicks: number;
+  maxScroll: number;
+  timeSpentSeconds: number;
+  lastSeen: string;
+  startedAt: string;
+  timeline: Array<{
+    id: number;
+    created_at: string;
+    label: string;
+    detail: string;
+  }>;
+};
+
+type VisitorGroup = {
+  visitorId: string;
+  sessionCount: number;
+  eventCount: number;
+  clicks: number;
+  totalTimeSpentSeconds: number;
+  lastSeen: string;
+  devices: string[];
+  paths: string[];
+  sessions: VisitorSessionStats[];
 };
 
 type Overview = {
@@ -125,6 +149,10 @@ function scoreLabel(score?: number | null) {
   return "New";
 }
 
+function shortId(value: string) {
+  return value.length > 10 ? value.slice(0, 10) : value;
+}
+
 export function AdminDashboard({ admin, view = "overview" }: { admin: string; view?: AdminView }) {
   const [data, setData] = useState<Overview | null>(null);
   const [selectedId, setSelectedId] = useState("");
@@ -162,8 +190,6 @@ export function AdminDashboard({ admin, view = "overview" }: { admin: string; vi
   const hotLeads =
     data?.leads?.filter((lead) => lead.intent === "high" || (lead.lead_score || 0) >= 75).length || 0;
   const deviceCounts = data?.analytics?.deviceCounts || {};
-  const topDevice =
-    Object.entries(deviceCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || "Unknown";
   const activeTitle = viewTitles[view];
 
   async function handleLogout() {
@@ -202,9 +228,9 @@ export function AdminDashboard({ admin, view = "overview" }: { admin: string; vi
     <section className="admin-metrics">
       <div><span>Total leads</span><strong>{data?.leads?.length || 0}</strong></div>
       <div><span>Hot leads</span><strong>{hotLeads}</strong></div>
+      <div><span>Visitors</span><strong>{data?.analytics?.totalVisitors || 0}</strong></div>
       <div><span>Sessions</span><strong>{data?.analytics?.totalSessions || 0}</strong></div>
       <div><span>Avg time</span><strong>{duration(data?.analytics?.avgTimeSpentSeconds || 0)}</strong></div>
-      <div><span>Top device</span><strong>{topDevice}</strong></div>
     </section>
   );
 
@@ -304,17 +330,47 @@ export function AdminDashboard({ admin, view = "overview" }: { admin: string; vi
     <section className="admin-visitor-grid" id="visitors">
       <section className="admin-panel admin-visitor-panel">
         <div className="admin-panel__head">
-          <h2>Visitor activity</h2>
-          <span>Written heatmap</span>
+          <h2>Visitors</h2>
+          <span>{data?.analytics?.totalVisitors || 0} total</span>
         </div>
-        <div className="admin-activity-list">
-          {(data?.analytics?.recentActivity || []).map((event) => (
-            <article key={event.id} className="admin-activity-row">
-              <div>
-                <strong>{event.label}</strong>
-                <span>{event.detail}</span>
+        <div className="admin-visitor-list">
+          {(data?.analytics?.visitors || []).map((visitor) => (
+            <article key={visitor.visitorId} className="admin-visitor-card">
+              <div className="admin-visitor-card__head">
+                <div>
+                  <strong>Visitor {shortId(visitor.visitorId)}</strong>
+                  <span>{visitor.devices.join(", ") || "Unknown"} · {visitor.paths[0] || "/"}</span>
+                </div>
+                <time>{timeAgo(visitor.lastSeen)} ago</time>
               </div>
-              <time>{timeAgo(event.created_at)} ago</time>
+              <dl>
+                <div><dt>Sessions</dt><dd>{visitor.sessionCount}</dd></div>
+                <div><dt>Events</dt><dd>{visitor.eventCount}</dd></div>
+                <div><dt>Clicks</dt><dd>{visitor.clicks}</dd></div>
+                <div><dt>Total time</dt><dd>{duration(visitor.totalTimeSpentSeconds)}</dd></div>
+              </dl>
+              <div className="admin-session-timeline-list">
+                {visitor.sessions.map((session) => (
+                  <details key={session.sessionId} className="admin-session-timeline">
+                    <summary>
+                      <span>
+                        <strong>{session.device} session</strong>
+                        <small>{session.path} · {duration(session.timeSpentSeconds)} · {session.eventCount} events</small>
+                      </span>
+                      <time>{timeAgo(session.lastSeen)} ago</time>
+                    </summary>
+                    <ol>
+                      {session.timeline.map((event) => (
+                        <li key={event.id}>
+                          <span>{formatDate(event.created_at)}</span>
+                          <strong>{event.label}</strong>
+                          <small>{event.detail}</small>
+                        </li>
+                      ))}
+                    </ol>
+                  </details>
+                ))}
+              </div>
             </article>
           ))}
         </div>
@@ -322,7 +378,7 @@ export function AdminDashboard({ admin, view = "overview" }: { admin: string; vi
 
       <section className="admin-panel admin-visitor-panel">
         <div className="admin-panel__head">
-          <h2>Sessions</h2>
+          <h2>Session summary</h2>
           <span>Devices and time</span>
         </div>
         <div className="admin-device-row">
@@ -349,10 +405,25 @@ export function AdminDashboard({ admin, view = "overview" }: { admin: string; vi
 
       <section className="admin-panel admin-visitor-panel">
         <div className="admin-panel__head">
+          <h2>Activity feed</h2>
+          <span>Latest events</span>
+        </div>
+        <div className="admin-activity-list">
+          {(data?.analytics?.recentActivity || []).map((event) => (
+            <article key={event.id} className="admin-activity-row">
+              <div>
+                <strong>{event.label}</strong>
+                <span>{event.detail}</span>
+              </div>
+              <time>{timeAgo(event.created_at)} ago</time>
+            </article>
+          ))}
+        </div>
+        <div className="admin-panel__head admin-panel__head--sub">
           <h2>Top pages</h2>
           <span>Pageviews</span>
         </div>
-        <div className="admin-top-pages">
+        <div className="admin-top-pages admin-top-pages--compact">
           {(data?.analytics?.topPages || []).map((page) => (
             <div key={page.path}>
               <span>{page.path}</span>

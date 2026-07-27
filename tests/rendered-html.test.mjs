@@ -46,9 +46,11 @@ test("Open Limits page uses the owned lead chat instead of third-party chat", as
   assert.match(adminDashboard, /\/admin\/chats/);
   assert.match(adminDashboard, /\/admin\/visitors/);
   assert.match(adminDashboard, /admin-sidebar__link--active/);
-  assert.match(adminDashboard, /Visitor activity/);
+  assert.match(adminDashboard, /totalVisitors/);
+  assert.match(adminDashboard, /admin-session-timeline/);
   assert.match(adminDashboard, /Devices and time/);
   assert.match(adminDashboard, /timeSpentSeconds/);
+  assert.match(adminOverview, /visitorId/);
   assert.match(adminLeadsPage, /view="leads"/);
   assert.match(adminChatsPage, /view="chats"/);
   assert.match(adminVisitorsPage, /view="visitors"/);

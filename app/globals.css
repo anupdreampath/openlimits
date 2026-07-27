@@ -2732,32 +2732,160 @@ button:hover .arrow--diagonal {
 .admin-visitor-grid {
   display: grid;
   gap: 14px;
-  grid-template-columns: minmax(340px, 1.2fr) minmax(340px, 1fr) minmax(260px, .7fr);
+  grid-template-columns: minmax(460px, 1.25fr) minmax(320px, .82fr) minmax(320px, .82fr);
 }
 
 .admin-visitor-panel {
-  max-height: 430px;
+  max-height: 620px;
   overflow: hidden;
 }
 
 .admin-activity-list,
 .admin-session-stats,
+.admin-visitor-list,
 .admin-top-pages {
   display: grid;
   gap: 8px;
-  max-height: 360px;
+  max-height: 550px;
   overflow-y: auto;
   padding-right: 4px;
 }
 
 .admin-activity-row,
 .admin-session-stats article,
+.admin-visitor-card,
 .admin-top-pages div,
 .admin-device-row div {
   background: #fffaf0;
   border: 1px solid rgba(17,17,17,.12);
   border-radius: 7px;
   padding: 10px;
+}
+
+.admin-visitor-card {
+  display: grid;
+  gap: 10px;
+}
+
+.admin-visitor-card__head,
+.admin-session-timeline summary {
+  align-items: flex-start;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.admin-visitor-card__head strong {
+  display: block;
+  font-size: .9rem;
+  overflow-wrap: anywhere;
+}
+
+.admin-visitor-card__head span {
+  color: rgba(17,17,17,.58);
+  display: block;
+  font-size: .72rem;
+  line-height: 1.35;
+  margin-top: 3px;
+  overflow-wrap: anywhere;
+}
+
+.admin-visitor-card__head time,
+.admin-session-timeline summary time {
+  color: rgba(17,17,17,.46);
+  font-size: .68rem;
+  white-space: nowrap;
+}
+
+.admin-visitor-card dl {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0;
+}
+
+.admin-visitor-card dt {
+  color: rgba(17,17,17,.48);
+  font-size: .62rem;
+}
+
+.admin-visitor-card dd {
+  font-size: .86rem;
+  font-weight: 820;
+  margin: 2px 0 0;
+}
+
+.admin-session-timeline-list {
+  display: grid;
+  gap: 7px;
+}
+
+.admin-session-timeline {
+  background: white;
+  border: 1px solid rgba(17,17,17,.12);
+  border-radius: 7px;
+  padding: 9px;
+}
+
+.admin-session-timeline summary {
+  cursor: pointer;
+  list-style: none;
+}
+
+.admin-session-timeline summary::-webkit-details-marker {
+  display: none;
+}
+
+.admin-session-timeline summary strong {
+  display: block;
+  font-size: .8rem;
+}
+
+.admin-session-timeline summary small {
+  color: rgba(17,17,17,.56);
+  display: block;
+  font-size: .68rem;
+  line-height: 1.35;
+  margin-top: 2px;
+  overflow-wrap: anywhere;
+}
+
+.admin-session-timeline ol {
+  border-left: 1px solid rgba(17,17,17,.18);
+  display: grid;
+  gap: 8px;
+  margin: 10px 0 0 5px;
+  padding: 0 0 0 12px;
+}
+
+.admin-session-timeline li {
+  display: grid;
+  gap: 2px;
+  position: relative;
+}
+
+.admin-session-timeline li::before {
+  background: var(--acid);
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  content: "";
+  height: 7px;
+  left: -16px;
+  position: absolute;
+  top: 5px;
+  width: 7px;
+}
+
+.admin-session-timeline li span,
+.admin-session-timeline li small {
+  color: rgba(17,17,17,.52);
+  font-size: .64rem;
+  line-height: 1.35;
+}
+
+.admin-session-timeline li strong {
+  font-size: .76rem;
+  overflow-wrap: anywhere;
 }
 
 .admin-activity-row {
@@ -2814,6 +2942,20 @@ button:hover .arrow--diagonal {
   align-items: center;
   display: flex;
   justify-content: space-between;
+}
+
+.admin-panel__head--sub {
+  border-top: 1px solid rgba(17,17,17,.12);
+  margin: 12px 0 8px;
+  padding-top: 12px;
+}
+
+.admin-panel__head--sub h2 {
+  font-size: .95rem;
+}
+
+.admin-top-pages--compact {
+  max-height: 180px;
 }
 
 @media (max-width: 1180px) {
@@ -2908,6 +3050,7 @@ button:hover .arrow--diagonal {
   }
 
   .admin-lead-card dl,
+  .admin-visitor-card dl,
   .admin-device-row {
     grid-template-columns: 1fr;
   }

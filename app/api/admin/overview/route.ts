@@ -42,11 +42,17 @@ function formatActivity(event: HeatmapRow) {
   return { label: event.event_type, detail: path };
 }
 
+function getVisitorKey(event: HeatmapRow, sessionId: string) {
+  const visitorId = event.metadata?.visitorId;
+  return typeof visitorId === "string" && visitorId.trim() ? visitorId : sessionId;
+}
+
 function buildAnalytics(heatmap: HeatmapRow[]) {
   const sessions = new Map<
     string,
     {
       id: string;
+      visitorId: string;
       first: number;
       last: number;
       eventCount: number;
@@ -54,17 +60,25 @@ function buildAnalytics(heatmap: HeatmapRow[]) {
       maxScroll: number;
       device: string;
       path: string;
+      events: Array<{
+        id: number;
+        created_at: string;
+        label: string;
+        detail: string;
+      }>;
     }
   >();
   const pageCounts = new Map<string, number>();
 
   for (const event of heatmap) {
     const sessionId = event.session_id || `event-${event.id}`;
+    const visitorId = getVisitorKey(event, sessionId);
     const timestamp = new Date(event.created_at).getTime();
     const current =
       sessions.get(sessionId) ||
       {
         id: sessionId,
+        visitorId,
         first: timestamp,
         last: timestamp,
         eventCount: 0,
@@ -72,12 +86,19 @@ function buildAnalytics(heatmap: HeatmapRow[]) {
         maxScroll: 0,
         device: formatDevice(event.viewport_width),
         path: event.path || "/",
+        events: [],
       };
 
+    const activity = formatActivity(event);
     current.first = Math.min(current.first, timestamp);
     current.last = Math.max(current.last, timestamp);
     current.eventCount += 1;
     current.path = event.path || current.path;
+    current.events.push({
+      id: event.id,
+      created_at: event.created_at,
+      ...activity,
+    });
     if (event.viewport_width) current.device = formatDevice(event.viewport_width);
     if (event.event_type === "click") current.clicks += 1;
     if (event.event_type === "scroll") {
@@ -101,6 +122,11 @@ function buildAnalytics(heatmap: HeatmapRow[]) {
       maxScroll: session.maxScroll,
       timeSpentSeconds: Math.max(0, Math.round((session.last - session.first) / 1000)),
       lastSeen: new Date(session.last).toISOString(),
+      startedAt: new Date(session.first).toISOString(),
+      visitorId: session.visitorId,
+      timeline: session.events
+        .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+        .slice(-30),
     }))
     .sort((a, b) => new Date(b.lastSeen).getTime() - new Date(a.lastSeen).getTime());
 
@@ -109,12 +135,62 @@ function buildAnalytics(heatmap: HeatmapRow[]) {
     counts[session.device] = (counts[session.device] || 0) + 1;
     return counts;
   }, {});
+  const visitorGroups = Array.from(
+    sessionStats.reduce<
+      Map<
+        string,
+        {
+          visitorId: string;
+          sessions: typeof sessionStats;
+          sessionCount: number;
+          eventCount: number;
+          clicks: number;
+          totalTimeSpentSeconds: number;
+          lastSeen: string;
+          devices: string[];
+          paths: string[];
+        }
+      >
+    >((groups, session) => {
+      const current =
+        groups.get(session.visitorId) ||
+        {
+          visitorId: session.visitorId,
+          sessions: [],
+          sessionCount: 0,
+          eventCount: 0,
+          clicks: 0,
+          totalTimeSpentSeconds: 0,
+          lastSeen: session.lastSeen,
+          devices: [],
+          paths: [],
+        };
+      current.sessions.push(session);
+      current.sessionCount += 1;
+      current.eventCount += session.eventCount;
+      current.clicks += session.clicks;
+      current.totalTimeSpentSeconds += session.timeSpentSeconds;
+      current.lastSeen =
+        new Date(session.lastSeen).getTime() > new Date(current.lastSeen).getTime()
+          ? session.lastSeen
+          : current.lastSeen;
+      if (!current.devices.includes(session.device)) current.devices.push(session.device);
+      if (!current.paths.includes(session.path)) current.paths.push(session.path);
+      groups.set(session.visitorId, current);
+      return groups;
+    }, new Map()).values()
+  ).sort((a, b) => new Date(b.lastSeen).getTime() - new Date(a.lastSeen).getTime());
 
   return {
     totalSessions: sessionStats.length,
+    totalVisitors: visitorGroups.length,
     deviceCounts,
     avgTimeSpentSeconds: sessionStats.length ? Math.round(totalTime / sessionStats.length) : 0,
     sessionStats: sessionStats.slice(0, 12),
+    visitors: visitorGroups.slice(0, 20).map((visitor) => ({
+      ...visitor,
+      sessions: visitor.sessions.slice(0, 8),
+    })),
     topPages: Array.from(pageCounts.entries())
       .map(([path, count]) => ({ path, count }))
       .sort((a, b) => b.count - a.count)
