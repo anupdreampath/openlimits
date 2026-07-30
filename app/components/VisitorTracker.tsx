@@ -9,6 +9,9 @@ function sendEvent(event: {
   y?: number;
   metadata?: Record<string, unknown>;
 }) {
+  const eventId = crypto.randomUUID();
+  const fbp = document.cookie.match(/(?:^|;\s*)_fbp=([^;]+)/)?.[1];
+  const fbc = document.cookie.match(/(?:^|;\s*)_fbc=([^;]+)/)?.[1];
   const payload = {
     sessionId: getBrowserSessionId(),
     path: window.location.pathname,
@@ -16,10 +19,17 @@ function sendEvent(event: {
     viewportHeight: window.innerHeight,
     ...event,
     metadata: {
+      eventId,
+      fbp,
+      fbc,
       visitorId: getBrowserVisitorId(),
       ...(event.metadata || {}),
     },
   };
+
+  if (event.eventType === "pageview") {
+    window.fbq?.("track", "PageView", {}, { eventID: eventId });
+  }
 
   void fetch("/api/track", {
     method: "POST",

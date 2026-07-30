@@ -27,6 +27,8 @@ test("Open Limits page uses the owned lead chat instead of third-party chat", as
   const adminChatsPage = await read("app/admin/chats/page.tsx");
   const adminVisitorsPage = await read("app/admin/visitors/page.tsx");
   const facebookPixel = await read("app/components/FacebookPixel.tsx");
+  const metaCapi = await read("app/lib/meta-capi.ts");
+  const trackRoute = await read("app/api/track/route.ts");
 
   assert.doesNotMatch(page, /Open Limits is the award-winning Shopify website design agency/i);
   assert.match(page, /Talk to the team/);
@@ -62,6 +64,9 @@ test("Open Limits page uses the owned lead chat instead of third-party chat", as
   assert.match(facebookPixel, /PageView/);
   assert.match(adminOverview, /buildAnalytics/);
   assert.match(adminOverview, /formatActivity/);
+  assert.match(metaCapi, /META_CAPI_ACCESS_TOKEN/);
+  assert.match(metaCapi, /graph\.facebook\.com/);
+  assert.match(trackRoute, /sendMetaEvent/);
   assert.match(component, /Custom themes: \$2k-\$10k/);
   assert.match(component, /\/api\/chat/);
   assert.match(discount, /Get 30% off\./);

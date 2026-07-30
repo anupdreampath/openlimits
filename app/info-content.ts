@@ -144,91 +144,196 @@ export const infoPages: Record<string, InfoPageContent> = {
   "privacy-policy": {
     slug: "privacy-policy",
     eyebrow: "PRIVACY POLICY",
-    title: "We collect only what helps us respond and deliver.",
+    title: "Privacy terms for leads, clients, chats, and store projects.",
     intro:
-      "This policy explains how Open Limits handles contact details, lead forms, chatbot conversations, analytics events, and project information.",
+      "This policy explains how Open Limits handles contact details, lead forms, chatbot conversations, analytics events, project files, and Shopify store information shared with us.",
     accent: "#64e6c0",
-    stat: "Plain",
-    statLabel: "privacy terms written for humans",
+    stat: "No sale",
+    statLabel: "we do not sell personal information",
     sections: [
+      {
+        title: "Who we are",
+        body:
+          "Open Limits provides Shopify design, development, redesign, landing page, conversion, launch, and support services for ecommerce brands. When you use this website or work with us, the information you share is handled for business communication, project delivery, support, and website improvement.",
+      },
       {
         title: "Information we collect",
         body:
-          "We may collect your name, email, phone, website, niche, budget, timeline, chat messages, form submissions, and basic visitor events such as clicks or scroll depth. This helps us qualify leads, improve the site, and respond faster.",
+          "We may collect your name, email, phone number, company or brand name, website URL, niche, budget, timeline, project goals, form submissions, chatbot messages, call booking details, support requests, and files or references you provide for a project. We may also collect basic technical data such as page visits, clicks, scroll depth, device type, browser information, IP-related request data, and cookies or identifiers used for analytics and advertising measurement.",
+        points: [
+          "Lead details are used to qualify inquiries and respond with useful next steps.",
+          "Project details are used to quote, plan, design, build, revise, launch, and support Shopify work.",
+          "Visitor analytics help us understand what pages and offers are working.",
+        ],
       },
       {
-        title: "How we use it",
+        title: "How we use information",
         body:
-          "We use your information to reply to inquiries, prepare quotes, manage projects, improve the website, and keep records of conversations. We do not sell your personal information.",
+          "We use information to reply to inquiries, prepare proposals, manage project communication, create and deliver work, provide post-launch support, improve the website, measure advertising performance, prevent misuse, and keep reasonable business records. We do not sell your personal information.",
       },
       {
-        title: "Storage and requests",
+        title: "Shopify and client access",
         body:
-          "Project and lead records may be stored in our database and service tools. You can ask us to update or delete your contact details by emailing admin@theopenlimits.com.",
+          "If a project requires Shopify, app, domain, analytics, marketplace, or hosting access, you are responsible for granting the correct level of access and removing it when the work is complete. We use access only for the agreed project or support scope. We may ask you to provide collaborator access instead of sharing passwords whenever possible.",
+      },
+      {
+        title: "Tools and third parties",
+        body:
+          "We may use trusted service providers for hosting, database storage, analytics, advertising measurement, payment or marketplace processing, scheduling, email, chat, file sharing, and project delivery. Examples can include Vercel, Neon, Meta, Google services, Fiverr, Upwork, Shopify, and similar tools used to operate the business. These providers process information under their own terms and privacy practices.",
+      },
+      {
+        title: "Cookies, analytics, and advertising",
+        body:
+          "The website may use cookies, pixels, server-side events, and similar technologies to understand site activity and measure advertising performance. This can include Meta Pixel and Conversions API events such as page views and lead submissions. You can control cookies through your browser settings, but some measurement or personalization may stop working.",
+      },
+      {
+        title: "Retention and deletion",
+        body:
+          "We keep lead, chat, project, and support records for as long as reasonably needed for communication, delivery, legal, tax, fraud prevention, and business continuity purposes. You can ask us to update or delete your contact details by emailing admin@theopenlimits.com. We may retain limited records where required for legitimate business, legal, or accounting reasons.",
+      },
+      {
+        title: "Security",
+        body:
+          "We use reasonable technical and organizational measures to protect information, but no website, database, email system, or third-party platform can be guaranteed completely secure. Please avoid sending sensitive passwords, payment card details, or confidential business secrets unless we specifically request a secure method.",
+      },
+      {
+        title: "Contact",
+        body:
+          "For privacy questions, updates, or deletion requests, email admin@theopenlimits.com. If your request relates to a marketplace order, we may also ask you to contact us through Fiverr or Upwork so the platform record stays accurate.",
       },
     ],
   },
   "refund-policy": {
     slug: "refund-policy",
     eyebrow: "REFUND POLICY",
-    title: "Fair work, easy conversations, lenient refunds.",
+    title: "Refund terms for custom Shopify design and build projects.",
     intro:
-      "We want clients to feel protected. If the service is genuinely not up to the agreed mark, we will work with you in good faith to fix it or refund fairly.",
+      "Open Limits sells custom creative and technical services. Refunds are handled around scope, milestones, approvals, work completed, and whether we have had a fair chance to fix the issue.",
     accent: "#ffdd55",
-    stat: "Fair",
-    statLabel: "refunds when the delivered service misses the agreed scope",
+    stat: "Milestone",
+    statLabel: "refund decisions follow approved project stages",
     sections: [
       {
-        title: "Our promise",
+        title: "Service nature",
         body:
-          "If delivered work does not match the agreed scope or quality bar, tell us clearly and quickly. We will first try to correct the issue. If it still is not right, we can offer a partial or full refund depending on what was delivered and approved.",
+          "Our work includes strategy, design, Shopify theme development, page building, ecommerce setup, integrations, launch help, conversion improvements, and support. Because custom service work uses time, planning, design judgment, development effort, and third-party coordination, refunds are not treated like returns for physical products.",
       },
       {
-        title: "Milestone safety",
+        title: "Before work begins",
         body:
-          "Milestone payments are accepted because they protect both sides. You review work in stages, approve what is working, and avoid carrying all the risk upfront.",
+          "If you pay a deposit or milestone and cancel before meaningful work has started, we may refund the unused portion after deducting any payment processing, marketplace, planning, research, consultation, or administrative costs already incurred.",
       },
       {
-        title: "Reasonable limits",
+        title: "Milestones and approvals",
         body:
-          "Refunds do not normally cover approved milestones, third-party app fees, domain costs, marketplace fees, or major scope changes requested after approval. But we keep the conversation human and flexible when something is genuinely off.",
+          "Milestone payments are accepted because they protect both sides. Once a milestone has been delivered and approved, that milestone is normally non-refundable. If a delivered milestone does not match the agreed scope, you should tell us clearly and quickly so we can correct it before the next stage begins.",
+        points: [
+          "Design approvals confirm direction, layout, and visual approach for that stage.",
+          "Build approvals confirm implementation of the agreed pages, sections, or features.",
+          "Launch approval confirms the site is ready to go live or hand off, except for support-period fixes.",
+        ],
+      },
+      {
+        title: "When refunds may apply",
+        body:
+          "A partial or full refund may be considered when we are unable to deliver the agreed core scope, when a serious issue is reported within a reasonable review window and cannot be fixed, or when we mutually agree that ending the project is the fairest outcome. The amount depends on work completed, assets delivered, approvals already given, and costs already paid to third parties.",
+      },
+      {
+        title: "What is not refundable",
+        body:
+          "Refunds do not normally cover approved milestones, completed strategy or design work, completed development work, urgent booking fees, consultation time, third-party app fees, paid themes, domains, hosting, fonts, stock assets, ad spend, platform fees, payment processing fees, or marketplace fees charged by Fiverr, Upwork, or other platforms.",
+      },
+      {
+        title: "Scope changes and delays",
+        body:
+          "Refunds are not provided because of delays caused by missing content, late feedback, unavailable client approvals, third-party platform issues, app limitations, Shopify account restrictions, changed requirements, or requests outside the agreed scope. We can quote additional work when the project changes direction.",
+      },
+      {
+        title: "Marketplace orders",
+        body:
+          "Fiverr and Upwork orders must follow the refund, dispute, milestone, and cancellation rules of those platforms. Fiverr orders may include additional marketplace overhead. Upwork orders can be structured by milestones. If you ordered through a platform, refund communication should stay on that platform.",
       },
       {
         title: "Support after launch",
         body:
-          "Every qualifying custom project includes 3 months of support for reasonable fixes and questions related to the delivered scope.",
+          "Qualifying custom projects include 3 months of support for reasonable fixes and questions related to the delivered scope. Support is meant for bugs, handoff help, and light polish related to approved work. It does not include new pages, redesigns, new features, new app setup, or major business changes unless separately agreed.",
+      },
+      {
+        title: "How to request a refund",
+        body:
+          "Email admin@theopenlimits.com with your project name, order platform if any, the specific issue, screenshots or links, and the outcome you want. We will review the request in good faith and may first offer fixes, revised delivery, credit, partial refund, or cancellation depending on the situation.",
       },
     ],
   },
   "terms-of-use": {
     slug: "terms-of-use",
     eyebrow: "TERMS OF USE",
-    title: "Simple terms for working with Open Limits.",
+    title: "Terms for using Open Limits and starting a project.",
     intro:
-      "These terms keep expectations clear when you use the website, submit a lead, book a call, or start a project with us.",
+      "These terms keep expectations clear when you use the website, submit a lead, book a call, request a quote, or start a Shopify design and development project with us.",
     accent: "#ff9068",
-    stat: "Clear",
-    statLabel: "scope, approvals, payments, and support",
+    stat: "Scope",
+    statLabel: "clear deliverables, approvals, payments, and support",
     sections: [
       {
         title: "Using this website",
         body:
-          "You can browse the website, contact us, and share project details. Please do not misuse the site, attempt to access private systems, or copy our work in a way that misrepresents ownership.",
+          "You can browse the website, contact us, submit forms, use the chatbot, book calls, and share project details. You agree not to misuse the website, attempt to access private systems, scrape protected areas, interfere with security, upload malicious content, or copy our work in a way that misrepresents ownership.",
       },
       {
-        title: "Project work",
+        title: "Quotes and project scope",
         body:
-          "Project scope, price, milestones, timeline, and deliverables are agreed before work begins. Timelines depend on feedback speed, content readiness, third-party tools, and scope changes.",
+          "Project scope, price, milestones, timeline, deliverables, revision expectations, and support terms are agreed before work begins through a written quote, proposal, invoice, message thread, marketplace order, or other clear written confirmation. Anything not included in the agreed scope may require a new quote or change order.",
+      },
+      {
+        title: "Client responsibilities",
+        body:
+          "You are responsible for providing accurate project information, timely feedback, brand assets, product content, Shopify access, app access, domain access, legal copy, policies, media, and approvals needed to complete the work. Timelines can move if required materials, decisions, or third-party access are delayed.",
+      },
+      {
+        title: "Design, revisions, and approvals",
+        body:
+          "We provide custom creative and technical work based on the agreed direction. Reasonable revisions are handled within the agreed scope and project stage. Approval of a design, section, page, milestone, or launch confirms that stage is accepted, except for bugs or support-period fixes related to the delivered scope.",
       },
       {
         title: "Payments and platforms",
         body:
-          "Flexible payment modes and milestone payments are accepted. Fiverr orders include 20% extra because of marketplace overhead. Upwork orders are available for no extra cost from our side.",
+          "Flexible payment modes and milestone payments are accepted. Work may pause if payments are late. Fiverr orders may include 20% extra because of marketplace fees and added platform overhead. Upwork orders are available for no extra cost from our side, subject to the platform's own fees and terms.",
       },
       {
-        title: "Ownership and support",
+        title: "Third-party services",
         body:
-          "After final payment, approved custom work made for your project is yours to use for your brand. Qualifying custom projects include 3 months of support for delivered-scope issues.",
+          "Shopify, themes, apps, domains, hosting, payment processors, analytics tools, email tools, ad platforms, marketplaces, and other third-party services are controlled by their own providers. We are not responsible for outages, policy changes, rejected accounts, app limitations, fees, or restrictions from those providers.",
+      },
+      {
+        title: "Ownership and portfolio rights",
+        body:
+          "After final payment, approved custom work created specifically for your project is yours to use for your brand. Open Limits may retain ownership of pre-existing tools, methods, reusable code patterns, internal systems, concepts not selected, and general know-how. Unless agreed otherwise, we may reference completed work in our portfolio, case studies, proposals, social posts, and sales materials.",
+      },
+      {
+        title: "Content and legal compliance",
+        body:
+          "You are responsible for the accuracy, legality, permissions, and rights for content, products, claims, policies, images, videos, fonts, trademarks, customer data, and other materials you provide. We can help place or format policy pages, but we do not provide legal, tax, financial, medical, or regulatory advice.",
+      },
+      {
+        title: "Launch and support",
+        body:
+          "Qualifying custom projects include 3 months of support for reasonable fixes and questions related to the delivered scope. Support does not include new features, new campaigns, new app integrations, ongoing maintenance, SEO guarantees, ad management, or conversion results unless separately agreed.",
+      },
+      {
+        title: "No guaranteed results",
+        body:
+          "We build with strong design, UX, conversion, and Shopify practices, but we cannot guarantee revenue, ranking, ad performance, conversion rate, traffic, platform approval, or business outcomes. Results depend on your offer, product, pricing, traffic quality, operations, market, and many factors outside our control.",
+      },
+      {
+        title: "Liability limits",
+        body:
+          "To the fullest extent allowed by law, Open Limits is not liable for indirect, incidental, special, consequential, lost-profit, lost-revenue, lost-data, platform, or business interruption damages. Our total liability for a project is limited to the amount paid to Open Limits for the specific service giving rise to the claim.",
+      },
+      {
+        title: "Contact",
+        body:
+          "For questions about these terms, project scope, payments, or support, email admin@theopenlimits.com. If your order is on Fiverr or Upwork, platform-related communication may need to happen through that marketplace.",
       },
     ],
   },

@@ -125,6 +125,7 @@ export function DiscountPopup() {
     setIsSubmitting(true);
 
     try {
+      const eventId = crypto.randomUUID();
       const response = await fetch("/api/discount-lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -134,6 +135,9 @@ export function DiscountPopup() {
           phone: values.phone.trim(),
           niche: values.niche.trim(),
           page: window.location.pathname,
+          eventId,
+          fbp: document.cookie.match(/(?:^|;\s*)_fbp=([^;]+)/)?.[1],
+          fbc: document.cookie.match(/(?:^|;\s*)_fbc=([^;]+)/)?.[1],
         }),
       });
       const data = (await response.json()) as DiscountResponse;

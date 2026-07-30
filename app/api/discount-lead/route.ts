@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ChatMessage, DISCOUNT_CODE, LeadProfile } from "@/app/lib/open-limits-brain";
 import { saveLead } from "@/app/lib/lead-storage";
+import { sendMetaEvent } from "@/app/lib/meta-capi";
 
 type DiscountLeadBody = {
   name?: string;
@@ -8,6 +9,9 @@ type DiscountLeadBody = {
   phone?: string;
   niche?: string;
   page?: string;
+  eventId?: string;
+  fbp?: string;
+  fbc?: string;
 };
 
 function clean(value?: string) {
@@ -60,6 +64,19 @@ export async function POST(request: NextRequest) {
       page: body.page || "discount-popup",
       userAgent: request.headers.get("user-agent"),
       hfIntent: "discount-popup",
+    });
+    await sendMetaEvent({
+      eventName: "Lead",
+      request,
+      eventId: clean(body.eventId),
+      sourceUrl: body.page || "discount-popup",
+      fbp: clean(body.fbp),
+      fbc: clean(body.fbc),
+      lead,
+      customData: {
+        content_name: "Discount popup lead",
+        lead_source: "discount-popup",
+      },
     });
   } catch (error) {
     console.error(error);

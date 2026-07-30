@@ -11,6 +11,7 @@ import {
 } from "@/app/lib/open-limits-brain";
 import { getChatSession, saveChatTurn, toClientMessages } from "@/app/lib/chat-storage";
 import { saveLead } from "@/app/lib/lead-storage";
+import { sendMetaEvent } from "@/app/lib/meta-capi";
 
 type GroqMessage = {
   role: "system" | "user" | "assistant";
@@ -21,6 +22,9 @@ type ChatRequestBody = {
   messages?: ChatMessage[];
   page?: string;
   sessionId?: string;
+  eventId?: string;
+  fbp?: string;
+  fbc?: string;
 };
 
 const GROQ_CHAT_URL = "https://api.groq.com/openai/v1/chat/completions";
@@ -466,6 +470,22 @@ export async function POST(request: NextRequest) {
       page: body.page,
       userAgent: request.headers.get("user-agent"),
     });
+    if (saved) {
+      await sendMetaEvent({
+        eventName: "Lead",
+        request,
+        eventId: body.eventId,
+        sourceUrl: body.page,
+        fbp: body.fbp,
+        fbc: body.fbc,
+        lead,
+        customData: {
+          content_name: "Lead chat",
+          lead_score: lead.score,
+          lead_intent: lead.intent,
+        },
+      });
+    }
 
     return jsonResponse({
       answer,
@@ -496,6 +516,22 @@ export async function POST(request: NextRequest) {
       page: body.page,
       userAgent: request.headers.get("user-agent"),
     });
+    if (saved) {
+      await sendMetaEvent({
+        eventName: "Lead",
+        request,
+        eventId: body.eventId,
+        sourceUrl: body.page,
+        fbp: body.fbp,
+        fbc: body.fbc,
+        lead,
+        customData: {
+          content_name: "Lead chat fallback",
+          lead_score: lead.score,
+          lead_intent: lead.intent,
+        },
+      });
+    }
 
     return jsonResponse({
       answer,

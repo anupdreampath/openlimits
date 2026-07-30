@@ -4,7 +4,6 @@
 
 import { useEffect } from "react";
 import Script from "next/script";
-import { usePathname } from "next/navigation";
 
 const FACEBOOK_PIXEL_IDS = ["1385887806813423"];
 
@@ -15,11 +14,9 @@ declare global {
 }
 
 export function FacebookPixel() {
-  const pathname = usePathname();
-
   useEffect(() => {
-    window.fbq?.("track", "PageView");
-  }, [pathname]);
+    window.dispatchEvent(new Event("meta-pixel-ready"));
+  }, []);
 
   return (
     <>

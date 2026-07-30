@@ -33,6 +33,10 @@ const starterPrompts = [
   "I need a premium redesign fast",
 ];
 
+function getMetaCookie(name: "_fbp" | "_fbc") {
+  return document.cookie.match(new RegExp(`(?:^|;\\s*)${name}=([^;]+)`))?.[1];
+}
+
 function AssistantMessageContent({ content }: { content: string }) {
   const lines = content.split("\n").map((line) => line.trim()).filter(Boolean);
   const bodyLines = lines.filter(
@@ -130,6 +134,7 @@ export function LeadChat({ open, onOpenChange }: LeadChatProps) {
     setIsSending(true);
 
     try {
+      const eventId = crypto.randomUUID();
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -137,6 +142,9 @@ export function LeadChat({ open, onOpenChange }: LeadChatProps) {
           messages: nextMessages,
           page: window.location.pathname,
           sessionId: sessionId || getBrowserSessionId(),
+          eventId,
+          fbp: getMetaCookie("_fbp"),
+          fbc: getMetaCookie("_fbc"),
         }),
       });
       const data = (await response.json()) as ChatApiResponse;
