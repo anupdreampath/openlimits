@@ -17,9 +17,9 @@ export const infoPages: Record<string, InfoPageContent> = {
   about: {
     slug: "about",
     eyebrow: "ABOUT OPEN LIMITS",
-    title: "A small sharp team for brands that refuse to look rented.",
+    title: "A small sharp technology team for companies that need more than a site.",
     intro:
-      "Open Limits was built for founders who care about taste and revenue at the same time. We work like a studio, think like operators, and keep the room small enough that the best idea can still move fast.",
+      "Open Limits was built for founders who care about product, taste, speed, and revenue at the same time. We work like a studio, think like operators, and engineer the digital systems that sit behind serious growth.",
     accent: "#b7ef66",
     stat: "60+",
     statLabel: "commerce launches shaped, shipped, or sharpened",
@@ -27,22 +27,22 @@ export const infoPages: Record<string, InfoPageContent> = {
       {
         title: "The origin story",
         body:
-          "We started after seeing too many good brands trapped inside forgettable templates. The product was strong, the founders were serious, but the storefront felt like a costume. Open Limits exists to close that gap: brand, UX, conversion, and build quality moving together from day one.",
+          "We started after seeing too many good companies trapped inside forgettable templates, fragile tools, and disconnected workflows. The product was strong, the founders were serious, but the digital layer felt smaller than the ambition. Open Limits exists to close that gap: brand, UX, software, automation, conversion, and build quality moving together from day one.",
       },
       {
         title: "How the team works",
         body:
-          "Every project is led by a tight group: strategy, design, development, and launch thinking in the same conversation. No maze of handoffs. No vague presentation theater. You get direct thinking, fast decisions, and a site your team can actually run after launch.",
+          "Every project is led by a tight group: strategy, design, engineering, and launch thinking in the same conversation. No maze of handoffs. No vague presentation theater. You get direct thinking, fast decisions, and systems your team can actually run after launch.",
         points: [
           "Designers who understand conversion pressure.",
-          "Developers who care about the brand feeling, not just tickets.",
+          "Engineers who care about the product feeling, not just tickets.",
           "Project leadership that keeps scope, time, and quality visible.",
         ],
       },
       {
         title: "What we believe",
         body:
-          "A website should make the customer feel the brand before they compare prices. It should be easy to buy from, easy to trust, and hard to forget. That is the line we build toward.",
+          "Technology should make the company feel sharper, not heavier. Whether it is a public website, iOS app, Shopify system, dashboard, or automation layer, it should be easy to trust, easy to use, and hard to forget. That is the line we build toward.",
       },
     ],
   },
@@ -51,7 +51,7 @@ export const infoPages: Record<string, InfoPageContent> = {
     eyebrow: "PROCESS",
     title: "Clear milestones, fast feedback, no agency fog.",
     intro:
-      "Our process is built around momentum. You always know what is being decided, what is being made, and what comes next.",
+      "Our process is built around momentum across web, software, iOS, commerce, and automation work. You always know what is being decided, what is being made, and what comes next.",
     accent: "#8bdcff",
     stat: "4",
     statLabel: "core phases from first call to launch support",
@@ -59,17 +59,17 @@ export const infoPages: Record<string, InfoPageContent> = {
       {
         title: "01. Discover",
         body:
-          "We map your niche, current site, product catalog, customer objections, references, timeline, and budget. The goal is to find the commercial shape of the project before design starts.",
+          "We map your business, users, current website or product, workflows, customer objections, technical constraints, references, timeline, and budget. The goal is to find the commercial and technical shape of the project before design starts.",
       },
       {
         title: "02. Direction",
         body:
-          "We define the creative lane: homepage structure, product journey, interaction feel, content priorities, and technical needs. This keeps design exciting without becoming random.",
+          "We define the product lane: information architecture, user journeys, interface feel, content priorities, data needs, integrations, and technical architecture. This keeps design exciting without becoming random.",
       },
       {
         title: "03. Design and build",
         body:
-          "We move through approved sections and milestones. You can pay by milestone, review work in stages, and keep decisions practical. Flexible payment modes are accepted.",
+          "We move through approved sections, screens, features, and milestones. You can pay by milestone, review work in stages, and keep decisions practical. Flexible payment modes are accepted.",
       },
       {
         title: "04. Launch and support",
@@ -81,20 +81,20 @@ export const infoPages: Record<string, InfoPageContent> = {
   pricing: {
     slug: "pricing",
     eyebrow: "PRICING AND TRUST",
-    title: "Custom design starts at $2,000. Payment can stay flexible.",
+    title: "Custom digital work starts at $2,000. Payment can stay flexible.",
     intro:
-      "Most custom Shopify design and storefront projects sit between $2,000 and $10,000 USD depending on depth, motion, pages, apps, products, and launch speed.",
+      "Most focused websites, commerce builds, app prototypes, dashboards, automations, and software sprints start around $2,000 USD and can scale to $10,000+ depending on depth, integrations, screens, apps, and launch speed.",
     accent: "#ffb7db",
     stat: "$2k",
-    statLabel: "starting point for custom fresh design packages",
+    statLabel: "starting point for focused custom technology work",
     sections: [
       {
         title: "Direct projects",
         body:
-          "Working direct gives the cleanest budget. We accept flexible payment modes and milestone payments, so the project can move in practical stages instead of one heavy payment.",
+          "Working direct gives the cleanest budget. We accept flexible payment modes and milestone payments, so websites, apps, software and commerce projects can move in practical stages instead of one heavy payment.",
         points: [
           "Milestone payments accepted for design, build, and launch.",
-          "Scope can be shaped for early-stage brands without killing quality.",
+          "Scope can be shaped for early-stage teams without killing quality.",
           "The quote is always tied to deliverables, not mystery hours.",
         ],
       },
@@ -127,12 +127,12 @@ export const infoPages: Record<string, InfoPageContent> = {
       {
         title: "Included support",
         body:
-          "For 3 months after launch, we help with reasonable bug fixes, theme guidance, light polish, and questions related to the delivered scope.",
+          "For 3 months after launch, we help with reasonable bug fixes, CMS or admin guidance, light polish, and questions related to the delivered scope.",
       },
       {
         title: "What happens after",
         body:
-          "After the support period, you can book small improvement blocks, conversion work, new sections, landing pages, or a monthly maintenance plan if your store needs ongoing care.",
+          "After the support period, you can book small improvement blocks, conversion work, new sections, landing pages, app updates, automations, integrations, or a monthly maintenance plan if your digital system needs ongoing care.",
       },
       {
         title: "How to reach us",
@@ -144,9 +144,9 @@ export const infoPages: Record<string, InfoPageContent> = {
   "privacy-policy": {
     slug: "privacy-policy",
     eyebrow: "PRIVACY POLICY",
-    title: "Privacy terms for leads, clients, chats, and store projects.",
+    title: "Privacy terms for leads, clients, chats, and digital projects.",
     intro:
-      "This policy explains how Open Limits handles contact details, lead forms, chatbot conversations, analytics events, project files, and Shopify store information shared with us.",
+      "This policy explains how Open Limits handles contact details, lead forms, chatbot conversations, analytics events, project files, and website, software, app or commerce information shared with us.",
     accent: "#64e6c0",
     stat: "No sale",
     statLabel: "we do not sell personal information",
@@ -162,7 +162,7 @@ export const infoPages: Record<string, InfoPageContent> = {
           "We may collect your name, email, phone number, company or brand name, website URL, niche, budget, timeline, project goals, form submissions, chatbot messages, call booking details, support requests, and files or references you provide for a project. We may also collect basic technical data such as page visits, clicks, scroll depth, device type, browser information, IP-related request data, and cookies or identifiers used for analytics and advertising measurement.",
         points: [
           "Lead details are used to qualify inquiries and respond with useful next steps.",
-          "Project details are used to quote, plan, design, build, revise, launch, and support Shopify work.",
+          "Project details are used to quote, plan, design, build, revise, launch, and support web, software, app and commerce work.",
           "Visitor analytics help us understand what pages and offers are working.",
         ],
       },
@@ -172,9 +172,9 @@ export const infoPages: Record<string, InfoPageContent> = {
           "We use information to reply to inquiries, prepare proposals, manage project communication, create and deliver work, provide post-launch support, improve the website, measure advertising performance, prevent misuse, and keep reasonable business records. We do not sell your personal information.",
       },
       {
-        title: "Shopify and client access",
+        title: "Platform and client access",
         body:
-          "If a project requires Shopify, app, domain, analytics, marketplace, or hosting access, you are responsible for granting the correct level of access and removing it when the work is complete. We use access only for the agreed project or support scope. We may ask you to provide collaborator access instead of sharing passwords whenever possible.",
+          "If a project requires Shopify, app, code repository, domain, analytics, marketplace, cloud, hosting, or admin access, you are responsible for granting the correct level of access and removing it when the work is complete. We use access only for the agreed project or support scope. We may ask you to provide collaborator access instead of sharing passwords whenever possible.",
       },
       {
         title: "Tools and third parties",
@@ -206,7 +206,7 @@ export const infoPages: Record<string, InfoPageContent> = {
   "refund-policy": {
     slug: "refund-policy",
     eyebrow: "REFUND POLICY",
-    title: "Refund terms for custom Shopify design and build projects.",
+    title: "Refund terms for custom design, development and build projects.",
     intro:
       "Open Limits sells custom creative and technical services. Refunds are handled around scope, milestones, approvals, work completed, and whether we have had a fair chance to fix the issue.",
     accent: "#ffdd55",
@@ -216,7 +216,7 @@ export const infoPages: Record<string, InfoPageContent> = {
       {
         title: "Service nature",
         body:
-          "Our work includes strategy, design, Shopify theme development, page building, ecommerce setup, integrations, launch help, conversion improvements, and support. Because custom service work uses time, planning, design judgment, development effort, and third-party coordination, refunds are not treated like returns for physical products.",
+          "Our work includes strategy, design, web development, software development, iOS development, Shopify and ecommerce setup, integrations, launch help, conversion improvements, and support. Because custom service work uses time, planning, design judgment, development effort, and third-party coordination, refunds are not treated like returns for physical products.",
       },
       {
         title: "Before work begins",
@@ -270,7 +270,7 @@ export const infoPages: Record<string, InfoPageContent> = {
     eyebrow: "TERMS OF USE",
     title: "Terms for using Open Limits and starting a project.",
     intro:
-      "These terms keep expectations clear when you use the website, submit a lead, book a call, request a quote, or start a Shopify design and development project with us.",
+      "These terms keep expectations clear when you use the website, submit a lead, book a call, request a quote, or start a web, software, iOS, commerce, automation or design project with us.",
     accent: "#ff9068",
     stat: "Scope",
     statLabel: "clear deliverables, approvals, payments, and support",
@@ -288,7 +288,7 @@ export const infoPages: Record<string, InfoPageContent> = {
       {
         title: "Client responsibilities",
         body:
-          "You are responsible for providing accurate project information, timely feedback, brand assets, product content, Shopify access, app access, domain access, legal copy, policies, media, and approvals needed to complete the work. Timelines can move if required materials, decisions, or third-party access are delayed.",
+          "You are responsible for providing accurate project information, timely feedback, brand assets, product content, Shopify access, app access, repository access, domain access, legal copy, policies, media, and approvals needed to complete the work. Timelines can move if required materials, decisions, or third-party access are delayed.",
       },
       {
         title: "Design, revisions, and approvals",
@@ -323,7 +323,7 @@ export const infoPages: Record<string, InfoPageContent> = {
       {
         title: "No guaranteed results",
         body:
-          "We build with strong design, UX, conversion, and Shopify practices, but we cannot guarantee revenue, ranking, ad performance, conversion rate, traffic, platform approval, or business outcomes. Results depend on your offer, product, pricing, traffic quality, operations, market, and many factors outside our control.",
+          "We build with strong design, UX, conversion, software and platform practices, but we cannot guarantee revenue, ranking, ad performance, conversion rate, traffic, platform approval, app approval, or business outcomes. Results depend on your offer, product, pricing, traffic quality, operations, market, and many factors outside our control.",
       },
       {
         title: "Liability limits",

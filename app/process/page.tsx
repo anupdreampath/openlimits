@@ -4,7 +4,7 @@ import { infoPages } from "@/app/info-content";
 
 export const metadata: Metadata = {
   title: "Open Limits Process",
-  description: "How Open Limits takes Shopify projects from discovery to launch support.",
+  description: "How Open Limits takes web, software, app and commerce projects from discovery to launch support.",
 };
 
 export default function ProcessPage() {

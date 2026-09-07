@@ -50,6 +50,16 @@ export function SplashScreen() {
       }}
     >
       <div className="site-splash__cursor" aria-hidden="true" />
+      <div className="site-splash__grid" aria-hidden="true">
+        {["Strategy", "Design", "Code", "Launch"].map((item, index) => (
+          <span
+            key={item}
+            style={{ "--tile-delay": `${index * 105}ms` } as CSSProperties}
+          >
+            {item}
+          </span>
+        ))}
+      </div>
       <div className="site-splash__mark">
         <Mark />
       </div>
@@ -70,11 +80,11 @@ export function SplashScreen() {
           </span>
         ))}
       </div>
-      <p>Websites that refuse to blend in.</p>
+      <p>Websites / Shopify / WordPress / software</p>
       <div className="site-splash__progress" aria-hidden="true">
         <span />
       </div>
-      <small>Tap to enter</small>
+      <small>Tap to skip</small>
     </div>
   );
 }

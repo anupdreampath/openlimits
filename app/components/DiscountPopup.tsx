@@ -1,7 +1,11 @@
 "use client";
 
 import { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react";
-import { CALENDAR_LINK, DISCOUNT_CODE, WHATSAPP_NUMBER } from "@/app/lib/open-limits-brain";
+import {
+  CALENDAR_LINK,
+  DISCOUNT_CODE,
+  WHATSAPP_NUMBER,
+} from "@/app/lib/open-limits-brain";
 
 type DiscountResponse = {
   code?: string;
@@ -34,11 +38,16 @@ function shouldRememberPopupChoice() {
 
 function validateField(name: FieldName, value: string) {
   const trimmed = value.trim();
-  if (!trimmed) return `${name === "niche" ? "Niche" : name[0].toUpperCase() + name.slice(1)} is required.`;
-  if (name === "name" && trimmed.length < 2) return "Add at least 2 characters.";
-  if (name === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) return "Add a valid email.";
-  if (name === "phone" && trimmed.replace(/\D/g, "").length < 7) return "Add a valid phone or WhatsApp number.";
-  if (name === "niche" && trimmed.length < 2) return "Tell us your store niche.";
+  if (!trimmed)
+    return `${name === "niche" ? "Niche" : name[0].toUpperCase() + name.slice(1)} is required.`;
+  if (name === "name" && trimmed.length < 2)
+    return "Add at least 2 characters.";
+  if (name === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed))
+    return "Add a valid email.";
+  if (name === "phone" && trimmed.replace(/\D/g, "").length < 7)
+    return "Add a valid phone or WhatsApp number.";
+  if (name === "niche" && trimmed.length < 2)
+    return "Tell us your project niche.";
   return "";
 }
 
@@ -50,23 +59,35 @@ function validateAll(values: FormValues) {
   }, {});
 }
 
-export function DiscountPopup() {
-  const [open, setOpen] = useState(false);
+export function DiscountPopup({
+  open: controlledOpen,
+  onOpenChange,
+}: { open?: boolean; onOpenChange?: (open: boolean) => void } = {}) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen ?? internalOpen;
+  const setOpen = onOpenChange ?? setInternalOpen;
   const [showForm, setShowForm] = useState(false);
   const [claimedCode, setClaimedCode] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [values, setValues] = useState<FormValues>(initialValues);
   const [fieldErrors, setFieldErrors] = useState<FormErrors>({});
-  const inputRefs = useRef<Partial<Record<FieldName, HTMLInputElement | null>>>({});
+  const inputRefs = useRef<Partial<Record<FieldName, HTMLInputElement | null>>>(
+    {},
+  );
   const submitRef = useRef<HTMLButtonElement | null>(null);
   const advanceTimer = useRef<number | null>(null);
 
   useEffect(() => {
-    if (shouldRememberPopupChoice() && window.localStorage.getItem(DISCOUNT_STORAGE_KEY)) return;
-    const timer = window.setTimeout(() => setOpen(true), 5600);
+    if (controlledOpen !== undefined) return;
+    if (
+      shouldRememberPopupChoice() &&
+      window.localStorage.getItem(DISCOUNT_STORAGE_KEY)
+    )
+      return;
+    const timer = window.setTimeout(() => setInternalOpen(true), 5600);
     return () => window.clearTimeout(timer);
-  }, []);
+  }, [controlledOpen]);
 
   function rememberPopupChoice() {
     if (!shouldRememberPopupChoice()) return;
@@ -81,7 +102,8 @@ export function DiscountPopup() {
   function focusAndScroll(target: FieldName | "submit", shouldFocus = true) {
     if (advanceTimer.current) window.clearTimeout(advanceTimer.current);
     advanceTimer.current = window.setTimeout(() => {
-      const node = target === "submit" ? submitRef.current : inputRefs.current[target];
+      const node =
+        target === "submit" ? submitRef.current : inputRefs.current[target];
       node?.scrollIntoView({ behavior: "smooth", block: "center" });
       if (shouldFocus) node?.focus();
     }, 180);
@@ -157,8 +179,17 @@ export function DiscountPopup() {
   if (!open) return null;
 
   return (
-    <div className="discount-pop" role="dialog" aria-modal="true" aria-label="30% off new store design">
-      <button className="discount-pop__scrim" onClick={closePopup} aria-label="Close discount popup" />
+    <div
+      className="discount-pop"
+      role="dialog"
+      aria-modal="true"
+      aria-label="30% off digital project"
+    >
+      <button
+        className="discount-pop__scrim"
+        onClick={closePopup}
+        aria-label="Close discount popup"
+      />
       <div
         className={
           showForm || claimedCode
@@ -173,9 +204,12 @@ export function DiscountPopup() {
               <b>OFF</b>
             </div>
             <div className="discount-pop__tease">
-              <p className="discount-pop__kicker">New store design projects</p>
+              <p className="discount-pop__kicker">New digital projects</p>
               <h2>Get 30% off.</h2>
-              <p>Unlock the code for a premium Shopify design sprint.</p>
+              <p>
+                Unlock the code for a premium web, software, app or commerce
+                sprint.
+              </p>
               <button type="button" onClick={revealForm}>
                 Unlock 30% <span aria-hidden="true">→</span>
               </button>
@@ -186,9 +220,7 @@ export function DiscountPopup() {
             <div className="discount-pop__content">
               <p className="discount-pop__kicker">Claim your code</p>
               <h2>Fill info.</h2>
-              <p>
-                Drop your details and we will reveal the code instantly.
-              </p>
+              <p>Drop your details and we will reveal the code instantly.</p>
 
               {claimedCode ? (
                 <div className="discount-pop__success">
@@ -197,7 +229,11 @@ export function DiscountPopup() {
                   <a href={CALENDAR_LINK} target="_blank" rel="noreferrer">
                     Book your call →
                   </a>
-                  <a href={`https://wa.me/${WHATSAPP_NUMBER.replace(/\D/g, "")}`} target="_blank" rel="noreferrer">
+                  <a
+                    href={`https://wa.me/${WHATSAPP_NUMBER.replace(/\D/g, "")}`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
                     Fast-track WhatsApp →
                   </a>
                 </div>
@@ -206,6 +242,15 @@ export function DiscountPopup() {
                   {fieldOrder.map((field) => (
                     <label className="discount-pop__field" key={field}>
                       <input
+                        aria-label={
+                          field === "niche"
+                            ? "Project niche"
+                            : field === "phone"
+                              ? "Phone or WhatsApp"
+                              : field === "email"
+                                ? "Email"
+                                : "Name"
+                        }
                         aria-describedby={`${field}-discount-error`}
                         aria-invalid={Boolean(fieldErrors[field])}
                         autoComplete={
@@ -217,7 +262,13 @@ export function DiscountPopup() {
                                 ? "tel"
                                 : "organization-title"
                         }
-                        inputMode={field === "phone" ? "tel" : field === "email" ? "email" : "text"}
+                        inputMode={
+                          field === "phone"
+                            ? "tel"
+                            : field === "email"
+                              ? "email"
+                              : "text"
+                        }
                         name={field}
                         onChange={handleFieldChange}
                         placeholder={
@@ -233,17 +284,28 @@ export function DiscountPopup() {
                           inputRefs.current[field] = node;
                         }}
                         required
-                        type={field === "email" ? "email" : field === "phone" ? "tel" : "text"}
+                        type={
+                          field === "email"
+                            ? "email"
+                            : field === "phone"
+                              ? "tel"
+                              : "text"
+                        }
                         value={values[field]}
                       />
                       {fieldErrors[field] ? (
-                        <span className="discount-pop__field-error" id={`${field}-discount-error`}>
+                        <span
+                          className="discount-pop__field-error"
+                          id={`${field}-discount-error`}
+                        >
                           {fieldErrors[field]}
                         </span>
                       ) : null}
                     </label>
                   ))}
-                  {error ? <div className="discount-pop__error">{error}</div> : null}
+                  {error ? (
+                    <div className="discount-pop__error">{error}</div>
+                  ) : null}
                   <button ref={submitRef} type="submit" disabled={isSubmitting}>
                     {isSubmitting ? "Unlocking..." : "Reveal my code"}
                   </button>
@@ -253,7 +315,11 @@ export function DiscountPopup() {
           </section>
         </div>
       </div>
-      <button className="discount-pop__close discount-pop__close--floating" onClick={closePopup} aria-label="Close discount popup">
+      <button
+        className="discount-pop__close discount-pop__close--floating"
+        onClick={closePopup}
+        aria-label="Close discount popup"
+      >
         ×
       </button>
     </div>

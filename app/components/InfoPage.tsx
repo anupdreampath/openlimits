@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 import Link from "next/link";
-import { Arrow, Mark, SectionWave } from "@/app/components/BrandPrimitives";
+import { Arrow, BrandLogo } from "@/app/components/BrandPrimitives";
 import { InfoPageContent } from "@/app/info-content";
 
 const fiverrLink = "https://www.fiverr.com/s/m5qDeDN";
@@ -30,11 +30,13 @@ function renderPoint(point: string) {
 
 export function InfoPage({ content }: { content: InfoPageContent }) {
   return (
-    <main className="info-page" style={{ "--accent": content.accent } as CSSProperties}>
+    <main
+      className="info-page"
+      style={{ "--accent": content.accent } as CSSProperties}
+    >
       <header className="info-header">
         <Link className="logo" href="/" aria-label="Open Limits home">
-          <Mark />
-          <span>OPEN LIMITS</span>
+          <BrandLogo />
         </Link>
         <nav aria-label="Information navigation">
           <Link href="/#work">Work</Link>
@@ -63,8 +65,6 @@ export function InfoPage({ content }: { content: InfoPageContent }) {
         </div>
       </section>
 
-      <SectionWave from="#f6f2ea" to={content.accent} />
-
       <section className="info-story">
         {content.sections.map((section, index) => (
           <article key={section.title} className="info-card">
@@ -82,11 +82,9 @@ export function InfoPage({ content }: { content: InfoPageContent }) {
         ))}
       </section>
 
-      <SectionWave from={content.accent} to="#111111" flip />
-
       <footer className="info-footer">
         <div>
-          <h2>Ready when the store is.</h2>
+          <h2>Ready when the build is.</h2>
           <p>
             Flexible payments, milestone projects, Fiverr for added marketplace
             trust, Upwork at no extra cost, and 3 months support after launch.

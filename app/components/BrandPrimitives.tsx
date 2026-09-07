@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 export function SectionWave({
   from,
   to,
@@ -23,18 +25,28 @@ export function SectionWave({
   );
 }
 
-export function Mark() {
+export function BrandLogo() {
   return (
-    <span className="brand-mark" aria-hidden="true">
-      <span />
-      <span />
-    </span>
+    <Image
+      className="brand-logo-image"
+      src="/open-limits-logo.png"
+      alt="Open Limits"
+      width={160}
+      height={80}
+    />
   );
+}
+
+export function Mark() {
+  return <BrandLogo />;
 }
 
 export function Arrow({ diagonal = false }: { diagonal?: boolean }) {
   return (
-    <span className={diagonal ? "arrow arrow--diagonal" : "arrow"} aria-hidden="true">
+    <span
+      className={diagonal ? "arrow arrow--diagonal" : "arrow"}
+      aria-hidden="true"
+    >
       →
     </span>
   );

@@ -1,995 +1,1271 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
-import { Arrow, Mark, SectionWave } from "@/app/components/BrandPrimitives";
-import { DiscountPopup } from "@/app/components/DiscountPopup";
+import Image from "next/image";
+import {
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type CSSProperties,
+  type KeyboardEvent,
+} from "react";
+import {
+  ArrowUpRight,
+  ArrowRight,
+  ArrowLeft,
+  ArrowDown,
+  Plus,
+  Minus,
+  Menu,
+  X,
+  Play,
+  Pause,
+  Check,
+  ChevronDown,
+  ChevronUp,
+  HelpCircle,
+} from "lucide-react";
+import { BrandLogo } from "@/app/components/BrandPrimitives";
 import { LeadChat } from "@/app/components/LeadChat";
 import { SplashScreen } from "@/app/components/SplashScreen";
+import { DiscountPopup } from "@/app/components/DiscountPopup";
 import { VisitorTracker } from "@/app/components/VisitorTracker";
+import { type Project } from "@/app/lib/projects";
+import {
+  heroProjects as gallery,
+  reelProjects,
+  serviceProjects,
+  workProjects,
+  showcaseProjects,
+} from "@/app/lib/project-showcase";
+import { services, stages, faqs } from "@/app/lib/studio-content";
+import { useStudioMotion } from "@/app/lib/use-studio-motion";
 
-type Project = {
-  title: string;
-  category: "Beauty" | "Food & Drink" | "Lifestyle" | "Pet Care";
-  blurb: string;
-  metric: string;
-  image: string;
-  url?: string;
-  color: string;
+const calendarLink = "https://calendar.app.google/adHW8rdFF8fZwitT6";
+const filters = ["All", "Brand Web", "Software", "Commerce"] as const;
+const CHAT_AUTO_OPEN_KEY = "open-limits-chat-auto-opened";
+const serviceLabels = [
+  "WEB",
+  "SOFTWARE",
+  "MOBILE",
+  "AI & AUTOMATION",
+  "COMMERCE",
+  "DESIGN",
+];
+const platformSections = [
+  {
+    name: "Shopify",
+    eyebrow: "SHOPIFY COMMERCE",
+    title: "Stores that feel built, not themed.",
+    text: "For product brands that need a sharper storefront, cleaner collections, better product pages, apps that behave, checkout tracking, and a site that is ready for paid traffic.",
+    points: [
+      "Custom storefront design",
+      "Theme development",
+      "Conversion tracking",
+      "Subscriptions & apps",
+    ],
+    projects: [gallery[2], gallery[3], gallery[5]],
+  },
+  {
+    name: "WordPress",
+    eyebrow: "WORDPRESS WEBSITES",
+    title: "Content-led sites with room to grow.",
+    text: "For service businesses, publishers, creators, and local brands that need editable pages, strong SEO foundations, fast landing pages, and a site your team can keep fresh.",
+    points: [
+      "Editable CMS pages",
+      "Service landing pages",
+      "Blog & resource hubs",
+      "Performance cleanup",
+    ],
+    projects: [gallery[0], gallery[4], gallery[6]],
+  },
+];
+type ChatAutoWindow = Window & {
+  __openLimitsChatAutoOpen?: string;
 };
 
-const CLOUDINARY_BASE =
-  "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9";
-
-const projects: Project[] = [
-  {
-    title: "Lilikiwi",
-    category: "Beauty",
-    blurb: "A playful organic skincare experience made to feel safe for parents and delightful for children.",
-    metric: "Shopify storefront",
-    image: `${CLOUDINARY_BASE}/open-limits/lilikiwi`,
-    url: "https://lilikiwi.fr/en",
-    color: "#ffb7db",
-  },
-  {
-    title: "Nerdy Nuts",
-    category: "Food & Drink",
-    blurb: "Colorful, craveable commerce for a peanut butter brand with a seriously playful personality.",
-    metric: "DTC food commerce",
-    image: `${CLOUDINARY_BASE}/open-limits/nerdy-nuts`,
-    url: "https://nerdynuts.com/",
-    color: "#b7ef66",
-  },
-  {
-    title: "Bearaby",
-    category: "Lifestyle",
-    blurb: "Soft editorial storytelling and effortless shopping for beautifully designed weighted blankets.",
-    metric: "Shopify Plus",
-    image: `${CLOUDINARY_BASE}/open-limits/bearaby`,
-    url: "https://bearaby.com/",
-    color: "#8bdcff",
-  },
-  {
-    title: "Hamel's Treats",
-    category: "Pet Care",
-    blurb: "Wholesome product storytelling for single-ingredient treats made for very happy dogs.",
-    metric: "Pet food commerce",
-    image: `${CLOUDINARY_BASE}/open-limits/hamels-treats-v2`,
-    url: "https://hamelstreats.com/",
-    color: "#ff9068",
-  },
-  {
-    title: "Emani",
-    category: "Beauty",
-    blurb: "A polished beauty destination balancing clinical confidence with modern, inclusive glamour.",
-    metric: "Beauty e-commerce",
-    image: `${CLOUDINARY_BASE}/open-limits/emani`,
-    url: "https://emani.com/",
-    color: "#64e6c0",
-  },
-  {
-    title: "Crav Burgers",
-    category: "Food & Drink",
-    blurb: "A bold, appetite-first experience with the energy of a cult neighborhood burger spot.",
-    metric: "Hospitality website",
-    image: `${CLOUDINARY_BASE}/open-limits/crav-burgers`,
-    url: "https://www.cravburgers.shop/",
-    color: "#ffb7db",
-  },
-  {
-    title: "Vol Dog Food",
-    category: "Pet Care",
-    blurb: "High-energy pet nutrition commerce built around fresh food, expert guidance and character.",
-    metric: "Interactive commerce",
-    image: `${CLOUDINARY_BASE}/open-limits/vol-dog-food`,
-    url: "https://www.voldogfood.com/",
-    color: "#b7ef66",
-  },
-  {
-    title: "Happy Pet",
-    category: "Pet Care",
-    blurb: "A minimal product story that makes smarter pet parenting feel simple and immediately useful.",
-    metric: "Digital product launch",
-    image: `${CLOUDINARY_BASE}/open-limits/happy-pet`,
-    url: "https://happypet.care/",
-    color: "#8bdcff",
-  },
-  {
-    title: "Manitobah",
-    category: "Lifestyle",
-    blurb: "Story-rich commerce celebrating Indigenous design, craft and a global footwear community.",
-    metric: "Shopify Plus",
-    image: `${CLOUDINARY_BASE}/open-limits/manitobah`,
-    url: "https://www.manitobah.com/",
-    color: "#ffdd55",
-  },
-  {
-    title: "Seerov",
-    category: "Lifestyle",
-    blurb: "A confident, editorial wellness experience built around intention, curiosity and personal freedom.",
-    metric: "Wellness commerce",
-    image: `${CLOUDINARY_BASE}/open-limits/seerov`,
-    url: "https://seerov.com/",
-    color: "#ffb7db",
-  },
-  {
-    title: "Sherclan",
-    category: "Lifestyle",
-    blurb: "Quiet luxury and refined product storytelling for a contemporary Australian jewellery brand.",
-    metric: "Luxury e-commerce",
-    image: `${CLOUDINARY_BASE}/open-limits/sherclan`,
-    url: "https://www.sherclan.com.au/",
-    color: "#8bdcff",
-  },
-  {
-    title: "Tato Pow",
-    category: "Food & Drink",
-    blurb: "A flavor-packed storefront with bold type, tactile product imagery and serious snack energy.",
-    metric: "DTC food commerce",
-    image: `${CLOUDINARY_BASE}/open-limits/tatopow`,
-    url: "https://tatopow.com/",
-    color: "#ff9068",
-  },
-  {
-    title: "Articles of Style",
-    category: "Lifestyle",
-    blurb: "Premium menswear and bespoke wardrobe expertise translated into a polished consultation journey.",
-    metric: "Luxury menswear",
-    image: `${CLOUDINARY_BASE}/open-limits/articles-of-style`,
-    url: "https://articlesofstyle.com/",
-    color: "#c8b5ff",
-  },
-  {
-    title: "Penrose Skin",
-    category: "Beauty",
-    blurb: "Luxury skincare storytelling with a rich product-first homepage and high-intent shopping journey.",
-    metric: "Skincare commerce",
-    image: "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/penrose-skin-website-1785014710041.jpg",
-    url: "https://penroseskin.com/",
-    color: "#64e6c0",
-  },
-  {
-    title: "GODA",
-    category: "Lifestyle",
-    blurb: "Modern apparel commerce with a direct, product-led landing experience.",
-    metric: "Fashion commerce",
-    image: "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/goda-website-1785014717058.jpg",
-    url: "https://godaclothing.com/",
-    color: "#8bdcff",
-  },
-  {
-    title: "Thomson Carter",
-    category: "Beauty",
-    blurb: "Premium perfume commerce designed for quick trust, clear offers and sensory brand positioning.",
-    metric: "Fragrance commerce",
-    image: "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/thomson-carter-website-1785014720817.jpg",
-    url: "https://www.thomsoncarter.com/",
-    color: "#ffdd55",
-  },
-  {
-    title: "Anglo Spirit",
-    category: "Lifestyle",
-    blurb: "A refined brand storefront with a heritage feel and clear product-led browsing.",
-    metric: "Lifestyle commerce",
-    image: "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/anglo-spirit-replacement-1785015351446.png",
-    url: "https://anglospirit.com/",
-    color: "#ff9068",
-  },
-  {
-    title: "Bay Smokes",
-    category: "Lifestyle",
-    blurb: "A bold, conversion-focused ecommerce experience for a high-velocity cannabis category brand.",
-    metric: "DTC commerce",
-    image: "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/bay-smokes-replacement-1785015346219.png",
-    url: "https://baysmokes.com/",
-    color: "#b7ef66",
-  },
-  {
-    title: "Mystery Shirt In A Box",
-    category: "Lifestyle",
-    blurb: "Sports apparel commerce built around surprise, gifting and fast purchase intent.",
-    metric: "Apparel commerce",
-    image: "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/mystery-shirt-in-a-box-website-1785014731124.jpg",
-    url: "https://mysteryshirtinabox.com/",
-    color: "#8bdcff",
-  },
-  {
-    title: "Frido",
-    category: "Lifestyle",
-    blurb: "Ergonomic product commerce that makes comfort, relief and product education immediately understandable.",
-    metric: "Wellness commerce",
-    image: "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/frido-website-1785014735116.jpg",
-    url: "https://myfrido.com/",
-    color: "#ffb7db",
-  },
-  {
-    title: "Tasty Gains",
-    category: "Food & Drink",
-    blurb: "Nutrition commerce with a bold product story and simple path from craving to cart.",
-    metric: "Food commerce",
-    image: "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/tasty-gains-website-1785014738251.jpg",
-    url: "https://tastygains.com/",
-    color: "#ffdd55",
-  },
-  {
-    title: "GymProLuxe",
-    category: "Lifestyle",
-    blurb: "Fitness product commerce built to explain the kit fast and move shoppers toward a focused offer.",
-    metric: "Fitness commerce",
-    image: "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/gymproluxe-website-1785014741756.jpg",
-    url: "https://www.gymproluxestore.com/",
-    color: "#64e6c0",
-  },
-  {
-    title: "SNOW",
-    category: "Beauty",
-    blurb: "Teeth-whitening commerce with a benefit-first layout, trust markers and strong product hierarchy.",
-    metric: "Beauty commerce",
-    image: "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/snow-website-1785014745156.jpg",
-    url: "https://www.trysnow.com/",
-    color: "#8bdcff",
-  },
-  {
-    title: "Lansinoh",
-    category: "Lifestyle",
-    blurb: "Parenting and baby-care commerce focused on reassurance, product education and gentle conversion.",
-    metric: "Family commerce",
-    image: "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/lansinoh-replacement-1785015341300.png",
-    url: "https://lansinoh.com/",
-    color: "#c8b5ff",
-  },
-  {
-    title: "Resilia",
-    category: "Lifestyle",
-    blurb: "A mission-led digital experience built around credibility, outcomes and clear product messaging.",
-    metric: "B2B platform",
-    image: "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/resilia-website-1785014752674.jpg",
-    url: "https://www.resilia.com/",
-    color: "#b7ef66",
-  },
-  {
-    title: "Jennah Organics",
-    category: "Beauty",
-    blurb: "Organic beauty commerce with a clean, direct storefront and product-first shopping path.",
-    metric: "Beauty commerce",
-    image: "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/jennah-organics-website-1785014756182.jpg",
-    url: "https://jennahorganics.com/",
-    color: "#ff9068",
-  },
-  {
-    title: "Sans",
-    category: "Food & Drink",
-    blurb: "Non-alcoholic drink retail designed around range, choice and fast product discovery.",
-    metric: "Drink commerce",
-    image: "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/sans-website-1785014834309.jpg",
-    url: "https://sansdrinks.com.au/",
-    color: "#ffb7db",
-  },
-  {
-    title: "Setu",
-    category: "Lifestyle",
-    blurb: "Supplement commerce built around science-backed messaging and simple wellness navigation.",
-    metric: "Wellness commerce",
-    image: "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/setu-website-1785014840319.jpg",
-    url: "https://setu.in/",
-    color: "#b7ef66",
-  },
-  {
-    title: "AdTok",
-    category: "Lifestyle",
-    blurb: "A growth-focused B2B website with clear positioning and direct acquisition messaging.",
-    metric: "Agency website",
-    image: "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/adtok-website-1785014845392.jpg",
-    url: "https://www.adtok.co/",
-    color: "#8bdcff",
-  },
-  {
-    title: "White Lion Labs",
-    category: "Lifestyle",
-    blurb: "A focused product and brand experience for a modern performance-led company.",
-    metric: "Brand website",
-    image: "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/white-lion-labs-website-1785014850414.jpg",
-    url: "https://whitelionlabs.com/",
-    color: "#ffdd55",
-  },
-  {
-    title: "HumeHealth",
-    category: "Lifestyle",
-    blurb: "Health-tech commerce that makes personal body data feel approachable and actionable.",
-    metric: "Health commerce",
-    image: "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/humehealth-website-1785014857429.jpg",
-    url: "https://humehealth.com/",
-    color: "#c8b5ff",
-  },
-  {
-    title: "Yorkshire Dental Suite",
-    category: "Lifestyle",
-    blurb: "A service-led dental website designed to build trust and route visitors into bookings.",
-    metric: "Clinic website",
-    image: "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/yorkshire-dental-suite-website-1785014867953.jpg",
-    url: "https://www.yorkshiredentalsuite.co.uk/",
-    color: "#64e6c0",
-  },
-  {
-    title: "Bloom & Bond",
-    category: "Beauty",
-    blurb: "Hair wellness commerce with direct benefit messaging and product-first conversion design.",
-    metric: "Beauty commerce",
-    image: "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/bloom-and-bond-website-1785014874357.jpg",
-    url: "https://trybloomandbond.com/",
-    color: "#ff9068",
-  },
-  {
-    title: "WeightRx",
-    category: "Lifestyle",
-    blurb: "Weight-care commerce with a direct offer structure and conversion-minded product education.",
-    metric: "Wellness commerce",
-    image: "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/weightrx-website-1785014880369.jpg",
-    url: "https://weightrx.com/",
-    color: "#ffb7db",
-  },
-  {
-    title: "Everydaisy",
-    category: "Beauty",
-    blurb: "A feminine beauty storefront with soft brand energy and product-led navigation.",
-    metric: "Beauty commerce",
-    image: "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/everydaisy-website-1785014903075.jpg",
-    url: "https://everydaisy.com/",
-    color: "#c8b5ff",
-  },
-  {
-    title: "Zorvera",
-    category: "Beauty",
-    blurb: "A modern wellness and beauty ecommerce experience with bold trust-building presentation.",
-    metric: "Beauty commerce",
-    image: "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/zorvera-website-1785014910600.jpg",
-    url: "https://zorvera.com/",
-    color: "#64e6c0",
-  },
-  {
-    title: "Sacrasoul",
-    category: "Beauty",
-    blurb: "Aromatics commerce built around ritual, sensory storytelling and a calm path to purchase.",
-    metric: "Wellness commerce",
-    image: "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/sacrasoul-website-1785014919172.jpg",
-    url: "https://sacrasoul.com/",
-    color: "#ff9068",
-  },
-  {
-    title: "iRestore",
-    category: "Lifestyle",
-    blurb: "At-home hair growth device commerce with strong education, proof and product hierarchy.",
-    metric: "Health commerce",
-    image: "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/irestore-website-1785014925113.jpg",
-    url: "https://www.irestorelaser.com/",
-    color: "#ffb7db",
-  },
-  {
-    title: "Aloesun",
-    category: "Beauty",
-    blurb: "Sun-care commerce with bright product positioning and clear benefit-led shopping.",
-    metric: "Beauty commerce",
-    image: "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/aloesun-website-1785014995383.jpg",
-    url: "https://aloesun.com/",
-    color: "#b7ef66",
-  },
-  {
-    title: "Plantmade",
-    category: "Lifestyle",
-    blurb: "Superfood nutrition commerce with a fresh product story and simple shopping flow.",
-    metric: "Wellness commerce",
-    image: "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/plantmade-website-1785015002403.jpg",
-    url: "https://www.plantmade.co/",
-    color: "#8bdcff",
-  },
-  {
-    title: "Primal",
-    category: "Lifestyle",
-    blurb: "Natural supplement commerce built around trust, education and broad product discovery.",
-    metric: "Supplement commerce",
-    image: "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/primal-website-1785015008417.jpg",
-    url: "https://primalharvest.com/",
-    color: "#ffdd55",
-  },
-  {
-    title: "Skin Choice",
-    category: "Beauty",
-    blurb: "Skincare commerce with direct acne-care positioning and a simple product-led offer.",
-    metric: "Skincare commerce",
-    image: "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/skin-choice-website-1785015014014.jpg",
-    url: "https://www.skinchoice.com/",
-    color: "#c8b5ff",
-  },
-  {
-    title: "Dermovia",
-    category: "Beauty",
-    blurb: "Skincare product commerce focused on education, routines and problem-solution clarity.",
-    metric: "Skincare commerce",
-    image: "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/dermovia-website-1785015019502.jpg",
-    url: "https://www.dermovia.com/",
-    color: "#64e6c0",
-  },
-  {
-    title: "Full Hair Club",
-    category: "Beauty",
-    blurb: "Hair-care commerce with bold brand voice and a streamlined treatment-focused shopping path.",
-    metric: "Hair commerce",
-    image: "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/full-hair-club-website-1785015024431.jpg",
-    url: "https://fullhairclub.com/",
-    color: "#ff9068",
-  },
-  {
-    title: "Vayose",
-    category: "Lifestyle",
-    blurb: "A modern ecommerce storefront with clean positioning and lifestyle-focused product presentation.",
-    metric: "Lifestyle commerce",
-    image: "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/vayose-website-1785015033556.jpg",
-    url: "https://vayose.com/",
-    color: "#b7ef66",
-  },
-  {
-    title: "Stretched Fusion",
-    category: "Lifestyle",
-    blurb: "Fitness commerce built around at-home strength training, guidance and strong landing-page clarity.",
-    metric: "Fitness commerce",
-    image: "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/stretched-fusion-website-1785015038321.jpg",
-    url: "https://stretchedfusion.com/",
-    color: "#8bdcff",
-  },
-  {
-    title: "Holy Gels",
-    category: "Beauty",
-    blurb: "Beauty commerce with a focused gel product story and clean purchase path.",
-    metric: "Beauty commerce",
-    image: "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/holy-gels-website-1785015043275.jpg",
-    url: "https://holygels.com/",
-    color: "#ffdd55",
-  },
-  {
-    title: "Nurecover",
-    category: "Lifestyle",
-    blurb: "Recovery and wellness commerce built around a strong product promise and fast education.",
-    metric: "Wellness commerce",
-    image: "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/nurecover-website-1785015051488.jpg",
-    url: "https://nurecover.com/",
-    color: "#64e6c0",
-  },
-  {
-    title: "Nomadica",
-    category: "Food & Drink",
-    blurb: "Wine commerce with editorial brand energy and strong product-led browsing.",
-    metric: "Drink commerce",
-    image: "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/nomadica-replacement-1785015488180.png",
-    url: "https://www.explorenomadica.com/",
-    color: "#ffb7db",
-  },
-  {
-    title: "The Fresh Cookie Lab",
-    category: "Food & Drink",
-    blurb: "Bakery commerce with a warm, playful product story and crave-first shopping flow.",
-    metric: "Food commerce",
-    image: "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/the-fresh-cookie-lab-website-1785015070160.jpg",
-    url: "https://thefreshcookielab.com/",
-    color: "#b7ef66",
-  },
-  {
-    title: "Flo Pilates",
-    category: "Lifestyle",
-    blurb: "A local studio website built around movement, class discovery and booking intent.",
-    metric: "Studio website",
-    image: "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/flo-pilates-website-1785015073326.jpg",
-    url: "https://www.flopilates.com/",
-    color: "#8bdcff",
-  },
-  {
-    title: "AVA Mayfair",
-    category: "Beauty",
-    blurb: "Home-fragrance commerce with trust-led storytelling and premium product positioning.",
-    metric: "Fragrance commerce",
-    image: "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/ava-mayfair-website-1785015078306.jpg",
-    url: "https://avamayfair.com/",
-    color: "#ffdd55",
-  },
-  {
-    title: "Sadboy Saga",
-    category: "Lifestyle",
-    blurb: "Streetwear commerce with a distinct brand voice and direct collection-led shopping.",
-    metric: "Fashion commerce",
-    image: "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/sadboy-saga-website-1785015085950.jpg",
-    url: "https://sadboysaga.com/",
-    color: "#c8b5ff",
-  },
-  {
-    title: "Javvy Coffee",
-    category: "Food & Drink",
-    blurb: "Coffee commerce with a crisp product promise, strong offer framing and subscription-ready shopping.",
-    metric: "Drink commerce",
-    image: "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/javvy-coffee-website-1785015208504.jpg",
-    url: "https://javvycoffee.com/",
-    color: "#64e6c0",
-  },
-  {
-    title: "Fat Cow Skincare",
-    category: "Beauty",
-    blurb: "Playful skincare commerce with a memorable brand voice and product-first conversion path.",
-    metric: "Skincare commerce",
-    image: "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/fat-cow-skincare-website-1785015215535.jpg",
-    url: "https://fatcowskin.com/",
-    color: "#ff9068",
-  },
-  {
-    title: "Fem8",
-    category: "Lifestyle",
-    blurb: "Women’s wellness commerce with clean trust-building and direct product education.",
-    metric: "Wellness commerce",
-    image: "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/fem8-website-1785015225056.jpg",
-    url: "https://fem-8.com/",
-    color: "#ffb7db",
-  },
-  {
-    title: "Zoomie",
-    category: "Pet Care",
-    blurb: "Pet-focused commerce with friendly positioning and a simple product discovery path.",
-    metric: "Pet commerce",
-    image: "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/zoomie-website-1785015230577.jpg",
-    url: "https://tryzoomie.com/",
-    color: "#b7ef66",
-  },
-  {
-    title: "JOGA",
-    category: "Lifestyle",
-    blurb: "A lifestyle commerce experience with clean brand presence and focused shopping structure.",
-    metric: "Lifestyle commerce",
-    image: "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/joga-website-1785015235603.jpg",
-    url: "https://shopjoga.com/en-us",
-    color: "#8bdcff",
-  },
-  {
-    title: "Dead Simple",
-    category: "Lifestyle",
-    blurb: "A direct, minimal ecommerce experience with sharp product presentation and simple messaging.",
-    metric: "Lifestyle commerce",
-    image: "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/dead-simple-website-1785015241615.jpg",
-    url: "https://dead-simple.co.uk/",
-    color: "#ffdd55",
-  },
-  {
-    title: "Rugged Beard",
-    category: "Beauty",
-    blurb: "Grooming commerce with a strong masculine brand language and product-led shopping.",
-    metric: "Grooming commerce",
-    image: "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/rugged-beard-website-1785015250136.jpg",
-    url: "https://ruggedevo.com/",
-    color: "#c8b5ff",
-  },
-  {
-    title: "OMA & ME",
-    category: "Beauty",
-    blurb: "Beauty commerce with a polished brand world and focused product storytelling.",
-    metric: "Beauty commerce",
-    image: "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/oma-and-me-website-1785015256947.jpg",
-    url: "https://oma-and-me.com/",
-    color: "#64e6c0",
-  },
-];
-
-const reviews = [
-  {
-    quote:
-      "Open Limits made the whole business feel more premium. The new experience is clearer, faster and finally feels like us.",
-    name: "DTC beauty founder",
-    result: "+71% conversion",
-  },
-  {
-    quote:
-      "They understood the commercial goal immediately. Every design decision had a reason—and the launch was genuinely smooth.",
-    name: "Fashion brand director",
-    result: "Launch in 5 weeks",
-  },
-  {
-    quote:
-      "Our customers noticed the difference on day one. The team found the balance between editorial and effortless shopping.",
-    name: "Homeware co-founder",
-    result: "+39% AOV",
-  },
-  {
-    quote:
-      "Fast, direct and unusually thoughtful. Open Limits felt less like a vendor and more like our in-house growth team.",
-    name: "Wellness operator",
-    result: "3.2× ROAS",
-  },
-];
-
-const services = [
-  ["01", "Shopify design", "High-converting storefronts with a point of view."],
-  ["02", "Shopify development", "Fast, flexible builds your team can actually run."],
-  ["03", "Brand systems", "A memorable identity that works from feed to checkout."],
-  ["04", "Conversion growth", "Sharper journeys, smarter experiments, stronger numbers."],
-];
-
-function ProjectMedia({
-  project,
-  index,
-  brokenImages,
-  setBrokenImages,
-}: {
-  project: Project;
-  index: number;
-  brokenImages: Record<string, boolean>;
-  setBrokenImages: (
-    update: (state: Record<string, boolean>) => Record<string, boolean>,
-  ) => void;
-}) {
-  const mediaContent = (
-    <>
-      {!brokenImages[project.title] ? (
-        <img
-          src={project.image}
-          alt={`${project.title} website screenshot`}
-          loading={index < 2 ? "eager" : "lazy"}
-          onError={() =>
-            setBrokenImages((state) => ({ ...state, [project.title]: true }))
-          }
-        />
-      ) : (
-        <div className="project-placeholder">
-          <span className="mock-nav" />
-          <div className="mock-copy">
-            <small>OPEN LIMITS / {String(index + 1).padStart(2, "0")}</small>
-            <strong>{project.title}</strong>
-            <i />
-            <i />
-          </div>
-          <div className="mock-window">
-            <span />
-            <span />
-            <span />
-          </div>
-        </div>
-      )}
-      <div className="browser-bar">
-        <span />
-        <span />
-        <span />
-        <small>openlimits / work / {String(index + 1).padStart(2, "0")}</small>
-      </div>
-      <span className="project-number">{String(index + 1).padStart(2, "0")}</span>
-    </>
-  );
-
-  if (!project.url) {
+function getChatAutoOpenState() {
+  if (typeof window === "undefined") return null;
+  const browserWindow = window as ChatAutoWindow;
+  try {
     return (
-      <div className="project-media" style={{ background: project.color }}>
-        {mediaContent}
-      </div>
+      browserWindow.sessionStorage?.getItem(CHAT_AUTO_OPEN_KEY) ||
+      browserWindow.__openLimitsChatAutoOpen ||
+      null
     );
+  } catch {
+    return browserWindow.__openLimitsChatAutoOpen || null;
   }
+}
 
+function setChatAutoOpenState(value: string) {
+  if (typeof window === "undefined") return;
+  const browserWindow = window as ChatAutoWindow;
+  browserWindow.__openLimitsChatAutoOpen = value;
+  try {
+    browserWindow.sessionStorage?.setItem(CHAT_AUTO_OPEN_KEY, value);
+  } catch {
+    // Some embedded browser contexts disable sessionStorage.
+  }
+}
+
+function subscribeMotion(callback: () => void) {
+  const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
+  preference.addEventListener("change", callback);
+  return () => preference.removeEventListener("change", callback);
+}
+function readMotion() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+function serverMotion() {
+  return false;
+}
+
+function tabKeys(
+  event: KeyboardEvent<HTMLDivElement>,
+  index: number,
+  count: number,
+  select: (value: number) => void,
+) {
+  const next =
+    event.key === "Home"
+      ? 0
+      : event.key === "End"
+        ? count - 1
+        : ["ArrowRight", "ArrowDown"].includes(event.key)
+          ? (index + 1) % count
+          : ["ArrowLeft", "ArrowUp"].includes(event.key)
+            ? (index - 1 + count) % count
+            : null;
+  if (next === null) return;
+  event.preventDefault();
+  select(next);
+  event.currentTarget
+    .querySelectorAll<HTMLButtonElement>('[role="tab"]')
+    [next]?.focus();
+}
+
+function ServiceDial({
+  active,
+  onChange,
+}: {
+  active: number;
+  onChange: (index: number) => void;
+}) {
   return (
-    <a
-      className="project-media project-media--link"
-      href={project.url}
-      target="_blank"
-      rel="noreferrer"
-      style={{ background: project.color }}
-      aria-label={`Visit ${project.title} website`}
+    <div
+      className="expertise-dial"
+      role="tablist"
+      aria-label="Choose a service"
+      onKeyDown={(event) => tabKeys(event, active, services.length, onChange)}
     >
-      {mediaContent}
-    </a>
+      <div
+        className="dial-ring"
+        aria-hidden="true"
+        style={{ rotate: active * 60 + "deg" }}
+      >
+        {Array.from({ length: 48 }, (_, index) => (
+          <i key={index} style={{ rotate: index * 7.5 + "deg" }} />
+        ))}
+      </div>
+      <div className="dial-center" aria-hidden="true">
+        <span>0{active + 1}</span>
+        <small>OUR EXPERTISE</small>
+        <ArrowUpRight size={23} />
+      </div>
+      {services.map((service, index) => (
+        <button
+          key={service.kind}
+          role="tab"
+          id={"service-tab-" + index}
+          aria-label={service.name}
+          aria-selected={index === active}
+          aria-controls="service-panel"
+          tabIndex={index === active ? 0 : -1}
+          className={index === active ? "dial-option is-active" : "dial-option"}
+          style={
+            {
+              "--angle": index * 60 + "deg",
+              left: 50 + Math.sin((index * Math.PI) / 3) * 38 + "%",
+              top: 50 - Math.cos((index * Math.PI) / 3) * 38 + "%",
+            } as CSSProperties
+          }
+          onClick={() => onChange(index)}
+        >
+          <span>{serviceLabels[index]}</span>
+        </button>
+      ))}
+    </div>
   );
 }
 
 export default function Home() {
-  const [filter, setFilter] = useState<"All" | Project["category"]>("All");
   const [menuOpen, setMenuOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
-  const [brokenImages, setBrokenImages] = useState<Record<string, boolean>>({});
-
-  const filteredProjects = useMemo(
-    () =>
-      filter === "All"
-        ? projects
-        : projects.filter((project) => project.category === filter),
-    [filter],
+  const [offerOpen, setOfferOpen] = useState(false);
+  const [activeSlide, setActiveSlide] = useState(2);
+  const [service, setService] = useState(0);
+  const [stage, setStage] = useState(0);
+  const [filter, setFilter] = useState<"All" | Project["category"]>("All");
+  const [visibleCount, setVisibleCount] = useState(4);
+  const [motion, setMotion] = useState(true);
+  const [galleryFocused, setGalleryFocused] = useState(false);
+  const [reelOpen, setReelOpen] = useState(false);
+  const [reelIndex, setReelIndex] = useState(0);
+  const [reelPlaying, setReelPlaying] = useState(true);
+  const reducedMotion = useSyncExternalStore(
+    subscribeMotion,
+    readMotion,
+    serverMotion,
   );
-
+  const moving = motion && !reducedMotion;
+  const rootRef = useRef<HTMLElement>(null);
+  const reelRef = useRef<HTMLDialogElement>(null);
+  const swipeStart = useRef<{ x: number; y: number } | null>(null);
+  const dragged = useRef(false);
+  const reelButtonRef = useRef<HTMLButtonElement>(null);
+  useStudioMotion(
+    rootRef,
+    moving && !menuOpen && !reelOpen && !chatOpen && !offerOpen,
+  );
+  const filtered =
+    filter === "All"
+      ? workProjects
+      : workProjects.filter((project) => project.category === filter);
+  const currentService = services[service];
   const openChat = () => {
+    setChatAutoOpenState("manual");
     setMenuOpen(false);
     setChatOpen(true);
   };
+  const handleChatOpenChange = (nextOpen: boolean) => {
+    setChatAutoOpenState(nextOpen ? "manual" : "dismissed");
+    setChatOpen(nextOpen);
+  };
+
+  useEffect(() => {
+    if (getChatAutoOpenState()) return;
+    const timer = window.setTimeout(() => {
+      if (getChatAutoOpenState()) return;
+      setChatAutoOpenState("auto");
+      setChatOpen(true);
+    }, 5600);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (!moving || galleryFocused || reelOpen) return;
+    const interval = window.setInterval(
+      () => setActiveSlide((index) => (index + 1) % gallery.length),
+      4200,
+    );
+    return () => window.clearInterval(interval);
+  }, [moving, galleryFocused, reelOpen, activeSlide]);
+
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry, index) => {
+          if (entry.isIntersecting) {
+            (entry.target as HTMLElement).style.setProperty(
+              "--reveal-delay",
+              Math.min(index * 70, 210) + "ms",
+            );
+            entry.target.classList.add("is-visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.08 },
+    );
+    root
+      .querySelectorAll(".reveal")
+      .forEach((element) => observer.observe(element));
+    return () => observer.disconnect();
+  }, [visibleCount, filter]);
+
+  useEffect(() => {
+    if (!reelOpen || !reelPlaying || !moving) return;
+    const timer = window.setInterval(
+      () => setReelIndex((index) => (index + 1) % reelProjects.length),
+      3200,
+    );
+    return () => window.clearInterval(timer);
+  }, [reelOpen, reelPlaying, moving]);
+
+  useEffect(() => {
+    if (!reelOpen && !menuOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const close = (event: globalThis.KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setMenuOpen(false);
+        setReelOpen(false);
+        reelRef.current?.close();
+      }
+    };
+    window.addEventListener("keydown", close);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", close);
+    };
+  }, [reelOpen, menuOpen]);
+
+  function openReel() {
+    setReelOpen(true);
+    setReelIndex(0);
+    setReelPlaying(true);
+    reelRef.current?.showModal();
+  }
+  function closeReel() {
+    setReelOpen(false);
+    reelRef.current?.close();
+    reelButtonRef.current?.focus();
+  }
 
   return (
-    <main>
-      <header className="site-header">
-        <Link className="logo" href="/" aria-label="Open Limits home">
-          <Mark />
-          <span>OPEN LIMITS</span>
+    <main
+      ref={rootRef}
+      className={
+        "studio-site creative-site" + (!moving ? " motion-paused" : "")
+      }
+    >
+      <SplashScreen />
+      <header className="floating-header">
+        <Link className="floating-brand" href="/" aria-label="Open Limits home">
+          <BrandLogo />
         </Link>
-        <nav
-          className={menuOpen ? "nav nav--open" : "nav"}
-          id="site-navigation"
-          aria-label="Main navigation"
-        >
-          <Link href="/#work" onClick={() => setMenuOpen(false)}>Work</Link>
-          <Link href="/#services" onClick={() => setMenuOpen(false)}>Services</Link>
-          <Link href="/#proof" onClick={() => setMenuOpen(false)}>Reviews</Link>
-          <Link href="/about" onClick={() => setMenuOpen(false)}>About</Link>
-          <Link href="/pricing" onClick={() => setMenuOpen(false)}>Pricing</Link>
-          <button className="nav-cta" onClick={openChat}>
-            Start a project <Arrow diagonal />
-          </button>
+        <nav className="floating-nav" aria-label="Main navigation">
+          <a href="#about">About</a>
+          <a href="#services">Services</a>
+          <a href="#platforms">Platforms</a>
+          <a href="#work">Projects</a>
+          <a href="#faqs">FAQs</a>
         </nav>
         <button
-          className="menu-button"
-          onClick={() => setMenuOpen((value) => !value)}
-          aria-label="Toggle menu"
+          className="floating-menu"
+          aria-label={menuOpen ? "Close menu" : "Open menu"}
           aria-expanded={menuOpen}
-          aria-controls="site-navigation"
+          aria-controls="mobile-navigation"
+          onClick={() => setMenuOpen(!menuOpen)}
         >
-          <span />
-          <span />
+          {menuOpen ? <X size={17} /> : <Menu size={17} />}
+          <span>Menu</span>
         </button>
-        <svg
-          className="header-bottom-wave"
-          viewBox="0 0 1440 78"
-          preserveAspectRatio="none"
-          aria-hidden="true"
-        >
-          <path
-            d="M0,17 C170,68 312,67 455,29 C624,-16 782,-4 943,38 C1133,88 1285,71 1440,28 L1440,0 L0,0 Z"
-            fill="currentColor"
-          />
-        </svg>
+        <button className="accent-button nav-contact" onClick={openChat}>
+          Let&apos;s talk <ArrowUpRight size={16} />
+        </button>
       </header>
-
-      <section
-        className="hero hero-video"
-        id="top"
-        aria-label="Open Limits hero"
-      >
-        <div className="hero-video-frame">
-          <video
-            className="hero-video-media hero-video-media--desktop"
-            src="https://res.cloudinary.com/dvtdzotx2/video/upload/q_auto,f_auto/open-limits/desktop-hero-award-winning-shopify-agency-1785017085626.mp4"
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="metadata"
-            aria-hidden="true"
-          />
-          <video
-            className="hero-video-media hero-video-media--mobile"
-            src="https://res.cloudinary.com/dvtdzotx2/video/upload/q_auto,f_auto/open-limits/mobile-hero-award-winning-shopify-agency-1785017094922.mp4"
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="metadata"
-            aria-hidden="true"
-          />
-          <div className="hero-video-shade" />
-          <div className="hero-video-content">
-            <div className="hero-slide__eyebrow">
-              <span className="pulse" />
-              Shopify website awards · 2023—2025
-            </div>
-            <h1>
-              Stand out.
-              <em>Sell louder.</em>
-            </h1>
-            <div className="hero-slide__actions">
-              <a className="hero-slide__button" href="#work">
-                See award-winning work <Arrow />
-              </a>
-              <button className="hero-slide__team-button" onClick={openChat}>
-                Talk to the team <Arrow diagonal />
-              </button>
-            </div>
-            <div className="hero-award-years" aria-label="Best website awards">
-              <span><b>2023</b> Best website</span>
-              <span><b>2024</b> Best website</span>
-              <span><b>2025</b> Best website</span>
-            </div>
-          </div>
-        </div>
-        <svg
-          className="hero-bottom-wave"
-          viewBox="0 0 1440 132"
-          preserveAspectRatio="none"
-          aria-hidden="true"
+      {menuOpen && (
+        <nav
+          id="mobile-navigation"
+          className="mobile-navigation"
+          aria-label="Mobile navigation"
         >
-          <path
-            d="M0,90 C170,128 308,123 468,79 C652,28 796,27 965,76 C1140,126 1292,120 1440,74 L1440,132 L0,132 Z"
-            fill="currentColor"
-          />
-        </svg>
-      </section>
+          <p className="micro-label">OPEN LIMITS</p>
+          {[
+            ["About", "#about"],
+            ["Services", "#services"],
+            ["Platforms", "#platforms"],
+            ["Projects", "#work"],
+            ["FAQs", "#faqs"],
+          ].map(([name, href], index) => (
+            <a key={href} href={href} onClick={() => setMenuOpen(false)}>
+              <small>0{index + 1}</small>
+              {name}
+              <ArrowUpRight />
+            </a>
+          ))}
+          <a className="mobile-email" href="mailto:admin@theopenlimits.com">
+            admin@theopenlimits.com
+          </a>
+        </nav>
+      )}
 
-      <section className="work-section" id="work">
-        <div className="section-intro">
-          <div>
-            <p className="kicker kicker--light">SELECTED WORK · 2023—2025</p>
-            <h2>Built to be seen.<br />Designed to perform.</h2>
-          </div>
+      <section className="creative-hero" id="top">
+        <div className="hero-guides" aria-hidden="true">
+          <i />
+          <i />
+          <i />
+        </div>
+        <div className="creative-hero-title">
+          <p className="micro-label">OPEN LIMITS / DESIGN & TECHNOLOGY</p>
+          <h1>
+            <span className="hero-title-line">
+              <span>Websites, Shopify</span>
+            </span>
+            <span className="hero-title-line">
+              <span>apps & software.</span>
+            </span>
+          </h1>
           <p>
-            First impressions matter. Explore the work, scan the results and visit
-            any live experience that catches your eye.
+            Shopify, WordPress, Next.js, apps, and custom systems.
+            <br />
+            Digital experiences that move your business forward.
           </p>
         </div>
+        <div
+          className="hero-gallery"
+          aria-label="Featured digital experiences"
+          aria-roledescription="carousel"
+          onMouseEnter={() => setGalleryFocused(true)}
+          onMouseLeave={() => setGalleryFocused(false)}
+          onFocusCapture={() => setGalleryFocused(true)}
+          onBlurCapture={(event) => {
+            if (!event.currentTarget.contains(event.relatedTarget as Node))
+              setGalleryFocused(false);
+          }}
+          onPointerDown={(event) => {
+            if (event.button !== 0) return;
+            swipeStart.current = { x: event.clientX, y: event.clientY };
+            dragged.current = false;
+          }}
+          onPointerMove={(event) => {
+            const start = swipeStart.current;
+            if (!start) return;
+            const delta = event.clientX - start.x;
+            if (
+              !dragged.current &&
+              Math.abs(event.clientY - start.y) > Math.abs(delta) + 8
+            ) {
+              swipeStart.current = null;
+              return;
+            }
+            if (Math.abs(delta) > 6) {
+              dragged.current = true;
+              event.currentTarget.setPointerCapture(event.pointerId);
+              event.currentTarget.classList.add("is-dragging");
+              event.currentTarget.style.setProperty(
+                "--drag-x",
+                delta * 0.65 + "px",
+              );
+            }
+          }}
+          onPointerUp={(event) => {
+            if (
+              swipeStart.current !== null &&
+              Math.abs(event.clientX - swipeStart.current.x) > 35
+            ) {
+              dragged.current = true;
+              const direction = event.clientX < swipeStart.current.x ? 1 : -1;
+              setActiveSlide(
+                (index) =>
+                  (index + direction + gallery.length) % gallery.length,
+              );
+            }
+            event.currentTarget.classList.remove("is-dragging");
+            event.currentTarget.style.setProperty("--drag-x", "0px");
+            if (event.currentTarget.hasPointerCapture(event.pointerId))
+              event.currentTarget.releasePointerCapture(event.pointerId);
+            swipeStart.current = null;
+          }}
+          onPointerCancel={(event) => {
+            swipeStart.current = null;
+            event.currentTarget.classList.remove("is-dragging");
+            event.currentTarget.style.setProperty("--drag-x", "0px");
+          }}
+          onKeyDown={(event) => {
+            if (!["ArrowLeft", "ArrowRight"].includes(event.key)) return;
+            event.preventDefault();
+            setActiveSlide(
+              (index) =>
+                (index +
+                  (event.key === "ArrowRight" ? 1 : -1) +
+                  gallery.length) %
+                gallery.length,
+            );
+          }}
+        >
+          {gallery.map((item, index) => {
+            let position =
+              (index - activeSlide + gallery.length) % gallery.length;
+            if (position > Math.floor(gallery.length / 2))
+              position -= gallery.length;
+            return (
+              <a
+                key={item.title}
+                data-distance={Math.abs(position)}
+                data-tilt
+                className={
+                  "gallery-slide" + (position === 0 ? " is-current" : "")
+                }
+                href={item.url}
+                target={item.url?.startsWith("http") ? "_blank" : undefined}
+                rel="noreferrer"
+                tabIndex={position === 0 ? 0 : -1}
+                aria-hidden={Math.abs(position) > 2}
+                aria-label={item.title + ", " + item.category}
+                style={
+                  {
+                    "--position": position,
+                    "--distance": Math.abs(position),
+                    "--slide-color": item.color,
+                    zIndex: 5 - Math.abs(position),
+                  } as CSSProperties
+                }
+                onClick={(event) => {
+                  if (dragged.current) {
+                    event.preventDefault();
+                    return;
+                  }
+                  if (position !== 0) {
+                    event.preventDefault();
+                    setActiveSlide(index);
+                  }
+                }}
+                draggable={false}
+              >
+                <Image
+                  src={item.image}
+                  alt={item.title + " digital experience"}
+                  width={900}
+                  height={600}
+                  priority={Math.abs(position) < 2}
+                  loading="eager"
+                  unoptimized={item.image.startsWith("http")}
+                  draggable={false}
+                />
+                <span className="gallery-slide-title">
+                  {item.title}
+                  <ArrowUpRight size={17} />
+                </span>
+              </a>
+            );
+          })}
+        </div>
+        <div className="gallery-controls">
+          <button
+            className="icon-control"
+            aria-label="Previous featured project"
+            title="Previous project"
+            onClick={() =>
+              setActiveSlide(
+                (index) => (index - 1 + gallery.length) % gallery.length,
+              )
+            }
+          >
+            <ArrowLeft size={17} />
+          </button>
+          <span>
+            <b>{String(activeSlide + 1).padStart(2, "0")}</b> /{" "}
+            {String(gallery.length).padStart(2, "0")}
+          </span>
+          <button
+            className="icon-control"
+            aria-label="Next featured project"
+            title="Next project"
+            onClick={() =>
+              setActiveSlide((index) => (index + 1) % gallery.length)
+            }
+          >
+            <ArrowRight size={17} />
+          </button>
+          <button
+            className="icon-control gallery-pause"
+            aria-label={moving ? "Pause animations" : "Resume animations"}
+            title={moving ? "Pause animations" : "Resume animations"}
+            onClick={() => setMotion(!motion)}
+          >
+            {moving ? <Pause size={14} /> : <Play size={14} />}
+          </button>
+        </div>
+        <a
+          className="hero-scroll"
+          href="#about"
+          aria-label="Discover Open Limits"
+        >
+          <ArrowDown size={17} />
+        </a>
+      </section>
 
-        <div className="filters" role="group" aria-label="Filter projects">
-          {(["All", "Beauty", "Food & Drink", "Lifestyle", "Pet Care"] as const).map((item) => (
+      <section className="clientele-section">
+        <div className="center-heading reveal">
+          <p className="micro-label">ACROSS INDUSTRIES</p>
+          <h2>
+            Different businesses.
+            <br />
+            Extraordinary possibilities.
+          </h2>
+        </div>
+        {[
+          [
+            "Beauty",
+            "Wellness",
+            "Shopify",
+            "Food & beverage",
+            "Fashion",
+            "Healthcare",
+            "Lifestyle",
+          ],
+          [
+            "Fitness",
+            "WordPress",
+            "Home & living",
+            "Pet care",
+            "Hospitality",
+            "Technology",
+            "Retail",
+          ],
+        ].map((row, rowIndex) => (
+          <div className={"clientele-track track-" + rowIndex} key={rowIndex}>
+            <div className="clientele-marquee">
+              {[...row, ...row].map((industry, index) => (
+                <span
+                  key={index}
+                  className={"clientele-name clientele-name-" + (index % 4)}
+                  aria-hidden={index >= row.length}
+                >
+                  {industry}
+                </span>
+              ))}
+            </div>
+          </div>
+        ))}
+      </section>
+
+      <section className="creative-about" id="about">
+        <div className="about-outline" aria-hidden="true" />
+        <div className="about-copy reveal">
+          <p className="micro-label">A LITTLE ABOUT US</p>
+          <h2>
+            We bring a designer&apos;s eye and an engineer&apos;s mind to every
+            build. Websites, software, mobile apps, and AI.{" "}
+            <span>
+              One connected team, from your first idea to what comes next.
+            </span>
+          </h2>
+        </div>
+        <button
+          className="studio-reel reveal"
+          onClick={openReel}
+          ref={reelButtonRef}
+          aria-label="Play Open Limits studio reel"
+        >
+          <div className="reel-contact-sheet" aria-hidden="true">
+            {reelProjects.slice(0, 4).map((item) => (
+              <Image
+                key={item.title}
+                src={item.image}
+                alt=""
+                width={500}
+                height={330}
+                unoptimized={item.image.startsWith("http")}
+              />
+            ))}
+          </div>
+          <span className="reel-play">
+            <Play size={16} fill="currentColor" /> PLAY STUDIO REEL
+          </span>
+          <small>IDEAS INTO EXPERIENCES / OPEN LIMITS</small>
+        </button>
+      </section>
+
+      <section className="creative-services" id="services">
+        <div className="center-heading reveal">
+          <p className="micro-label">OUR EXPERTISE</p>
+          <h2>
+            Your next big thing.
+            <br />
+            Our kind of challenge.
+          </h2>
+        </div>
+        <div className="expertise-workbench content-width reveal">
+          <ServiceDial active={service} onChange={setService} />
+          <div
+            className="expertise-content"
+            id="service-panel"
+            role="tabpanel"
+            aria-labelledby={"service-tab-" + service}
+          >
+            <div className="expertise-heading">
+              <span className="service-number">0{service + 1}</span>
+              <div className="expertise-tags">
+                {currentService.tags.map((tag) => (
+                  <span key={tag}>{tag}</span>
+                ))}
+              </div>
+            </div>
+            <div className="expertise-description" key={currentService.name}>
+              <h3>{currentService.name}</h3>
+              <p>{currentService.description}</p>
+            </div>
+            <div className="service-filmstrip" key={currentService.kind}>
+              {serviceProjects[service].map((project) => (
+                <a
+                  key={project.title}
+                  className="service-film-frame"
+                  href={project.url}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <Image
+                    src={project.image}
+                    alt={project.title + " website"}
+                    width={440}
+                    height={300}
+                    unoptimized
+                  />
+                  <span>
+                    {project.title} / Website <ArrowUpRight size={12} />
+                  </span>
+                </a>
+              ))}
+            </div>
+            <div className="expertise-bottom">
+              <button className="line-button" onClick={openChat}>
+                Explore your project <ArrowUpRight size={16} />
+              </button>
+              <div className="service-arrows">
+                <button
+                  className="icon-control"
+                  aria-label="Previous service"
+                  title="Previous service"
+                  onClick={() =>
+                    setService(
+                      (index) =>
+                        (index - 1 + services.length) % services.length,
+                    )
+                  }
+                >
+                  <ArrowLeft size={16} />
+                </button>
+                <button
+                  className="icon-control"
+                  aria-label="Next service"
+                  title="Next service"
+                  onClick={() =>
+                    setService((index) => (index + 1) % services.length)
+                  }
+                >
+                  <ArrowRight size={16} />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="service-closing reveal">
+          <p>
+            Big ambitions deserve
+            <br />
+            more than a template.
+          </p>
+          <span>
+            We connect strategy, design, and development
+            <br />
+            to build what your business actually needs.
+          </span>
+          <button className="accent-button" onClick={openChat}>
+            Talk to the team <ArrowUpRight size={16} />
+          </button>
+        </div>
+      </section>
+
+      <section className="platform-section" id="platforms">
+        <div className="content-width">
+          <div className="platform-heading reveal">
+            <p className="micro-label">PLATFORM SPECIALISTS</p>
+            <h2>
+              Shopify for selling.
+              <br />
+              WordPress for publishing.
+            </h2>
+            <p>
+              We choose the platform around the job. Some businesses need a
+              high-performing store, others need an editable marketing engine,
+              and the larger ones need both connected cleanly.
+            </p>
+          </div>
+          <div className="platform-grid">
+            {platformSections.map((platform, index) => (
+              <article
+                className="platform-card reveal"
+                key={platform.name}
+                style={{ "--platform-index": index } as CSSProperties}
+              >
+                <div className="platform-copy">
+                  <span className="micro-label">{platform.eyebrow}</span>
+                  <h3>{platform.title}</h3>
+                  <p>{platform.text}</p>
+                  <ul>
+                    {platform.points.map((point) => (
+                      <li key={point}>
+                        <Check size={14} />
+                        {point}
+                      </li>
+                    ))}
+                  </ul>
+                  <button className="line-button" onClick={openChat}>
+                    Discuss {platform.name} <ArrowUpRight size={15} />
+                  </button>
+                </div>
+                <div
+                  className="platform-stack"
+                  aria-label={platform.name + " project examples"}
+                >
+                  {platform.projects.map((project, projectIndex) => (
+                    <a
+                      key={project.title}
+                      href={project.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="platform-shot"
+                      style={
+                        {
+                          "--shot": projectIndex,
+                          "--project-color": project.color,
+                        } as CSSProperties
+                      }
+                    >
+                      <Image
+                        src={project.image}
+                        alt={project.title + " project preview"}
+                        width={560}
+                        height={350}
+                        unoptimized
+                        loading="lazy"
+                      />
+                      <span>
+                        {project.title}
+                        <ArrowUpRight size={12} />
+                      </span>
+                    </a>
+                  ))}
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="creative-work" id="work">
+        <div className="content-width">
+          <div className="work-heading reveal">
+            <div>
+              <p className="micro-label">FEATURED PROJECTS</p>
+              <h2>
+                Made to stand out.
+                <br />
+                Built to work.
+              </h2>
+            </div>
+            <p>
+              A selection of brands and digital
+              <br />
+              experiences from our portfolio.
+            </p>
+          </div>
+          <div
+            className="creative-filters"
+            role="group"
+            aria-label="Filter projects"
+          >
+            {filters.map((item) => (
+              <button
+                key={item}
+                aria-pressed={item === filter}
+                className={item === filter ? "is-active" : ""}
+                onClick={() => {
+                  setFilter(item);
+                  setVisibleCount(4);
+                }}
+              >
+                {item === "All"
+                  ? "All projects"
+                  : item === "Brand Web"
+                    ? "Websites"
+                    : item}
+                <sup>
+                  {item === "All"
+                    ? workProjects.length
+                    : workProjects.filter(
+                        (project) => project.category === item,
+                      ).length}
+                </sup>
+              </button>
+            ))}
+          </div>
+          <div className="creative-project-grid">
+            {filtered.slice(0, visibleCount).map((project, index) => (
+              <article className="creative-project reveal" key={project.title}>
+                <a
+                  data-tilt
+                  href={project.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="creative-project-image"
+                  style={{ "--project-color": project.color } as CSSProperties}
+                  aria-label={"Visit " + project.title + " website"}
+                >
+                  <Image
+                    src={project.image}
+                    alt={project.title + " website design"}
+                    width={1400}
+                    height={788}
+                    unoptimized
+                    loading="lazy"
+                  />
+                  <span className="project-hover">
+                    <ArrowUpRight size={24} />
+                  </span>
+                  <small>
+                    OPEN LIMITS / {String(index + 1).padStart(2, "0")}
+                  </small>
+                </a>
+                <div className="project-category">
+                  <span>
+                    {project.category === "Brand Web"
+                      ? "WEBSITE"
+                      : project.category.toUpperCase()}
+                  </span>
+                  <span>{project.metric.toUpperCase()}</span>
+                </div>
+                <h3>
+                  <a href={project.url} target="_blank" rel="noreferrer">
+                    {project.title}
+                    <ArrowUpRight size={19} />
+                  </a>
+                </h3>
+                <p>{project.blurb}</p>
+              </article>
+            ))}
+          </div>
+          <div className="work-end">
+            <h3>There&apos;s more where that came from.</h3>
+            <p>
+              {showcaseProjects.length} real projects across the studio.
+              Discover {workProjects.length} more here.
+            </p>
+            {visibleCount < filtered.length ? (
+              <button
+                className="line-button"
+                onClick={() => setVisibleCount((count) => count + 4)}
+              >
+                View more projects <Plus size={16} />
+              </button>
+            ) : (
+              <button className="line-button" onClick={openChat}>
+                Let&apos;s make yours next <ArrowUpRight size={16} />
+              </button>
+            )}
+          </div>
+        </div>
+      </section>
+
+      <section className="creative-process content-width" id="process">
+        <div className="center-heading reveal">
+          <p className="micro-label">FROM IDEA TO IMPACT</p>
+          <h2>
+            Clear thinking.
+            <br />
+            Exceptional execution.
+          </h2>
+          <p>
+            Know what&apos;s happening, what&apos;s next,
+            <br />
+            and who&apos;s making it happen.
+          </p>
+        </div>
+        <div className="process-orbit" aria-hidden="true">
+          <span>O</span>
+          <span>L</span>
+        </div>
+        <div
+          className="creative-process-list"
+          role="tablist"
+          aria-label="Project process"
+          onKeyDown={(event) => tabKeys(event, stage, stages.length, setStage)}
+        >
+          {stages.map((item, index) => (
             <button
-              key={item}
-              className={filter === item ? "filter filter--active" : "filter"}
-              onClick={() => setFilter(item)}
+              key={item.name}
+              role="tab"
+              id={"stage-tab-" + index}
+              aria-selected={stage === index}
+              aria-controls="stage-detail"
+              tabIndex={stage === index ? 0 : -1}
+              className={stage === index ? "is-active" : ""}
+              onClick={() => setStage(index)}
             >
-              {item}
-              <sup>{item === "All" ? projects.length : projects.filter((p) => p.category === item).length}</sup>
+              <span>0{index + 1}</span>
+              <strong>{item.name}</strong>
+              <p>{item.title}</p>
+              {stage === index ? <Minus size={19} /> : <Plus size={19} />}
             </button>
           ))}
         </div>
+        <div
+          className="stage-detail"
+          key={stage}
+          id="stage-detail"
+          role="tabpanel"
+          aria-labelledby={"stage-tab-" + stage}
+        >
+          <p>{stages[stage].text}</p>
+          <ul>
+            {stages[stage].deliverables.map((item) => (
+              <li key={item}>
+                <Check size={15} />
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
 
-        <div className="project-grid">
-          {filteredProjects.map((project, index) => (
-            <article className="project-card" key={project.title}>
-              <ProjectMedia
-                project={project}
-                index={index}
-                brokenImages={brokenImages}
-                setBrokenImages={setBrokenImages}
-              />
-              <div className="project-details">
-                <div>
-                  <p>{project.category}</p>
-                  <h3>{project.title}</h3>
-                  <span>{project.blurb}</span>
-                </div>
-                <div className="project-result">
-                  <strong>{project.metric}</strong>
-                  {project.url ? (
-                    <a href={project.url} target="_blank" rel="noreferrer">
-                      Visit website <Arrow diagonal />
-                    </a>
-                  ) : (
-                    <span className="pending-link">Live link coming soon</span>
-                  )}
-                </div>
-              </div>
-            </article>
+      <section className="partnership-section content-width reveal">
+        <div className="partnership-lines" aria-hidden="true">
+          {[0, 1, 2, 3, 4].map((i) => (
+            <i key={i} style={{ "--line": i } as CSSProperties} />
           ))}
         </div>
-      </section>
-
-      <SectionWave from="#111111" to="#b7ef66" flip />
-
-      <section className="manifesto">
-        <div className="manifesto-label">OUR POINT OF VIEW</div>
-        <p>
-          The internet has enough <span>fine.</span>
-          <br />
-          We make brands people <em>feel.</em>
-        </p>
-        <div className="manifesto-note">
-          Distinctive by design. Commercial by nature. Built without the agency fog.
-        </div>
-      </section>
-
-      <SectionWave from="#b7ef66" to="#f6f2ea" />
-
-      <section className="services-section" id="services">
-        <div className="services-head">
-          <div>
-            <p className="kicker">WHAT WE DO</p>
-            <h2>One sharp team.<br />Every digital move.</h2>
-          </div>
+        <div className="partnership-copy">
+          <p className="micro-label">BUILT AROUND YOU</p>
+          <h2>
+            Your team,
+            <br />
+            beyond your team.
+          </h2>
           <p>
-            Strategy, design and development sit at the same table here. Less
-            translation. Better ideas. Faster momentum.
+            A direct line to the people doing the work.
+            <br />A shared ambition for the finished product.
           </p>
+          <a
+            href={calendarLink}
+            target="_blank"
+            rel="noreferrer"
+            className="white-button"
+          >
+            Meet your technology partner <ArrowUpRight size={17} />
+          </a>
         </div>
-        <div className="services-list">
-          {services.map(([number, title, description]) => (
-            <div className="service-row" key={number}>
-              <span>{number}</span>
-              <h3>{title}</h3>
-              <p>{description}</p>
-              <Arrow diagonal />
-            </div>
-          ))}
-        </div>
-        <div className="process-strip">
-          <span>01 DISCOVER</span><b>→</b>
-          <span>02 DEFINE</span><b>→</b>
-          <span>03 DESIGN</span><b>→</b>
-          <span>04 DELIVER</span>
+        <div className="partnership-marker" aria-hidden="true">
+          <Image src="/open-limits-logo.png" alt="" width={400} height={200} />
         </div>
       </section>
 
-      <SectionWave from="#f6f2ea" to="#6b4eff" flip />
-
-      <section className="proof-section" id="proof">
-        <div className="proof-head">
-          <p className="kicker kicker--light">THE RECEIPTS</p>
-          <h2>Big love.<br />Bigger results.</h2>
-          <div className="proof-score">
-            <strong>4.9</strong>
-            <span>★★★★★<small>Across client reviews</small></span>
+      <section className="creative-faq" id="faqs">
+        <div className="faq-content content-width">
+          <div className="faq-sign reveal">
+            <HelpCircle size={29} />
+            <h2>
+              Good
+              <br />
+              questions.
+            </h2>
+            <p>
+              A little clarity before
+              <br />
+              your next big move.
+            </p>
+            <button className="white-button" onClick={openChat}>
+              Ask us anything <ArrowUpRight size={16} />
+            </button>
+          </div>
+          <div className="creative-faq-list reveal">
+            {faqs.map(([question, answer], index) => (
+              <details
+                key={question}
+                name="studio-faq"
+                open={index === 0 ? true : undefined}
+              >
+                <summary>
+                  {question}
+                  <ChevronDown className="faq-down" size={19} />
+                  <ChevronUp className="faq-up" size={19} />
+                </summary>
+                <p>{answer}</p>
+              </details>
+            ))}
           </div>
         </div>
-        <div className="reviews-grid">
-          {reviews.map((review, index) => (
-            <blockquote key={review.name}>
-              <div className="quote-mark">“</div>
-              <p>{review.quote}</p>
-              <footer>
-                <span>{review.name}</span>
-                <strong>{review.result}</strong>
-              </footer>
-              <small>0{index + 1}</small>
-            </blockquote>
-          ))}
-        </div>
-        <div className="trust-row">
-          <span>SHOPIFY PLUS</span>
-          <span>KLAVIYO</span>
-          <span>GROWTH PARTNER</span>
-          <span>GLOBAL DELIVERY</span>
-          <span>60+ LAUNCHES</span>
-        </div>
       </section>
 
-      <SectionWave from="#6b4eff" to="#ffb7db" />
-
-      <section className="cta-section">
-        <div className="cta-badge">NOW BOOKING<br />Q3 / Q4</div>
-        <p>Have a brand with somewhere to go?</p>
-        <h2>Let&apos;s make it<br /><em>impossible to ignore.</em></h2>
-        <button className="button button--dark button--large" onClick={openChat}>
-          Start your project <Arrow />
+      <section className="creative-contact content-width reveal">
+        <p className="micro-label">WHAT&apos;S NEXT?</p>
+        <h2>
+          Something great
+          <br />
+          starts with a conversation.
+        </h2>
+        <p>
+          Tell us what you have in mind.
+          <br />
+          Our experts will help shape the plan and a personalized quote.
+        </p>
+        <div className="contact-links">
+          <button className="accent-button" onClick={openChat}>
+            Start a project <ArrowUpRight size={18} />
+          </button>
+          <a
+            className="line-button"
+            href={calendarLink}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Book a discovery call <ArrowUpRight size={16} />
+          </a>
+        </div>
+        <button
+          className="project-offer-link"
+          onClick={() => setOfferOpen(true)}
+        >
+          View our new-project offer <ArrowUpRight size={14} />
         </button>
-        <div className="cta-small">Typical reply time: under 2 hours</div>
       </section>
 
-      <SectionWave from="#ffb7db" to="#111111" flip />
-
-      <footer className="footer">
-        <div className="footer-top">
-          <Link className="logo logo--footer" href="/">
-            <Mark />
-            <span>OPEN LIMITS</span>
-          </Link>
-          <p>Shopify experiences for brands<br />with no interest in average.</p>
-          <div className="footer-links">
-            <Link href="/#work">Work</Link>
-            <Link href="/about">About us</Link>
-            <Link href="/process">Process</Link>
-            <Link href="/pricing">Pricing</Link>
-            <Link href="/support">Support</Link>
-            <Link href="/privacy-policy">Privacy</Link>
-            <Link href="/refund-policy">Refunds</Link>
-            <Link href="/terms-of-use">Terms</Link>
-            <Link href="/admin">Admin panel</Link>
-            <a href="mailto:admin@theopenlimits.com">Email us</a>
+      <footer className="creative-footer">
+        <div className="content-width">
+          <div className="footer-navigation">
+            <nav aria-label="Footer navigation">
+              <a href="#about">About</a>
+              <a href="#services">Services</a>
+              <a href="#platforms">Platforms</a>
+              <a href="#work">Projects</a>
+              <a href="#faqs">FAQs</a>
+            </nav>
+            <nav aria-label="Contact links">
+              <a
+                href="https://www.fiverr.com/s/m5qDeDN"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Fiverr <ArrowUpRight size={13} />
+              </a>
+              <a
+                href="https://www.upwork.com/freelancers/~016de1057b0e843c6b?mp_source=share"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Upwork <ArrowUpRight size={13} />
+              </a>
+              <a href="mailto:admin@theopenlimits.com">
+                Email us <ArrowUpRight size={13} />
+              </a>
+            </nav>
           </div>
-          <div className="footer-social">
-            <a href="https://www.fiverr.com/s/m5qDeDN" target="_blank" rel="noreferrer" aria-label="Order on Fiverr">Fiverr ↗</a>
-            <a href="https://www.upwork.com/freelancers/~016de1057b0e843c6b?mp_source=share" target="_blank" rel="noreferrer" aria-label="Order on Upwork">Upwork ↗</a>
-            <a href="https://calendar.app.google/adHW8rdFF8fZwitT6" target="_blank" rel="noreferrer" aria-label="Book a call">Call ↗</a>
+          <div className="oversized-wordmark" aria-label="Open Limits">
+            <span>OPEN</span>
+            <span>
+              LIMITS<span className="wordmark-period">.</span>
+            </span>
           </div>
-        </div>
-        <div className="footer-bottom">
-          <span>© {new Date().getFullYear()} OPEN LIMITS</span>
-          <span>15720 VENTURA BLVD #233 · ENCINO CA 91436</span>
-          <Link href="/#top">BACK TO TOP ↑</Link>
+          <div className="footer-company">
+            <Link href="/" aria-label="Open Limits home">
+              <BrandLogo />
+            </Link>
+            <p>
+              15720 Ventura Blvd #233
+              <br />
+              Encino, CA 91436
+            </p>
+            <a href="mailto:admin@theopenlimits.com">
+              admin@theopenlimits.com <ArrowUpRight size={16} />
+            </a>
+          </div>
+          <div className="footer-legal">
+            <div>
+              <Link href="/privacy-policy">Privacy</Link>
+              <Link href="/terms-of-use">Terms of use</Link>
+              <Link href="/refund-policy">Refund policy</Link>
+              <Link href="/support">Support</Link>
+              <Link href="/admin">Admin</Link>
+            </div>
+            <span>© {new Date().getFullYear()} Open Limits</span>
+            <button
+              className="motion-control"
+              onClick={() => setMotion(!motion)}
+            >
+              {moving ? <Pause size={13} /> : <Play size={13} />}
+              {moving ? "Pause motion" : "Resume motion"}
+            </button>
+          </div>
         </div>
       </footer>
 
-      <SplashScreen />
-      <DiscountPopup />
+      <dialog
+        className="reel-dialog"
+        ref={reelRef}
+        aria-label="Open Limits studio reel"
+        onCancel={closeReel}
+        onClick={(event) => {
+          if (event.target === event.currentTarget) closeReel();
+        }}
+      >
+        <div className="reel-dialog-inner">
+          <button
+            className="reel-close icon-control"
+            aria-label="Close studio reel"
+            title="Close reel"
+            onClick={closeReel}
+          >
+            <X size={23} />
+          </button>
+          {reelOpen && (
+            <>
+              <div className="reel-progress" aria-hidden="true">
+                {reelProjects.map((item, index) => (
+                  <i
+                    key={item.title}
+                    className={index === reelIndex ? "is-active" : ""}
+                  />
+                ))}
+              </div>
+              <Image
+                key={reelProjects[reelIndex].title}
+                className="reel-image"
+                src={reelProjects[reelIndex].image}
+                alt={reelProjects[reelIndex].title}
+                width={1400}
+                height={900}
+                unoptimized={reelProjects[reelIndex].image.startsWith("http")}
+              />
+              <div className="reel-caption">
+                <div>
+                  <strong>{reelProjects[reelIndex].title}</strong>
+                  <span>{reelProjects[reelIndex].category}</span>
+                </div>
+                <div>
+                  <button
+                    className="icon-control"
+                    aria-label="Previous reel project"
+                    onClick={() =>
+                      setReelIndex(
+                        (index) =>
+                          (index - 1 + reelProjects.length) %
+                          reelProjects.length,
+                      )
+                    }
+                  >
+                    <ArrowLeft size={20} />
+                  </button>
+                  <button
+                    className="icon-control"
+                    aria-label={reelPlaying ? "Pause reel" : "Play reel"}
+                    onClick={() => setReelPlaying(!reelPlaying)}
+                  >
+                    {reelPlaying ? <Pause size={18} /> : <Play size={18} />}
+                  </button>
+                  <button
+                    className="icon-control"
+                    aria-label="Next reel project"
+                    onClick={() =>
+                      setReelIndex((index) => (index + 1) % reelProjects.length)
+                    }
+                  >
+                    <ArrowRight size={20} />
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      </dialog>
+      <DiscountPopup open={offerOpen} onOpenChange={setOfferOpen} />
       <VisitorTracker />
-      <LeadChat open={chatOpen} onOpenChange={setChatOpen} />
+      <LeadChat open={chatOpen} onOpenChange={handleChatOpenChange} />
     </main>
   );
 }

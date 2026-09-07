@@ -43,9 +43,9 @@ export async function POST(request: NextRequest) {
     email,
     phone,
     niche: niche || null,
-    budget: "30% off new store design offer",
-    projectType: "New store design discount lead",
-    summary: `Requested ${DISCOUNT_CODE} for a new store design project${niche ? ` in ${niche}` : ""}.`,
+    budget: "30% off new digital project offer",
+    projectType: "New digital project discount lead",
+    summary: `Requested ${DISCOUNT_CODE} for a new web, software, app or commerce project${niche ? ` in ${niche}` : ""}.`,
     score: 82,
     intent: "high",
   };

@@ -4,7 +4,7 @@ import { infoPages } from "@/app/info-content";
 
 export const metadata: Metadata = {
   title: "Open Limits Pricing",
-  description: "Custom Shopify design pricing, flexible payments, Fiverr, and Upwork options.",
+  description: "Custom website, software, iOS, commerce, automation and design pricing options.",
 };
 
 export default function PricingPage() {
