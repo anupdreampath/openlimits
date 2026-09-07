@@ -66,7 +66,7 @@ export function answerFallback(
     answer =
       "There isn't a fixed $2,000 package I can promise. We would agree the pages, design work, functionality, content responsibilities, testing, and handover in the scope first. A simple marketing site and a logged-in software product need very different work. Which are you planning?";
   } else if (
-    /\b(?:book|schedule|arrange)\b.*\b(?:call|meeting|consultation)\b|\bwhatsapp\b/.test(
+    /\b(?:book|schedule|arrange)\b.*\b(?:call|meeting|consultation)\b|\bwhatsapp\b|\b(?:speak|talk|chat)\b.*\b(?:someone|person|human|expert|team|developer|consultant)\b/.test(
       latest,
     )
   ) {
@@ -90,8 +90,7 @@ export function answerFallback(
       latest,
     )
   ) {
-    answer =
-      "We can help with all three. A website usually presents or sells your business, an app gives customers a mobile experience, and custom software supports specific workflows. Which best describes your idea?";
+    answer = `We can help with all three. A website usually presents or sells your business, an app gives customers a mobile experience, and custom software supports specific workflows. Which best describes your idea?\n\nBook a call: ${CALENDAR_LINK}\nFast-track on WhatsApp: ${WHATSAPP_NUMBER}`;
   } else if (
     /\b(?:difference|which|better|choose|recommend)\b/.test(latest) &&
     /\b(?:app|website|web|native|react|next|stack)\b/.test(context)
@@ -182,7 +181,11 @@ export function finalizeAnswer(
 
   const latest = userText(messages).at(-1)?.content || "";
   const explicitContact =
-    /\b(?:call|meeting|whatsapp|contact|reach you|email address|phone number)\b/i.test(
+    /\b(?:call|meeting|whatsapp|contact|reach you|email address|phone number)\b|\b(?:speak|talk|chat)\b.*\b(?:someone|person|human|expert|team|developer|consultant)\b/i.test(
+      latest,
+    );
+  const starterRequest =
+    /website,? app,? or software|website,? app,? (?:and|or) software/i.test(
       latest,
     );
   const pricingRequest = /\b(?:quote|estimate|pricing|cost|budget)\b/i.test(
@@ -191,13 +194,14 @@ export function finalizeAnswer(
   const recentlyOffered = recent.some((message) =>
     message.content.includes(CALENDAR_LINK),
   );
-  const allowCta = explicitContact || (pricingRequest && !recentlyOffered);
+  const forceCta = explicitContact || starterRequest;
+  const allowCta = forceCta || (pricingRequest && !recentlyOffered);
   return (
     body +
-    (allowCta && parsed.showCalendar
+    (forceCta || (allowCta && parsed.showCalendar)
       ? `\n\nBook a call: ${CALENDAR_LINK}`
       : "") +
-    (allowCta && parsed.showWhatsapp
+    (forceCta || (allowCta && parsed.showWhatsapp)
       ? `\nFast-track on WhatsApp: ${WHATSAPP_NUMBER}`
       : "")
   );

@@ -3742,7 +3742,7 @@ button:hover .arrow--diagonal {
 
   .lead-chat__form textarea {
     border-radius: 12px;
-    font-size: .76rem;
+    font-size: 16px;
     line-height: 1.35;
     max-height: 86px;
     min-height: 42px;
@@ -3943,7 +3943,7 @@ button:hover .arrow--diagonal {
   }
 
   .lead-chat__form textarea {
-    font-size: .72rem;
+    font-size: 16px;
     max-height: 74px;
   }
 }

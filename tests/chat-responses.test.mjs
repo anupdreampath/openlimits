@@ -86,10 +86,19 @@ test("repeated starter prompts move forward without repeating the software pitch
   const first = answerFallback([user(starter)]);
   const history = [user(starter), assistant(first), user(starter)];
   const second = finalizeAnswer(first, history, {});
+  const modelWithoutLinks = finalizeAnswer(
+    "We can help with all three. A website usually presents or sells your business, an app gives customers a mobile experience, and custom software supports specific workflows. Which best describes your idea?",
+    [user(starter)],
+    {},
+  );
   assert.notEqual(first, second);
   assert.match(first, /Which best describes/);
+  assert.match(first, /calendar.app/);
+  assert.match(first, /Fast-track on WhatsApp/);
+  assert.match(modelWithoutLinks, /calendar.app/);
+  assert.match(modelWithoutLinks, /Fast-track on WhatsApp/);
   assert.match(second, /first version/);
-  assert.doesNotMatch(first + second, /\$|Book a call/);
+  assert.doesNotMatch(second, /\$|Book a call|Fast-track on WhatsApp/);
 });
 
 test("a past low budget does not hijack a technical follow-up", () => {
@@ -117,6 +126,16 @@ test("booking links are not appended to ordinary follow-up answers", () => {
   const booking = answerFallback([user("Can I book a call?")]);
   assert.ok(splitAssistantContent(booking).paragraphs.join(" ").length > 60);
   assert.match(booking, /calendar.app/);
+  const person = answerFallback([user("i want to speak with someone")]);
+  const modelPersonWithoutLinks = finalizeAnswer(
+    "Sure, the team can talk through your project and help shape the scope.",
+    [user("i want to speak with someone")],
+    {},
+  );
+  assert.match(person, /calendar.app/);
+  assert.match(person, /Fast-track on WhatsApp/);
+  assert.match(modelPersonWithoutLinks, /calendar.app/);
+  assert.match(modelPersonWithoutLinks, /Fast-track on WhatsApp/);
 });
 
 test("history reconciliation rejects stale polls and accepts new admin messages", () => {

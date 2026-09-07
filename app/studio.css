@@ -2940,6 +2940,10 @@ details[open] .faq-down {
 }
 
 @media (max-width: 760px) {
+  .studio-site .lead-chat__form textarea {
+    font-size: 16px;
+  }
+
   .studio-site .discount-pop__card {
     height: min(530px, calc(100svh - 56px));
     width: min(100%, 390px);
