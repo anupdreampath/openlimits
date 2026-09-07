@@ -27,6 +27,8 @@ test("Open Limits page uses the owned lead chat instead of third-party chat", as
   const adminChatsPage = await read("app/admin/chats/page.tsx");
   const adminVisitorsPage = await read("app/admin/visitors/page.tsx");
   const facebookPixel = await read("app/components/FacebookPixel.tsx");
+  const openAIAdsPixel = await read("app/components/OpenAIAdsPixel.tsx");
+  const openAIAds = await read("app/lib/openai-ads.ts");
   const metaCapi = await read("app/lib/meta-capi.ts");
   const trackRoute = await read("app/api/track/route.ts");
 
@@ -62,6 +64,11 @@ test("Open Limits page uses the owned lead chat instead of third-party chat", as
   assert.doesNotMatch(facebookPixel, /1788643449163395/);
   assert.match(facebookPixel, /fbq\('init'/);
   assert.match(facebookPixel, /PageView/);
+  assert.match(layout, /OpenAIAdsPixel/);
+  assert.match(openAIAdsPixel, /5TgKHqLs9uaMYoWgBMjTCh/);
+  assert.match(openAIAdsPixel, /appointment_scheduled/);
+  assert.match(openAIAds, /bzr\.openai\.com/);
+  assert.match(openAIAds, /OPENAI_ADS_API_KEY/);
   assert.match(adminOverview, /buildAnalytics/);
   assert.match(adminOverview, /formatActivity/);
   assert.match(metaCapi, /META_CAPI_ACCESS_TOKEN/);
