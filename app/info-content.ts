@@ -154,7 +154,7 @@ export const infoPages: Record<string, InfoPageContent> = {
       {
         title: "Who we are",
         body:
-          "Open Limits provides Shopify design, development, redesign, landing page, conversion, launch, and support services for ecommerce brands. When you use this website or work with us, the information you share is handled for business communication, project delivery, support, and website improvement.",
+          "Open Limits is operated by Urban Lalten. We provide Shopify design, development, redesign, landing page, conversion, launch, and support services for ecommerce brands. When you use this website or work with us, the information you share is handled for business communication, project delivery, support, and website improvement.",
       },
       {
         title: "Information we collect",

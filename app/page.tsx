@@ -1157,6 +1157,8 @@ export default function Home() {
               <BrandLogo />
             </Link>
             <p>
+              Operated by Urban Lalten
+              <br />
               15720 Ventura Blvd #233
               <br />
               Encino, CA 91436
