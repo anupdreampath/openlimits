@@ -3007,6 +3007,40 @@ details[open] .faq-down {
 }
 
 @media (max-width: 760px) {
+  .studio-site .chat-launcher {
+    border-radius: 8px;
+    font-size: 15px;
+    padding: 14px 18px;
+  }
+  .studio-site .chat-launcher:hover {
+    transform: none;
+  }
+  .studio-site .creative-footer {
+    padding-bottom: calc(88px + env(safe-area-inset-bottom));
+  }
+  .studio-site .lead-chat__header {
+    padding: 12px 14px;
+  }
+  .studio-site .lead-chat__header h2 {
+    font-size: 20px;
+  }
+  .studio-site .lead-chat__header span {
+    font-size: 9px;
+  }
+  .studio-site .lead-chat__meta span {
+    font-size: 9px;
+  }
+  .studio-site .lead-chat[data-compact="true"] .lead-chat__meta,
+  .studio-site .lead-chat[data-compact="true"] .lead-chat__header span {
+    display: none;
+  }
+  .studio-site .lead-chat[data-compact="true"] .lead-chat__header {
+    padding-block: 8px;
+  }
+  .studio-site .lead-chat[data-compact="true"] .lead-chat__header h2 {
+    margin: 0;
+    font-size: 18px;
+  }
   .studio-site .lead-chat__form textarea {
     font-size: 16px;
   }

@@ -253,15 +253,14 @@ export const projects: Project[] = [
     color: "#8bdcff",
   },
   {
-    title: "Lansinoh",
-    category: "Brand Web",
+    title: "AnyJob",
+    category: "Software",
     blurb:
-      "Parenting and baby-care commerce focused on reassurance, product education and gentle conversion.",
-    metric: "Family commerce",
-    image:
-      "https://res.cloudinary.com/dvtdzotx2/image/upload/f_auto,q_auto,w_1400,c_fill,ar_16:9/open-limits/lansinoh-replacement-1785015341300.png",
-    url: "https://lansinoh.com/",
-    color: "#c8b5ff",
+      "A service marketplace connecting customers, providers, and businesses through bookings and shift work.",
+    metric: "Service marketplace",
+    image: "/anyjob-website.png",
+    url: "https://anyjob-mu.vercel.app/",
+    color: "#f3b8b6",
   },
   {
     title: "Resilia",

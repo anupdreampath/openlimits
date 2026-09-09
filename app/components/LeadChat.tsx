@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useRef, useState } from "react";
+import { ArrowUpRight, MessageCircle } from "lucide-react";
 import {
   CALENDAR_LINK,
   ChatMessage,
@@ -87,20 +88,89 @@ export function LeadChat({ open, onOpenChange }: LeadChatProps) {
   );
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const launcherRef = useRef<HTMLButtonElement>(null);
   const sendingRef = useRef(false);
   const revisionRef = useRef(0);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({
       top: scrollRef.current.scrollHeight,
-      behavior: "smooth",
+      behavior: isSending ? "instant" : "smooth",
     });
   }, [messages, isSending, open]);
 
   useEffect(() => {
+    const chat = viewportRef.current;
+    if (!chat) return;
+    const mobile = window.matchMedia("(max-width: 760px)").matches;
+    const viewport = window.visualViewport;
+    const scrollY = window.scrollY;
+    const body = document.body;
+    const previousStyles = {
+      position: body.style.position,
+      top: body.style.top,
+      width: body.style.width,
+      overflow: body.style.overflow,
+    };
+    const previousFocus = document.activeElement;
+    let frame = 0;
+    const syncViewport = () => {
+      frame = 0;
+      const messages = scrollRef.current;
+      const atBottom = messages
+        ? messages.scrollHeight - messages.scrollTop - messages.clientHeight < 24
+        : false;
+      const height = viewport?.height ?? window.innerHeight;
+      const offsetTop = viewport?.offsetTop ?? 0;
+      chat.style.setProperty("--chat-viewport-height", `${height}px`);
+      chat.style.setProperty("--chat-viewport-top", `${offsetTop}px`);
+      launcherRef.current?.style.setProperty(
+        "--chat-bottom-offset",
+        `${Math.max(0, window.innerHeight - height - offsetTop)}px`,
+      );
+      chat.dataset.compact = String(height < 500);
+      if (messages && atBottom) messages.scrollTop = messages.scrollHeight;
+    };
+    const requestViewport = () => {
+      if (!frame) frame = window.requestAnimationFrame(syncViewport);
+    };
+
+    // iPhone browser chrome and its keyboard resize the visual viewport separately.
     if (open) {
-      window.setTimeout(() => inputRef.current?.focus(), 120);
+      body.style.overflow = "hidden";
+      if (mobile) {
+        body.style.position = "fixed";
+        body.style.top = `-${scrollY}px`;
+        body.style.width = "100%";
+      }
     }
+    syncViewport();
+    viewport?.addEventListener("resize", requestViewport);
+    viewport?.addEventListener("scroll", requestViewport);
+    window.addEventListener("resize", requestViewport);
+    const focusTimer = window.setTimeout(() => {
+      if (!open) return;
+      // Auto-opening on a phone should not summon the keyboard or pan the page.
+      const target = mobile ? panelRef.current : inputRef.current;
+      target?.focus({ preventScroll: true });
+    }, 120);
+
+    return () => {
+      window.clearTimeout(focusTimer);
+      window.cancelAnimationFrame(frame);
+      viewport?.removeEventListener("resize", requestViewport);
+      viewport?.removeEventListener("scroll", requestViewport);
+      window.removeEventListener("resize", requestViewport);
+      if (open) {
+        Object.assign(body.style, previousStyles);
+        if (mobile) window.scrollTo({ top: scrollY, behavior: "instant" });
+        if (previousFocus instanceof HTMLElement && previousFocus.isConnected) {
+          previousFocus.focus({ preventScroll: true });
+        }
+      }
+    };
   }, [open]);
 
   useEffect(() => {
@@ -207,28 +277,55 @@ export function LeadChat({ open, onOpenChange }: LeadChatProps) {
   return (
     <>
       <button
+        ref={launcherRef}
         className="chat-launcher"
         onClick={() => onOpenChange(true)}
-        aria-label="Chat with Open Limits"
+        hidden={open}
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        aria-controls="open-limits-chat"
       >
-        <span className="chat-pulse" />
-        <span>Let&apos;s talk</span>
-        <b>↗</b>
+        <MessageCircle size={18} aria-hidden="true" />
+        <span className="chat-launcher__desktop-label">Let&apos;s talk</span>
+        <span className="chat-launcher__mobile-label">Talk to developer</span>
+        <ArrowUpRight size={18} aria-hidden="true" />
       </button>
 
       <div
+        ref={viewportRef}
         className={open ? "lead-chat lead-chat--open" : "lead-chat"}
         aria-hidden={!open}
         inert={!open}
         onKeyDown={(event) => {
           if (event.key === "Escape") onOpenChange(false);
+          if (event.key !== "Tab") return;
+          const controls = panelRef.current?.querySelectorAll<HTMLElement>(
+            'a[href], button:not(:disabled), textarea:not(:disabled)',
+          );
+          if (!controls?.length) return;
+          const first = controls[0];
+          const last = controls[controls.length - 1];
+          if (
+            event.shiftKey &&
+            (document.activeElement === first ||
+              document.activeElement === panelRef.current)
+          ) {
+            event.preventDefault();
+            last.focus();
+          } else if (!event.shiftKey && document.activeElement === last) {
+            event.preventDefault();
+            first.focus();
+          }
         }}
       >
         <div
+          id="open-limits-chat"
+          ref={panelRef}
           className="lead-chat__panel"
           role="dialog"
           aria-modal="true"
           aria-label="Open Limits project chat"
+          tabIndex={-1}
         >
           <div className="lead-chat__header">
             <div>
@@ -259,24 +356,33 @@ export function LeadChat({ open, onOpenChange }: LeadChatProps) {
               </div>
             ))}
             {isSending ? (
-              <div className="lead-chat__bubble lead-chat__bubble--assistant lead-chat__bubble--typing">
-                Thinking...
+              <div
+                className="lead-chat__bubble lead-chat__bubble--assistant lead-chat__bubble--typing"
+                role="status"
+                aria-label="Assistant is typing"
+              >
+                <span>Typing</span>
+                <span className="lead-chat__typing-dots" aria-hidden="true">
+                  <i />
+                  <i />
+                  <i />
+                </span>
+              </div>
+            ) : null}
+
+            {messages.length === 1 ? (
+              <div
+                className="lead-chat__prompts"
+                aria-label="Suggested questions"
+              >
+                {starterPrompts.map((prompt) => (
+                  <button key={prompt} onClick={() => void sendMessage(prompt)}>
+                    {prompt}
+                  </button>
+                ))}
               </div>
             ) : null}
           </div>
-
-          {messages.length === 1 ? (
-            <div
-              className="lead-chat__prompts"
-              aria-label="Suggested questions"
-            >
-              {starterPrompts.map((prompt) => (
-                <button key={prompt} onClick={() => void sendMessage(prompt)}>
-                  {prompt}
-                </button>
-              ))}
-            </div>
-          ) : null}
 
           {leadSaved ? (
             <div className="lead-chat__saved" role="status">
@@ -296,6 +402,8 @@ export function LeadChat({ open, onOpenChange }: LeadChatProps) {
                 }
               }}
               placeholder="Ask about your idea, features, or next steps..."
+              aria-label="Message to Open Limits"
+              enterKeyHint="send"
               rows={2}
             />
             <button
