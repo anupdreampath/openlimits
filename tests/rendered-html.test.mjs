@@ -48,7 +48,9 @@ test("Open Limits page uses the owned lead chat instead of third-party chat", as
   );
   assert.match(page, /Talk to the team/);
   assert.match(page, /CHAT_AUTO_OPEN_KEY/);
-  assert.match(page, /5600/);
+  assert.match(page, /CHAT_AUTO_OPEN_MOBILE_QUERY = "\(max-width: 760px\)"/);
+  assert.match(page, /CHAT_AUTO_OPEN_DELAY_MS = 20000/);
+  assert.match(page, /window\.matchMedia\(CHAT_AUTO_OPEN_MOBILE_QUERY\)\.matches/);
   assert.match(page, /onOpenChange=\{handleChatOpenChange\}/);
   assert.match(page, /<PlatformShowcase onDiscuss=\{openChat\}/);
   assert.match(platforms, /SHOPIFY COMMERCE/);

@@ -51,6 +51,8 @@ const upworkLink =
 const trustpilotLink = "https://www.trustpilot.com/review/theopenlimits.com";
 const filters = ["All", "Brand Web", "Software", "Commerce"] as const;
 const CHAT_AUTO_OPEN_KEY = "open-limits-chat-auto-opened";
+const CHAT_AUTO_OPEN_MOBILE_QUERY = "(max-width: 760px)";
+const CHAT_AUTO_OPEN_DELAY_MS = 20000;
 const serviceLabels = [
   "WEB",
   "SOFTWARE",
@@ -285,11 +287,14 @@ export default function Home() {
 
   useEffect(() => {
     if (getChatAutoOpenState()) return;
+    if (!window.matchMedia(CHAT_AUTO_OPEN_MOBILE_QUERY).matches) return;
+
     const timer = window.setTimeout(() => {
       if (getChatAutoOpenState()) return;
+      if (!window.matchMedia(CHAT_AUTO_OPEN_MOBILE_QUERY).matches) return;
       setChatAutoOpenState("auto");
       setChatOpen(true);
-    }, 5600);
+    }, CHAT_AUTO_OPEN_DELAY_MS);
     return () => window.clearTimeout(timer);
   }, []);
 
