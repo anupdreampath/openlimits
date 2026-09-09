@@ -138,6 +138,14 @@ export const faqs = [
     "Yes. Share your current website or app, the problems you are seeing, and what you want to improve. We can review the experience and technical setup before recommending the next steps.",
   ],
   [
+    "Can I verify Open Limits before hiring?",
+    "Yes. We have built over 500 websites across direct clients, Upwork, and Fiverr combined. We are Top Rated on Upwork with 1,200 hours worked across 150 projects, rated 4.9/5 on Fiverr with 200+ projects delivered, and rated 4.3/5 on Trustpilot with over 88 reviews. Explore our work and public profiles, then choose to work with us directly or through a marketplace.",
+  ],
+  [
+    "Why choose Open Limits over another agency?",
+    "You get real project depth, a broader technical team, and requirements-first scoping across websites, Shopify, WordPress, software, iOS, AI, dashboards, and integrations. We do not try to price complex builds from a vague idea.",
+  ],
+  [
     "What happens after launch?",
     "We include three months of post-launch support. During scoping, we will define the handover, support coverage, and any ongoing development your product may need.",
   ],

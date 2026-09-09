@@ -21,8 +21,8 @@ export const infoPages: Record<string, InfoPageContent> = {
     intro:
       "Open Limits was built for founders who care about product, taste, speed, and revenue at the same time. We work like a studio, think like operators, and engineer the digital systems that sit behind serious growth.",
     accent: "#b7ef66",
-    stat: "60+",
-    statLabel: "commerce launches shaped, shipped, or sharpened",
+    stat: "500+",
+    statLabel: "websites built across direct clients, Upwork, and Fiverr",
     sections: [
       {
         title: "The origin story",

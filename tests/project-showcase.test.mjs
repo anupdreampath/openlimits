@@ -42,7 +42,7 @@ test("every real project is assigned to exactly one homepage section", async () 
   );
   const {
     heroProjects,
-    reelProjects,
+    platformProjects,
     serviceProjects,
     workProjects,
     pendingProjectCaptures,
@@ -54,7 +54,7 @@ test("every real project is assigned to exactly one homepage section", async () 
   );
   const allocated = [
     ...heroProjects,
-    ...reelProjects,
+    ...platformProjects,
     ...serviceProjects.flat(),
     ...workProjects,
   ];
@@ -87,6 +87,12 @@ test("every real project is assigned to exactly one homepage section", async () 
     /Product concept|serviceMedia|studio-hero|mobile-product|automation-product/,
   );
   assert.match(page, /serviceProjects\[service\]\.map/);
-  assert.match(page, /reelProjects\.slice/);
+  const platforms = await readFile(new URL("app/components/PlatformShowcase.tsx", root), "utf8");
+  assert.match(platforms, /platformProjects\.map/);
+  assert.match(platforms, /window\.setInterval/);
+  assert.match(platforms, /5000/);
+  assert.match(platforms, /aria-live=\{isGalleryPaused \? "polite" : "off"\}/);
+  assert.match(platforms, /isGalleryPaused \? "PAUSED" : "AUTO"/);
+  assert.match(page, /<PlatformShowcase/);
   assert.match(page, /\? workProjects/);
 });

@@ -10,7 +10,7 @@ export const showcaseProjects = projects.filter(
 export const heroProjects = [1, 8, 0, 12, 6, 2, 4].map(
   (index) => projects[index],
 );
-export const reelProjects = [10, 11, 13, 15, 20, 25].map(
+export const platformProjects = [10, 11, 13, 15, 20, 25].map(
   (index) => projects[index],
 );
 export const serviceProjects = [
@@ -24,7 +24,7 @@ export const serviceProjects = [
 
 const featured = new Set([
   ...heroProjects,
-  ...reelProjects,
+  ...platformProjects,
   ...serviceProjects.flat(),
 ]);
 export const workProjects = showcaseProjects.filter(

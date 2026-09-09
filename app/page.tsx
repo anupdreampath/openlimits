@@ -25,9 +25,12 @@ import {
   ChevronDown,
   ChevronUp,
   HelpCircle,
+  BadgeCheck,
+  Star,
 } from "lucide-react";
 import { BrandLogo } from "@/app/components/BrandPrimitives";
 import { LeadChat } from "@/app/components/LeadChat";
+import { PlatformShowcase } from "@/app/components/PlatformShowcase";
 import { SplashScreen } from "@/app/components/SplashScreen";
 import { DiscountPopup } from "@/app/components/DiscountPopup";
 import { VisitorTracker } from "@/app/components/VisitorTracker";
@@ -42,6 +45,10 @@ import { services, stages, faqs } from "@/app/lib/studio-content";
 import { useStudioMotion } from "@/app/lib/use-studio-motion";
 
 const calendarLink = "https://calendar.app.google/adHW8rdFF8fZwitT6";
+const fiverrLink = "https://www.fiverr.com/s/m5qDeDN";
+const upworkLink =
+  "https://www.upwork.com/freelancers/~016de1057b0e843c6b?mp_source=share";
+const trustpilotLink = "https://www.trustpilot.com/review/theopenlimits.com";
 const filters = ["All", "Brand Web", "Software", "Commerce"] as const;
 const CHAT_AUTO_OPEN_KEY = "open-limits-chat-auto-opened";
 const serviceLabels = [
@@ -52,34 +59,6 @@ const serviceLabels = [
   "COMMERCE",
   "DESIGN",
 ];
-const platformSections = [
-  {
-    name: "Shopify",
-    eyebrow: "SHOPIFY COMMERCE",
-    title: "Stores that feel built, not themed.",
-    text: "For product brands that need a sharper storefront, cleaner collections, better product pages, apps that behave, checkout tracking, and a site that is ready for paid traffic.",
-    points: [
-      "Custom storefront design",
-      "Theme development",
-      "Conversion tracking",
-      "Subscriptions & apps",
-    ],
-    projects: [gallery[2], gallery[3], gallery[5]],
-  },
-  {
-    name: "WordPress",
-    eyebrow: "WORDPRESS WEBSITES",
-    title: "Content-led sites with room to grow.",
-    text: "For service businesses, publishers, creators, and local brands that need editable pages, strong SEO foundations, fast landing pages, and a site your team can keep fresh.",
-    points: [
-      "Editable CMS pages",
-      "Service landing pages",
-      "Blog & resource hubs",
-      "Performance cleanup",
-    ],
-    projects: [gallery[0], gallery[4], gallery[6]],
-  },
-];
 const studioReelVideo =
   "https://video.gumlet.io/6873c98d14683753e66e90d2/6aa1070c2f578a19ae51fac3/main.mp4";
 const offerSlide = {
@@ -88,6 +67,57 @@ const offerSlide = {
   text: "For serious new builds, we can shape the first phase around website direction, conversion structure, responsive design, and the technical roadmap before the full quote.",
   points: ["Discovery call", "UX direction", "Build roadmap", "Tracking plan"],
 };
+const trustSignals = [
+  {
+    platform: "Upwork",
+    score: "Top Rated",
+    text: "1,200 hours worked across 150 projects. An established track record you can hire with confidence.",
+    logo: "/brands/upwork.svg",
+    label: "View Upwork profile",
+    href: upworkLink,
+  },
+  {
+    platform: "Fiverr",
+    score: "4.9",
+    text: "200+ projects delivered on Fiverr, backed by clients who trusted us with their next step.",
+    logo: "/brands/fiverr.svg",
+    label: "Explore Fiverr profile",
+    href: fiverrLink,
+  },
+];
+const comparisonPoints = [
+  {
+    title: "The work is real.",
+    text: "Explore live websites and products across commerce, services, and software. See the details for yourself.",
+  },
+  {
+    title: "One connected team.",
+    text: "Design, websites, Shopify, WordPress, mobile apps, and custom software. The expertise your project needs, together.",
+  },
+  {
+    title: "Clarity before cost.",
+    text: "We map your requirements, priorities, and integrations, then shape a personalized quote with our experts.",
+  },
+  {
+    title: "Your way to work.",
+    text: "Speak directly with our team, or hire through Upwork or Fiverr with your project conversations and records in one place.",
+  },
+];
+
+function RatingStars({ rating }: { rating: number }) {
+  return (
+    <span className="proof-stars" role="img" aria-label={`${rating} out of 5 stars`}>
+      {[0, 1, 2, 3, 4].map((index) => (
+        <span className="proof-star" key={index} aria-hidden="true">
+          <Star size={18} fill="currentColor" strokeWidth={0} />
+          <span style={{ width: `${Math.min(1, Math.max(0, rating - index)) * 100}%` }}>
+            <Star size={18} fill="currentColor" strokeWidth={0} />
+          </span>
+        </span>
+      ))}
+    </span>
+  );
+}
 type ChatAutoWindow = Window & {
   __openLimitsChatAutoOpen?: string;
 };
@@ -214,6 +244,7 @@ export default function Home() {
   const [activeSlide, setActiveSlide] = useState(2);
   const [service, setService] = useState(0);
   const [stage, setStage] = useState(0);
+  const [expandedPrinciple, setExpandedPrinciple] = useState<number | null>(0);
   const [filter, setFilter] = useState<"All" | Project["category"]>("All");
   const [visibleCount, setVisibleCount] = useState(4);
   const [motion, setMotion] = useState(true);
@@ -429,6 +460,7 @@ export default function Home() {
         <nav className="floating-nav" aria-label="Main navigation">
           <a href="#about">About</a>
           <a href="#services">Services</a>
+          <a href="#proof">Proof</a>
           <a href="#platforms">Platforms</a>
           <a href="#work">Projects</a>
           <a href="#faqs">FAQs</a>
@@ -457,6 +489,7 @@ export default function Home() {
           {[
             ["About", "#about"],
             ["Services", "#services"],
+            ["Proof", "#proof"],
             ["Platforms", "#platforms"],
             ["Projects", "#work"],
             ["FAQs", "#faqs"],
@@ -714,16 +747,133 @@ export default function Home() {
         ))}
       </section>
 
+      <section className="trust-proof-section" id="proof" aria-labelledby="proof-heading">
+        <div className="content-width">
+          <div className="proof-section-label reveal">
+            <span>01 / REPUTATION</span>
+            <span>Good work. Happy clients.</span>
+          </div>
+          <div className="trust-proof-layout">
+            <div className="trust-proof-intro reveal">
+              <h2 id="proof-heading">
+                Built well.<br />
+                Rated highly.<br />
+                <em>Trusted.</em>
+              </h2>
+              <p>
+                Over 500 websites built for direct clients and businesses
+                on Upwork and Fiverr. Proven experience, public feedback,
+                and a team ready for your next big idea.
+              </p>
+              <a
+                className="proof-portfolio-link"
+                href="#work"
+              >
+                <strong>500<span>+</span></strong>
+                <span>
+                  Websites delivered
+                  <small>Explore our work <ArrowUpRight size={14} /></small>
+                </span>
+              </a>
+            </div>
+            <div className="trust-proof-grid">
+              {trustSignals.map((signal) => (
+                <a
+                  className="trust-proof-card reveal"
+                  href={signal.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  key={signal.platform}
+                  aria-label={`${signal.platform}: ${signal.score}. ${signal.label}`}
+                >
+                  <div className="proof-card-top">
+                    <span className={`proof-platform proof-platform-${signal.platform.toLowerCase()}`}>
+                      <Image src={signal.logo} alt="" width={32} height={32} />
+                      <span>{signal.platform}</span>
+                    </span>
+                    <ArrowUpRight size={18} className="proof-outbound" />
+                  </div>
+                  <div className="proof-card-rating">
+                    {signal.platform === "Upwork" ? (
+                      <BadgeCheck size={26} strokeWidth={1.5} aria-hidden="true" />
+                    ) : (
+                      <RatingStars rating={Number(signal.score)} />
+                    )}
+                    <strong>
+                      {signal.score}
+                      {signal.platform === "Fiverr" && <small> / 5</small>}
+                    </strong>
+                  </div>
+                  <p>{signal.text}</p>
+                  <span className="trust-proof-link">{signal.label}</span>
+                </a>
+              ))}
+              <a
+                className="trustpilot-proof reveal"
+                href={trustpilotLink}
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Trustpilot: 4.3 out of 5, with 88+ reviews. Read our reviews"
+              >
+                <div className="trustpilot-proof-copy">
+                  <span className="proof-platform">
+                    <Image src="/brands/trustpilot.svg" alt="" width={25} height={25} />
+                    <span>Trustpilot</span>
+                  </span>
+                  <p>88+ reviews from the people<br />we build for.</p>
+                  <span className="trust-proof-link">Read our reviews <ArrowUpRight size={14} /></span>
+                </div>
+                <div className="trustpilot-proof-rating">
+                  <strong>4.3<small> / 5</small></strong>
+                  <RatingStars rating={4.3} />
+                  <span>Client review score</span>
+                </div>
+              </a>
+            </div>
+          </div>
+          <div className="proof-approach">
+            <div className="proof-approach-heading reveal">
+              <p className="proof-eyebrow">THE OPEN LIMITS APPROACH</p>
+              <h3>A good partner makes<br /><em>all the difference.</em></h3>
+              <a href={calendarLink} target="_blank" rel="noreferrer" className="proof-call-link">
+                Meet your team <ArrowUpRight size={17} />
+              </a>
+            </div>
+            <ol className="proof-principles">
+              {comparisonPoints.map((point, index) => (
+                <li className="reveal" key={point.title} data-open={expandedPrinciple === index}>
+                  <span className="proof-principle-number">0{index + 1}</span>
+                  <div className="proof-principle-copy">
+                    <h4>
+                      <span className="proof-principle-title">{point.title}</span>
+                      <button
+                        className="proof-principle-toggle"
+                        aria-expanded={expandedPrinciple === index}
+                        aria-controls={`proof-principle-${index}`}
+                        onClick={() => setExpandedPrinciple((current) => current === index ? null : index)}
+                      >
+                        {point.title}
+                        {expandedPrinciple === index ? <Minus size={16} aria-hidden="true" /> : <Plus size={16} aria-hidden="true" />}
+                      </button>
+                    </h4>
+                    <div className="proof-principle-body" id={`proof-principle-${index}`}>
+                      <div><p>{point.text}</p></div>
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </div>
+      </section>
+
       <section className="creative-about" id="about">
         <div className="about-outline" aria-hidden="true" />
         <div className="about-copy reveal">
           <p className="micro-label">A LITTLE ABOUT US</p>
           <h2>
-            We bring a designer&apos;s eye and an engineer&apos;s mind to every
-            build. Websites, software, mobile apps, and AI.{" "}
-            <span>
-              One connected team, from your first idea to what comes next.
-            </span>
+            Design-led. Expertly engineered.{" "}
+            <span>One team, from idea to launch.</span>
           </h2>
         </div>
         <div
@@ -783,7 +933,11 @@ export default function Home() {
               <h3>{currentService.name}</h3>
               <p>{currentService.description}</p>
             </div>
-            <div className="service-filmstrip" key={currentService.kind}>
+            <div
+              className="service-filmstrip"
+              key={currentService.kind}
+              data-lenis-prevent-horizontal
+            >
               {serviceProjects[service].map((project) => (
                 <a
                   key={project.title}
@@ -854,82 +1008,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="platform-section" id="platforms">
-        <div className="content-width">
-          <div className="platform-heading reveal">
-            <p className="micro-label">PLATFORM SPECIALISTS</p>
-            <h2>
-              Shopify for selling.
-              <br />
-              WordPress for publishing.
-            </h2>
-            <p>
-              We choose the platform around the job. Some businesses need a
-              high-performing store, others need an editable marketing engine,
-              and the larger ones need both connected cleanly.
-            </p>
-          </div>
-          <div className="platform-grid">
-            {platformSections.map((platform, index) => (
-              <article
-                className="platform-card reveal"
-                key={platform.name}
-                style={{ "--platform-index": index } as CSSProperties}
-              >
-                <div className="platform-copy">
-                  <span className="micro-label">{platform.eyebrow}</span>
-                  <h3>{platform.title}</h3>
-                  <p>{platform.text}</p>
-                  <ul>
-                    {platform.points.map((point) => (
-                      <li key={point}>
-                        <Check size={14} />
-                        {point}
-                      </li>
-                    ))}
-                  </ul>
-                  <button className="line-button" onClick={openChat}>
-                    Discuss {platform.name} <ArrowUpRight size={15} />
-                  </button>
-                </div>
-                <div
-                  className="platform-stack"
-                  aria-label={platform.name + " project examples"}
-                >
-                  {platform.projects.map((project, projectIndex) => (
-                    <a
-                      key={project.title}
-                      href={project.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="platform-shot"
-                      style={
-                        {
-                          "--shot": projectIndex,
-                          "--project-color": project.color,
-                        } as CSSProperties
-                      }
-                    >
-                      <Image
-                        src={project.image}
-                        alt={project.title + " project preview"}
-                        width={560}
-                        height={350}
-                        unoptimized
-                        loading="lazy"
-                      />
-                      <span>
-                        {project.title}
-                        <ArrowUpRight size={12} />
-                      </span>
-                    </a>
-                  ))}
-                </div>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
+      <PlatformShowcase onDiscuss={openChat} />
 
       <section className="creative-work" id="work">
         <div className="content-width">
@@ -1244,24 +1323,28 @@ export default function Home() {
             <nav aria-label="Footer navigation">
               <a href="#about">About</a>
               <a href="#services">Services</a>
+              <a href="#proof">Proof</a>
               <a href="#platforms">Platforms</a>
               <a href="#work">Projects</a>
               <a href="#faqs">FAQs</a>
             </nav>
             <nav aria-label="Contact links">
               <a
-                href="https://www.fiverr.com/s/m5qDeDN"
+                href={fiverrLink}
                 target="_blank"
                 rel="noreferrer"
               >
                 Fiverr <ArrowUpRight size={13} />
               </a>
               <a
-                href="https://www.upwork.com/freelancers/~016de1057b0e843c6b?mp_source=share"
+                href={upworkLink}
                 target="_blank"
                 rel="noreferrer"
               >
                 Upwork <ArrowUpRight size={13} />
+              </a>
+              <a href={trustpilotLink} target="_blank" rel="noreferrer">
+                Trustpilot <ArrowUpRight size={13} />
               </a>
               <a href="mailto:admin@theopenlimits.com">
                 Email us <ArrowUpRight size={13} />

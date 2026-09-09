@@ -17,9 +17,7 @@ export function useStudioMotion(
       anchors: true,
       prevent: (element) =>
         Boolean(
-          element.closest(
-            ".lead-chat, .discount-pop, dialog, .service-filmstrip",
-          ),
+          element.closest(".lead-chat, .discount-pop, dialog"),
         ),
     });
     return () => lenis.destroy();

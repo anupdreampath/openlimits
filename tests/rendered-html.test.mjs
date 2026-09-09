@@ -40,6 +40,7 @@ test("Open Limits page uses the owned lead chat instead of third-party chat", as
   const openAIAds = await read("app/lib/openai-ads.ts");
   const metaCapi = await read("app/lib/meta-capi.ts");
   const trackRoute = await read("app/api/track/route.ts");
+  const platforms = await read("app/components/PlatformShowcase.tsx");
 
   assert.doesNotMatch(
     page,
@@ -49,8 +50,17 @@ test("Open Limits page uses the owned lead chat instead of third-party chat", as
   assert.match(page, /CHAT_AUTO_OPEN_KEY/);
   assert.match(page, /5600/);
   assert.match(page, /onOpenChange=\{handleChatOpenChange\}/);
-  assert.match(page, /SHOPIFY COMMERCE/);
-  assert.match(page, /WORDPRESS WEBSITES/);
+  assert.match(page, /<PlatformShowcase onDiscuss=\{openChat\}/);
+  assert.match(platforms, /SHOPIFY COMMERCE/);
+  assert.match(platforms, /WORDPRESS WEBSITES/);
+  assert.match(page, /500<span>\+<\/span>/);
+  assert.match(page, /88\+ reviews/);
+  assert.match(page, /Websites delivered/);
+  assert.doesNotMatch(page, /60<span>\+<\/span>/);
+  assert.match(page, /1,200 hours worked across 150 projects/);
+  assert.match(page, /200\+ projects delivered on Fiverr/);
+  assert.match(page, /score: "4\.9"/);
+  assert.match(page, /<RatingStars rating=\{Number\(signal.score\)\}/);
   assert.match(
     page,
     /<DiscountPopup open=\{offerOpen\} onOpenChange=\{setOfferOpen\} \/>/,
