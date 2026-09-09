@@ -476,46 +476,66 @@ html.lenis {
   rotate: 30deg;
   border-radius: 40px;
 }
+.studio-reel-stage {
+  --reel-progress: 0;
+  --reel-start-scale: 0.38;
+  --reel-travel: 48px;
+  --reel-scale: calc(
+    var(--reel-start-scale) +
+    (1 - var(--reel-start-scale)) * var(--reel-progress)
+  );
+  position: relative;
+  width: min(860px, 86%);
+  aspect-ratio: 16/9;
+  margin: 52px auto var(--reel-travel);
+}
 .studio-reel {
   display: block;
-  position: relative;
-  width: min(680px, 80%);
-  aspect-ratio: 16/9;
-  margin: 76px auto 0;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   padding: 0;
   background: #211f1e;
   border: 0;
   overflow: hidden;
-  border-radius: 7px;
+  border-radius: calc(18px - (var(--reel-progress) * 10px));
   color: #fff;
+  transform:
+    translateY(calc(var(--reel-progress) * var(--reel-travel)))
+    scale(var(--reel-scale));
+  transform-origin: center top;
+  box-shadow:
+    0 calc(18px + (var(--reel-progress) * 30px))
+      calc(44px + (var(--reel-progress) * 60px)) #211f1e24;
+  will-change: transform;
 }
-.reel-contact-sheet {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  transform: rotate(-9deg) scale(1.2);
-  animation: reel-drift 14s ease-in-out infinite alternate;
+.studio-reel:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 6px;
 }
-.reel-contact-sheet img {
+.studio-reel-video {
   width: 100%;
-  height: 190px;
+  height: 100%;
   object-fit: cover;
+  display: block;
+  pointer-events: none;
 }
 .studio-reel::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: #211b1740;
+  background: rgb(33 27 23 / calc(0.42 - (var(--reel-progress) * 0.24)));
   transition: background 0.3s;
 }
 .studio-reel:hover::after {
-  background: #211b1715;
+  background: #211b1710;
 }
 .reel-play {
   position: absolute;
   left: 50%;
   top: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%) scale(calc(1 / var(--reel-scale)));
   z-index: 2;
   font-family: var(--font-geist-mono), monospace;
   font-size: 12px;
@@ -527,6 +547,10 @@ html.lenis {
   background: #211f1ed9;
   padding: 18px 26px;
   white-space: nowrap;
+  transition: background 0.2s;
+}
+.studio-reel:hover .reel-play {
+  background: #211f1ef0;
 }
 .studio-reel > small {
   position: absolute;
@@ -535,6 +559,7 @@ html.lenis {
   z-index: 2;
   font-size: 9px;
   font-family: var(--font-geist-mono), monospace;
+  opacity: clamp(0, (var(--reel-progress) - 0.6) * 2.5, 1);
 }
 .creative-services {
   padding: 98px 0 90px;
@@ -822,6 +847,91 @@ html.lenis {
   line-height: 1.65;
   font-size: 14px;
   margin: 20px 0 25px;
+}
+.offer-slide-section {
+  padding: 0 0 96px;
+}
+.offer-slide {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 0.72fr auto;
+  gap: 34px;
+  align-items: center;
+  min-height: 310px;
+  overflow: hidden;
+  padding: 34px;
+  border: 1px solid #dfd8d2;
+  border-radius: 34px;
+  background:
+    linear-gradient(135deg, #fffaf6 0%, #fff 38%, #fbd2c2 70%, #fff1e8 100%);
+  box-shadow:
+    inset 0 1px 0 #ffffffd9,
+    0 24px 70px #211f1e10;
+}
+.offer-slide::before,
+.offer-slide::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  border: 1px solid #211f1e12;
+  border-radius: 999px;
+}
+.offer-slide::before {
+  width: 430px;
+  height: 430px;
+  right: -140px;
+  top: -210px;
+}
+.offer-slide::after {
+  width: 290px;
+  height: 290px;
+  left: -120px;
+  bottom: -190px;
+}
+.offer-slide > * {
+  position: relative;
+  z-index: 2;
+}
+.offer-slide .micro-label {
+  color: #a56b55;
+  margin-bottom: 18px;
+}
+.offer-slide h2 {
+  max-width: 620px;
+  font-size: 48px;
+}
+.offer-slide p {
+  max-width: 620px;
+  color: #746c67;
+  font-size: 14px;
+  line-height: 1.7;
+  margin-top: 18px;
+}
+.offer-slide-points {
+  display: grid;
+  gap: 10px;
+}
+.offer-slide-points span {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  min-height: 51px;
+  padding: 12px 14px;
+  border: 1px solid #211f1e12;
+  border-radius: 999px;
+  background: #ffffffa8;
+  color: #312d2a;
+  font-size: 13px;
+}
+.offer-slide-points small {
+  font-family: var(--font-geist-mono), monospace;
+  color: #e6552a;
+  font-size: 10px;
+}
+.offer-slide-actions {
+  display: grid;
+  gap: 12px;
+  justify-items: stretch;
 }
 .platform-section {
   position: relative;
@@ -1616,79 +1726,46 @@ details[open] .faq-down {
 }
 .reel-dialog {
   border: 0;
-  background: #211f1e;
+  background: #050505;
   color: #fff;
   padding: 0;
-  border-radius: 6px;
-  width: min(1000px, calc(100% - 40px));
-  max-height: calc(100svh - 50px);
+  border-radius: 0;
+  width: 100vw;
+  max-width: none;
+  height: 100svh;
+  max-height: none;
   margin: auto;
-  overflow: auto;
+  overflow: hidden;
 }
 .reel-dialog::backdrop {
-  background: #14100dea;
-  backdrop-filter: blur(12px);
+  background: #050505;
 }
 .reel-dialog-inner {
   position: relative;
-  padding: 48px 25px 24px;
+  width: 100%;
+  height: 100%;
+  padding: 0;
 }
 .reel-close {
   position: absolute;
-  right: 12px;
-  top: 10px;
+  right: 18px;
+  top: 18px;
+  z-index: 3;
   color: white;
-  border-color: #695a50;
+  border-color: #ffffff52;
+  background: #05050580;
+  backdrop-filter: blur(12px);
 }
 .reel-close:hover,
-.reel-caption .icon-control:hover {
+.reel-close:focus-visible {
   background: #5d3e2b;
 }
-.reel-image {
+.reel-video {
   width: 100%;
-  height: min(60svh, 570px);
-  object-fit: contain;
-  background: #151210;
-  animation: content-arrive 0.5s ease;
-}
-.reel-progress {
-  display: flex;
-  gap: 5px;
-  margin-bottom: 10px;
-}
-.reel-progress i {
-  flex: 1;
-  background: #514239;
-  height: 2px;
-}
-.reel-progress i.is-active {
-  background: var(--accent);
-}
-.reel-caption {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  margin-top: 20px;
-}
-.reel-caption strong {
+  height: 100%;
+  object-fit: cover;
+  background: #050505;
   display: block;
-  font-size: 20px;
-  font-weight: 450;
-}
-.reel-caption span {
-  display: block;
-  color: #b39b8b;
-  font-size: 11px;
-  margin-top: 7px;
-}
-.reel-caption > div:last-child {
-  display: flex;
-  gap: 8px;
-}
-.reel-caption .icon-control {
-  color: white;
-  border-color: #665044;
 }
 .reveal {
   opacity: 1;
@@ -1703,8 +1780,7 @@ details[open] .faq-down {
 }
 .motion-paused .reveal,
 .motion-paused .expertise-description,
-.motion-paused .service-filmstrip,
-.motion-paused .reel-image {
+.motion-paused .service-filmstrip {
   animation: none !important;
 }
 .motion-paused .stage-detail {
@@ -1743,14 +1819,6 @@ details[open] .faq-down {
 .white-button:hover svg,
 .line-button:hover svg {
   transform: translate(2px, -2px);
-}
-.studio-reel:hover .reel-play {
-  transform: translate(-50%, -50%) scale(1.08);
-}
-.reel-play {
-  transition:
-    transform 500ms var(--motion-ease),
-    background 300ms;
 }
 @keyframes title-rise {
   from {
@@ -2172,15 +2240,11 @@ details[open] .faq-down {
     height: 360px;
     left: calc(50% - 130px);
   }
-  .studio-reel {
-    width: 100%;
+  .studio-reel-stage {
+    --reel-start-scale: 0.6;
+    --reel-travel: 24px;
+    width: min(100%, 640px);
     margin-top: 42px;
-  }
-  .reel-contact-sheet {
-    gap: 7px;
-  }
-  .reel-contact-sheet img {
-    height: 110px;
   }
   .reel-play {
     font-size: 9px;
@@ -2273,6 +2337,27 @@ details[open] .faq-down {
   }
   .service-closing > span {
     font-size: 13px;
+  }
+  .offer-slide-section {
+    padding-bottom: 64px;
+  }
+  .offer-slide {
+    display: block;
+    min-height: 0;
+    padding: 24px;
+    border-radius: 24px;
+  }
+  .offer-slide h2 {
+    font-size: 32px;
+  }
+  .offer-slide p {
+    font-size: 13px;
+  }
+  .offer-slide-points {
+    margin: 24px 0;
+  }
+  .offer-slide-actions {
+    justify-items: stretch;
   }
   .platform-section {
     padding: 68px 0;
@@ -2552,26 +2637,8 @@ details[open] .faq-down {
     font-size: 9px !important;
   }
   .reel-dialog {
-    width: calc(100% - 20px);
-  }
-  .reel-dialog-inner {
-    padding: 46px 12px 18px;
-  }
-  .reel-image {
-    height: 300px;
-  }
-  .reel-caption strong {
-    font-size: 16px;
-  }
-  .reel-caption span {
-    font-size: 9px;
-  }
-  .reel-caption > div:last-child {
-    gap: 5px;
-  }
-  .reel-caption .icon-control {
-    height: 28px;
-    width: 28px;
+    width: 100vw;
+    height: 100svh;
   }
 }
 @media (max-width: 380px) {

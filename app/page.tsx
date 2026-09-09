@@ -34,7 +34,6 @@ import { VisitorTracker } from "@/app/components/VisitorTracker";
 import { type Project } from "@/app/lib/projects";
 import {
   heroProjects as gallery,
-  reelProjects,
   serviceProjects,
   workProjects,
   showcaseProjects,
@@ -81,6 +80,14 @@ const platformSections = [
     projects: [gallery[0], gallery[4], gallery[6]],
   },
 ];
+const studioReelVideo =
+  "https://video.gumlet.io/6873c98d14683753e66e90d2/6aa1070c2f578a19ae51fac3/main.mp4";
+const offerSlide = {
+  eyebrow: "NEW PROJECT OFFER",
+  title: "Launch with a sharper first sprint.",
+  text: "For serious new builds, we can shape the first phase around website direction, conversion structure, responsive design, and the technical roadmap before the full quote.",
+  points: ["Discovery call", "UX direction", "Build roadmap", "Tracking plan"],
+};
 type ChatAutoWindow = Window & {
   __openLimitsChatAutoOpen?: string;
 };
@@ -212,8 +219,6 @@ export default function Home() {
   const [motion, setMotion] = useState(true);
   const [galleryFocused, setGalleryFocused] = useState(false);
   const [reelOpen, setReelOpen] = useState(false);
-  const [reelIndex, setReelIndex] = useState(0);
-  const [reelPlaying, setReelPlaying] = useState(true);
   const reducedMotion = useSyncExternalStore(
     subscribeMotion,
     readMotion,
@@ -222,6 +227,9 @@ export default function Home() {
   const moving = motion && !reducedMotion;
   const rootRef = useRef<HTMLElement>(null);
   const reelRef = useRef<HTMLDialogElement>(null);
+  const reelStageRef = useRef<HTMLDivElement>(null);
+  const reelPreviewRef = useRef<HTMLVideoElement>(null);
+  const reelVideoRef = useRef<HTMLVideoElement>(null);
   const swipeStart = useRef<{ x: number; y: number } | null>(null);
   const dragged = useRef(false);
   const reelButtonRef = useRef<HTMLButtonElement>(null);
@@ -264,6 +272,64 @@ export default function Home() {
   }, [moving, galleryFocused, reelOpen, activeSlide]);
 
   useEffect(() => {
+    const stage = reelStageRef.current;
+    const button = reelButtonRef.current;
+    const preview = reelPreviewRef.current;
+    if (!stage || !button || !preview) return;
+
+    let frame = 0;
+    const updateProgress = () => {
+      frame = 0;
+      // Measure the untransformed stage so scaling cannot change its own trigger.
+      const rect = stage.getBoundingClientRect();
+      const viewport = window.innerHeight || 1;
+      const progress = Math.min(
+        1,
+        Math.max(0, (viewport * 0.72 - rect.top) / (viewport * 0.48)),
+      );
+      const eased = moving ? progress * progress * (3 - 2 * progress) : 1;
+      stage.style.setProperty("--reel-progress", eased.toFixed(4));
+    };
+    const requestProgress = () => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(updateProgress);
+    };
+    let visible = false;
+    const updatePlayback = () => {
+      if (visible && !reelOpen && moving && !document.hidden) {
+        playMutedVideo(preview);
+      } else {
+        stopMutedVideo(preview);
+      }
+    };
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        visible = entry.isIntersecting && entry.intersectionRatio >= 0.15;
+        updatePlayback();
+      },
+      { threshold: [0, 0.15] },
+    );
+    const resizeObserver = new ResizeObserver(requestProgress);
+
+    updateProgress();
+    observer.observe(button);
+    resizeObserver.observe(stage);
+    if (rootRef.current) resizeObserver.observe(rootRef.current);
+    window.addEventListener("scroll", requestProgress, { passive: true });
+    window.addEventListener("resize", requestProgress);
+    document.addEventListener("visibilitychange", updatePlayback);
+    return () => {
+      if (frame) window.cancelAnimationFrame(frame);
+      observer.disconnect();
+      resizeObserver.disconnect();
+      window.removeEventListener("scroll", requestProgress);
+      window.removeEventListener("resize", requestProgress);
+      document.removeEventListener("visibilitychange", updatePlayback);
+      stopMutedVideo(preview);
+    };
+  }, [reelOpen, moving]);
+
+  useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
     const observer = new IntersectionObserver(
@@ -288,23 +354,13 @@ export default function Home() {
   }, [visibleCount, filter]);
 
   useEffect(() => {
-    if (!reelOpen || !reelPlaying || !moving) return;
-    const timer = window.setInterval(
-      () => setReelIndex((index) => (index + 1) % reelProjects.length),
-      3200,
-    );
-    return () => window.clearInterval(timer);
-  }, [reelOpen, reelPlaying, moving]);
-
-  useEffect(() => {
     if (!reelOpen && !menuOpen) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     const close = (event: globalThis.KeyboardEvent) => {
       if (event.key === "Escape") {
         setMenuOpen(false);
-        setReelOpen(false);
-        reelRef.current?.close();
+        if (reelOpen) closeReel();
       }
     };
     window.addEventListener("keydown", close);
@@ -315,15 +371,47 @@ export default function Home() {
   }, [reelOpen, menuOpen]);
 
   function openReel() {
+    stopMutedVideo(reelPreviewRef.current);
     setReelOpen(true);
-    setReelIndex(0);
-    setReelPlaying(true);
     reelRef.current?.showModal();
+    window.setTimeout(() => playVideoWithSound(reelVideoRef.current), 0);
   }
   function closeReel() {
+    const preview = reelPreviewRef.current;
     setReelOpen(false);
+    reelVideoRef.current?.pause();
     reelRef.current?.close();
-    reelButtonRef.current?.focus();
+    if (preview) {
+      stopMutedVideo(preview);
+      preview.currentTime = 0;
+    }
+    reelButtonRef.current?.focus({ preventScroll: true });
+  }
+
+  async function playVideoWithSound(video: HTMLVideoElement | null) {
+    if (!video) return;
+    video.volume = 0.8;
+    video.muted = false;
+    try {
+      await video.play();
+    } catch {
+      video.muted = true;
+      await video.play().catch(() => undefined);
+    }
+  }
+
+  async function playMutedVideo(video: HTMLVideoElement | null) {
+    if (!video) return;
+    video.muted = true;
+    video.volume = 0;
+    await video.play().catch(() => undefined);
+  }
+
+  function stopMutedVideo(video: HTMLVideoElement | null) {
+    if (!video) return;
+    video.pause();
+    video.muted = true;
+    video.volume = 0;
   }
 
   return (
@@ -638,29 +726,32 @@ export default function Home() {
             </span>
           </h2>
         </div>
-        <button
-          className="studio-reel reveal"
-          onClick={openReel}
-          ref={reelButtonRef}
-          aria-label="Play Open Limits studio reel"
+        <div
+          className="studio-reel-stage"
+          ref={reelStageRef}
+          style={{ "--reel-progress": 0 } as CSSProperties}
         >
-          <div className="reel-contact-sheet" aria-hidden="true">
-            {reelProjects.slice(0, 4).map((item) => (
-              <Image
-                key={item.title}
-                src={item.image}
-                alt=""
-                width={500}
-                height={330}
-                unoptimized={item.image.startsWith("http")}
-              />
-            ))}
-          </div>
-          <span className="reel-play">
-            <Play size={16} fill="currentColor" /> PLAY STUDIO REEL
-          </span>
-          <small>IDEAS INTO EXPERIENCES / OPEN LIMITS</small>
-        </button>
+          <button
+            className="studio-reel"
+            onClick={openReel}
+            ref={reelButtonRef}
+            aria-label="Play Open Limits studio reel"
+          >
+            <video
+              ref={reelPreviewRef}
+              className="studio-reel-video"
+              src={studioReelVideo}
+              playsInline
+              muted
+              loop
+              preload="auto"
+            />
+            <span className="reel-play">
+              <Play size={16} fill="currentColor" /> PLAY STUDIO REEL
+            </span>
+            <small>IDEAS INTO EXPERIENCES / OPEN LIMITS</small>
+          </button>
+        </div>
       </section>
 
       <section className="creative-services" id="services">
@@ -1046,6 +1137,37 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="offer-slide-section content-width reveal">
+        <div className="offer-slide">
+          <div>
+            <p className="micro-label">{offerSlide.eyebrow}</p>
+            <h2>{offerSlide.title}</h2>
+            <p>{offerSlide.text}</p>
+          </div>
+          <div className="offer-slide-points">
+            {offerSlide.points.map((point, index) => (
+              <span key={point}>
+                <small>{String(index + 1).padStart(2, "0")}</small>
+                {point}
+              </span>
+            ))}
+          </div>
+          <div className="offer-slide-actions">
+            <button className="accent-button" onClick={() => setOfferOpen(true)}>
+              View offer <ArrowUpRight size={16} />
+            </button>
+            <a
+              href={calendarLink}
+              target="_blank"
+              rel="noreferrer"
+              className="line-button"
+            >
+              Book a call <ArrowUpRight size={15} />
+            </a>
+          </div>
+        </div>
+      </section>
+
       <section className="creative-faq" id="faqs">
         <div className="faq-content content-width">
           <div className="faq-sign reveal">
@@ -1206,62 +1328,16 @@ export default function Home() {
             <X size={23} />
           </button>
           {reelOpen && (
-            <>
-              <div className="reel-progress" aria-hidden="true">
-                {reelProjects.map((item, index) => (
-                  <i
-                    key={item.title}
-                    className={index === reelIndex ? "is-active" : ""}
-                  />
-                ))}
-              </div>
-              <Image
-                key={reelProjects[reelIndex].title}
-                className="reel-image"
-                src={reelProjects[reelIndex].image}
-                alt={reelProjects[reelIndex].title}
-                width={1400}
-                height={900}
-                unoptimized={reelProjects[reelIndex].image.startsWith("http")}
-              />
-              <div className="reel-caption">
-                <div>
-                  <strong>{reelProjects[reelIndex].title}</strong>
-                  <span>{reelProjects[reelIndex].category}</span>
-                </div>
-                <div>
-                  <button
-                    className="icon-control"
-                    aria-label="Previous reel project"
-                    onClick={() =>
-                      setReelIndex(
-                        (index) =>
-                          (index - 1 + reelProjects.length) %
-                          reelProjects.length,
-                      )
-                    }
-                  >
-                    <ArrowLeft size={20} />
-                  </button>
-                  <button
-                    className="icon-control"
-                    aria-label={reelPlaying ? "Pause reel" : "Play reel"}
-                    onClick={() => setReelPlaying(!reelPlaying)}
-                  >
-                    {reelPlaying ? <Pause size={18} /> : <Play size={18} />}
-                  </button>
-                  <button
-                    className="icon-control"
-                    aria-label="Next reel project"
-                    onClick={() =>
-                      setReelIndex((index) => (index + 1) % reelProjects.length)
-                    }
-                  >
-                    <ArrowRight size={20} />
-                  </button>
-                </div>
-              </div>
-            </>
+            <video
+              ref={reelVideoRef}
+              className="reel-video"
+              src={studioReelVideo}
+              autoPlay
+              playsInline
+              loop
+              controls
+              preload="auto"
+            />
           )}
         </div>
       </dialog>
