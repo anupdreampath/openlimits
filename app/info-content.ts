@@ -137,7 +137,7 @@ export const infoPages: Record<string, InfoPageContent> = {
       {
         title: "How to reach us",
         body:
-          "Email admin@theopenlimits.com, WhatsApp +15572093217, or book a call from the calendar link whenever the project needs a human decision.",
+          "Email admin@theopenlimits.com, WhatsApp +15572093217, or book a call from the calendar link whenever the project needs a human decision. Our registered office is Open Limits LTD, Office 1817, 85 Dunstall Hill, Wolverhampton, WV60SR, UK. Order reference: #GB104035SEP26.",
       },
     ],
   },
@@ -154,7 +154,7 @@ export const infoPages: Record<string, InfoPageContent> = {
       {
         title: "Who we are",
         body:
-          "Open Limits is operated by Urban Lalten. We provide Shopify design, development, redesign, landing page, conversion, launch, and support services for ecommerce brands. When you use this website or work with us, the information you share is handled for business communication, project delivery, support, and website improvement.",
+          "Open Limits is operated by Open Limits LTD. Registered office: Office 1817, 85 Dunstall Hill, Wolverhampton, WV60SR, UK. Order reference: #GB104035SEP26. We provide website, software, app, Shopify, WordPress, automation, launch, and support services for digital brands and businesses. When you use this website or work with us, the information you share is handled for business communication, project delivery, support, and website improvement.",
       },
       {
         title: "Information we collect",

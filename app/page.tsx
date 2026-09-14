@@ -1367,11 +1367,13 @@ export default function Home() {
               <BrandLogo />
             </Link>
             <p>
-              Operated by Urban Lalten
+              Open Limits LTD
               <br />
-              15720 Ventura Blvd #233
+              Order Reference #GB104035SEP26
               <br />
-              Encino, CA 91436
+              Office 1817, 85 Dunstall Hill
+              <br />
+              Wolverhampton, WV60SR, UK
             </p>
             <a href="mailto:admin@theopenlimits.com">
               admin@theopenlimits.com <ArrowUpRight size={16} />
