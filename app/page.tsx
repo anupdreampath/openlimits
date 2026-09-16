@@ -1367,9 +1367,7 @@ export default function Home() {
               <BrandLogo />
             </Link>
             <p>
-              Open Limits LTD
-              <br />
-              Order Reference #GB104035SEP26
+              theopenlimits ltd
               <br />
               Office 1817, 85 Dunstall Hill
               <br />
