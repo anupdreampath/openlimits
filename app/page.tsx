@@ -1367,7 +1367,9 @@ export default function Home() {
               <BrandLogo />
             </Link>
             <p>
-              theopenlimits ltd
+              THEOPENLIMITS LTD
+              <br />
+              Director: Vikrant Chauhan
               <br />
               Office 1817, 85 Dunstall Hill
               <br />
