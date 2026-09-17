@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { PrimaryAnalytics } from "@/app/components/PrimaryAnalytics";
 import Image from "next/image";
+import { useSearchParams } from "next/navigation";
 import {
   useEffect,
   useRef,
@@ -26,32 +26,25 @@ import {
   ChevronDown,
   ChevronUp,
   HelpCircle,
-  BadgeCheck,
-  Star,
 } from "lucide-react";
-import { BrandLogo } from "@/app/components/BrandPrimitives";
-import { LeadChat } from "@/app/components/LeadChat";
-import { PlatformShowcase } from "@/app/components/PlatformShowcase";
-import { SplashScreen } from "@/app/components/SplashScreen";
-import { DiscountPopup } from "@/app/components/DiscountPopup";
-import { VisitorTracker } from "@/app/components/VisitorTracker";
-import { type Project } from "@/app/lib/projects";
+import { BrandLogo } from "@/tenants/fullstack/components/BrandPrimitives";
+import { LeadChat } from "@/tenants/fullstack/components/LeadChat";
+import { PlatformShowcase } from "@/tenants/fullstack/components/PlatformShowcase";
+import { SplashScreen } from "@/tenants/fullstack/components/SplashScreen";
+import { DiscountPopup } from "@/tenants/fullstack/components/DiscountPopup";
+import { type Project } from "@/tenants/fullstack/lib/projects";
 import {
   heroProjects as gallery,
   serviceProjects,
   workProjects,
   showcaseProjects,
-} from "@/app/lib/project-showcase";
-import { services, stages, faqs } from "@/app/lib/studio-content";
-import { useStudioMotion } from "@/app/lib/use-studio-motion";
+} from "@/tenants/fullstack/lib/project-showcase";
+import { services, stages, faqs } from "@/tenants/fullstack/lib/studio-content";
+import { useStudioMotion } from "@/tenants/fullstack/lib/use-studio-motion";
 
-const calendarLink = "https://calendar.app.google/adHW8rdFF8fZwitT6";
-const fiverrLink = "https://www.fiverr.com/s/m5qDeDN";
-const upworkLink =
-  "https://www.upwork.com/freelancers/~016de1057b0e843c6b?mp_source=share";
-const trustpilotLink = "https://www.trustpilot.com/review/theopenlimits.com";
+const calendarLink = "/?contact=1";
 const filters = ["All", "Brand Web", "Software", "Commerce"] as const;
-const CHAT_AUTO_OPEN_KEY = "open-limits-chat-auto-opened";
+const CHAT_AUTO_OPEN_KEY = "fullstack-guys-chat-auto-opened";
 const CHAT_AUTO_OPEN_MOBILE_QUERY = "(max-width: 760px)";
 const CHAT_AUTO_OPEN_DELAY_MS = 20000;
 const serviceLabels = [
@@ -63,31 +56,13 @@ const serviceLabels = [
   "DESIGN",
 ];
 const studioReelVideo =
-  "https://video.gumlet.io/6873c98d14683753e66e90d2/6aa1070c2f578a19ae51fac3/main.mp4";
+  "/tenant-assets/fullstack/studio-reel.mp4";
 const offerSlide = {
   eyebrow: "NEW PROJECT OFFER",
   title: "Launch with a sharper first sprint.",
   text: "For serious new builds, we can shape the first phase around website direction, conversion structure, responsive design, and the technical roadmap before the full quote.",
   points: ["Discovery call", "UX direction", "Build roadmap", "Tracking plan"],
 };
-const trustSignals = [
-  {
-    platform: "Upwork",
-    score: "Top Rated",
-    text: "1,200 hours worked across 150 projects. An established track record you can hire with confidence.",
-    logo: "/brands/upwork.svg",
-    label: "View Upwork profile",
-    href: upworkLink,
-  },
-  {
-    platform: "Fiverr",
-    score: "4.9",
-    text: "200+ projects delivered on Fiverr, backed by clients who trusted us with their next step.",
-    logo: "/brands/fiverr.svg",
-    label: "Explore Fiverr profile",
-    href: fiverrLink,
-  },
-];
 const comparisonPoints = [
   {
     title: "The work is real.",
@@ -103,27 +78,12 @@ const comparisonPoints = [
   },
   {
     title: "Your way to work.",
-    text: "Speak directly with our team, or hire through Upwork or Fiverr with your project conversations and records in one place.",
+    text: "Speak directly with Morgan Retailers and keep the scope, approvals, and project communications in writing.",
   },
 ];
 
-function RatingStars({ rating }: { rating: number }) {
-  return (
-    <span className="proof-stars" role="img" aria-label={`${rating} out of 5 stars`}>
-      {[0, 1, 2, 3, 4].map((index) => (
-        <span className="proof-star" key={index} aria-hidden="true">
-          <Star size={18} fill="currentColor" strokeWidth={0} />
-          <span style={{ width: `${Math.min(1, Math.max(0, rating - index)) * 100}%` }}>
-            <Star size={18} fill="currentColor" strokeWidth={0} />
-          </span>
-        </span>
-      ))}
-    </span>
-  );
-}
-type ChatAutoWindow = Window & {
-  __openLimitsChatAutoOpen?: string;
-};
+
+type ChatAutoWindow = Window & { __fullstackGuysChatAutoOpen?: string };
 
 function getChatAutoOpenState() {
   if (typeof window === "undefined") return null;
@@ -131,18 +91,18 @@ function getChatAutoOpenState() {
   try {
     return (
       browserWindow.sessionStorage?.getItem(CHAT_AUTO_OPEN_KEY) ||
-      browserWindow.__openLimitsChatAutoOpen ||
+      browserWindow.__fullstackGuysChatAutoOpen ||
       null
     );
   } catch {
-    return browserWindow.__openLimitsChatAutoOpen || null;
+    return browserWindow.__fullstackGuysChatAutoOpen || null;
   }
 }
 
 function setChatAutoOpenState(value: string) {
   if (typeof window === "undefined") return;
   const browserWindow = window as ChatAutoWindow;
-  browserWindow.__openLimitsChatAutoOpen = value;
+  browserWindow.__fullstackGuysChatAutoOpen = value;
   try {
     browserWindow.sessionStorage?.setItem(CHAT_AUTO_OPEN_KEY, value);
   } catch {
@@ -243,6 +203,12 @@ function ServiceDial({
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
+  const contactRequested = useSearchParams().get("contact") === "1";
+  useEffect(() => {
+    if (!contactRequested) return;
+    const frame = window.requestAnimationFrame(() => setChatOpen(true));
+    return () => window.cancelAnimationFrame(frame);
+  }, [contactRequested]);
   const [offerOpen, setOfferOpen] = useState(false);
   const [activeSlide, setActiveSlide] = useState(2);
   const [service, setService] = useState(0);
@@ -458,10 +424,9 @@ export default function Home() {
         "studio-site creative-site" + (!moving ? " motion-paused" : "")
       }
     >
-      <PrimaryAnalytics />
       <SplashScreen />
       <header className="floating-header">
-        <Link className="floating-brand" href="/" aria-label="Open Limits home">
+        <Link className="floating-brand" href="/" aria-label="Morgan Retailers home">
           <BrandLogo />
         </Link>
         <nav className="floating-nav" aria-label="Main navigation">
@@ -492,7 +457,7 @@ export default function Home() {
           className="mobile-navigation"
           aria-label="Mobile navigation"
         >
-          <p className="micro-label">OPEN LIMITS</p>
+          <p className="micro-label">THEFULLSTACK GUYS · MORGAN RETAILERS</p>
           {[
             ["About", "#about"],
             ["Services", "#services"],
@@ -507,9 +472,9 @@ export default function Home() {
               <ArrowUpRight />
             </a>
           ))}
-          <a className="mobile-email" href="mailto:admin@theopenlimits.com">
-            admin@theopenlimits.com
-          </a>
+          <Link className="mobile-email" href="/?contact=1">
+            Morgan Retailers support
+          </Link>
         </nav>
       )}
 
@@ -520,7 +485,7 @@ export default function Home() {
           <i />
         </div>
         <div className="creative-hero-title">
-          <p className="micro-label">OPEN LIMITS / DESIGN & TECHNOLOGY</p>
+          <p className="micro-label">THEFULLSTACK GUYS / BY MORGAN RETAILERS</p>
           <h1>
             <span className="hero-title-line">
               <span>Websites, Shopify</span>
@@ -646,14 +611,13 @@ export default function Home() {
                 }}
                 draggable={false}
               >
-                <Image
+                <Image unoptimized
                   src={item.image}
                   alt={item.title + " digital experience"}
                   width={900}
                   height={600}
                   priority={Math.abs(position) < 2}
                   loading="eager"
-                  unoptimized={item.image.startsWith("http")}
                   draggable={false}
                 />
                 <span className="gallery-slide-title">
@@ -703,7 +667,7 @@ export default function Home() {
         <a
           className="hero-scroll"
           href="#about"
-          aria-label="Discover Open Limits"
+          aria-label="Discover Morgan Retailers"
         >
           <ArrowDown size={17} />
         </a>
@@ -762,85 +726,19 @@ export default function Home() {
           </div>
           <div className="trust-proof-layout">
             <div className="trust-proof-intro reveal">
-              <h2 id="proof-heading">
-                Built well.<br />
-                Rated highly.<br />
-                <em>Trusted.</em>
-              </h2>
-              <p>
-                Over 500 websites built for direct clients and businesses
-                on Upwork and Fiverr. Proven experience, public feedback,
-                and a team ready for your next big idea.
-              </p>
-              <a
-                className="proof-portfolio-link"
-                href="#work"
-              >
-                <strong>500<span>+</span></strong>
-                <span>
-                  Websites delivered
-                  <small>Explore our work <ArrowUpRight size={14} /></small>
-                </span>
-              </a>
+              <h2 id="proof-heading">Clear scope.<br />Careful delivery.<br /><em>Real accountability.</em></h2>
+              <p>TheFullStack Guys is operated by MORGAN RETAILERS. From the first written quote to handoff, know who you are working with and what comes next.</p>
+              <a className="proof-portfolio-link" href="/about"><strong>MR.</strong><span>Morgan Retailers<small>Meet the business <ArrowUpRight size={14} /></small></span></a>
             </div>
             <div className="trust-proof-grid">
-              {trustSignals.map((signal) => (
-                <a
-                  className="trust-proof-card reveal"
-                  href={signal.href}
-                  target="_blank"
-                  rel="noreferrer"
-                  key={signal.platform}
-                  aria-label={`${signal.platform}: ${signal.score}. ${signal.label}`}
-                >
-                  <div className="proof-card-top">
-                    <span className={`proof-platform proof-platform-${signal.platform.toLowerCase()}`}>
-                      <Image src={signal.logo} alt="" width={32} height={32} />
-                      <span>{signal.platform}</span>
-                    </span>
-                    <ArrowUpRight size={18} className="proof-outbound" />
-                  </div>
-                  <div className="proof-card-rating">
-                    {signal.platform === "Upwork" ? (
-                      <BadgeCheck size={26} strokeWidth={1.5} aria-hidden="true" />
-                    ) : (
-                      <RatingStars rating={Number(signal.score)} />
-                    )}
-                    <strong>
-                      {signal.score}
-                      {signal.platform === "Fiverr" && <small> / 5</small>}
-                    </strong>
-                  </div>
-                  <p>{signal.text}</p>
-                  <span className="trust-proof-link">{signal.label}</span>
-                </a>
-              ))}
-              <a
-                className="trustpilot-proof reveal"
-                href={trustpilotLink}
-                target="_blank"
-                rel="noreferrer"
-                aria-label="Trustpilot: 4.3 out of 5, with 88+ reviews. Read our reviews"
-              >
-                <div className="trustpilot-proof-copy">
-                  <span className="proof-platform">
-                    <Image src="/brands/trustpilot.svg" alt="" width={25} height={25} />
-                    <span>Trustpilot</span>
-                  </span>
-                  <p>88+ reviews from the people<br />we build for.</p>
-                  <span className="trust-proof-link">Read our reviews <ArrowUpRight size={14} /></span>
-                </div>
-                <div className="trustpilot-proof-rating">
-                  <strong>4.3<small> / 5</small></strong>
-                  <RatingStars rating={4.3} />
-                  <span>Client review score</span>
-                </div>
-              </a>
+              <a className="trust-proof-card reveal" href="/process"><div className="proof-card-top"><span>PROJECT DELIVERY</span><ArrowUpRight size={18} /></div><div className="proof-card-rating"><strong>Written scope.</strong></div><p>Agree the deliverables, milestones, price and responsibilities before work begins.</p><span className="trust-proof-link">Our process</span></a>
+              <a className="trust-proof-card reveal" href="/refund-policy"><div className="proof-card-top"><span>PAYMENTS & SUPPORT</span><ArrowUpRight size={18} /></div><div className="proof-card-rating"><strong>Clear terms.</strong></div><p>Review payment stages, cancellation, refunds and post-launch support before committing.</p><span className="trust-proof-link">Read the policy</span></a>
+              <a className="trustpilot-proof reveal" href="/support"><div className="trustpilot-proof-copy"><span className="proof-platform">MORGAN RETAILERS</span><p>New Delhi, India<br />GSTIN: 07ANVPC6122B1ZA</p><span className="trust-proof-link">Business and contact details <ArrowUpRight size={14} /></span></div></a>
             </div>
           </div>
           <div className="proof-approach">
             <div className="proof-approach-heading reveal">
-              <p className="proof-eyebrow">THE OPEN LIMITS APPROACH</p>
+              <p className="proof-eyebrow">THE MORGAN RETAILERS APPROACH</p>
               <h3>A good partner makes<br /><em>all the difference.</em></h3>
               <a href={calendarLink} target="_blank" rel="noreferrer" className="proof-call-link">
                 Meet your team <ArrowUpRight size={17} />
@@ -892,7 +790,7 @@ export default function Home() {
             className="studio-reel"
             onClick={openReel}
             ref={reelButtonRef}
-            aria-label="Play Open Limits studio reel"
+            aria-label="Play Morgan Retailers studio reel"
           >
             <video
               ref={reelPreviewRef}
@@ -906,7 +804,7 @@ export default function Home() {
             <span className="reel-play">
               <Play size={16} fill="currentColor" /> PLAY STUDIO REEL
             </span>
-            <small>IDEAS INTO EXPERIENCES / OPEN LIMITS</small>
+            <small>IDEAS INTO EXPERIENCES / MORGAN RETAILERS</small>
           </button>
         </div>
       </section>
@@ -953,12 +851,11 @@ export default function Home() {
                   target="_blank"
                   rel="noreferrer"
                 >
-                  <Image
+                  <Image unoptimized
                     src={project.image}
                     alt={project.title + " website"}
                     width={440}
                     height={300}
-                    unoptimized
                   />
                   <span>
                     {project.title} / Website <ArrowUpRight size={12} />
@@ -1076,19 +973,18 @@ export default function Home() {
                   style={{ "--project-color": project.color } as CSSProperties}
                   aria-label={"Visit " + project.title + " website"}
                 >
-                  <Image
+                  <Image unoptimized
                     src={project.image}
                     alt={project.title + " website design"}
                     width={1400}
                     height={788}
-                    unoptimized
                     loading="lazy"
                   />
                   <span className="project-hover">
                     <ArrowUpRight size={24} />
                   </span>
                   <small>
-                    OPEN LIMITS / {String(index + 1).padStart(2, "0")}
+                    MORGAN RETAILERS / {String(index + 1).padStart(2, "0")}
                   </small>
                 </a>
                 <div className="project-category">
@@ -1219,7 +1115,7 @@ export default function Home() {
           </a>
         </div>
         <div className="partnership-marker" aria-hidden="true">
-          <Image src="/open-limits-logo.png" alt="" width={400} height={200} />
+          <Image unoptimized src="/tenant-assets/fullstack/fullstack-logo.svg" alt="" width={400} height={200} />
         </div>
       </section>
 
@@ -1248,7 +1144,7 @@ export default function Home() {
               rel="noreferrer"
               className="line-button"
             >
-              Book a call <ArrowUpRight size={15} />
+              Request a call <ArrowUpRight size={15} />
             </a>
           </div>
         </div>
@@ -1313,7 +1209,7 @@ export default function Home() {
             target="_blank"
             rel="noreferrer"
           >
-            Book a discovery call <ArrowUpRight size={16} />
+            Request a discovery call <ArrowUpRight size={16} />
           </a>
         </div>
         <button
@@ -1335,51 +1231,32 @@ export default function Home() {
               <a href="#work">Projects</a>
               <a href="#faqs">FAQs</a>
             </nav>
-            <nav aria-label="Contact links">
-              <a
-                href={fiverrLink}
-                target="_blank"
-                rel="noreferrer"
-              >
-                Fiverr <ArrowUpRight size={13} />
-              </a>
-              <a
-                href={upworkLink}
-                target="_blank"
-                rel="noreferrer"
-              >
-                Upwork <ArrowUpRight size={13} />
-              </a>
-              <a href={trustpilotLink} target="_blank" rel="noreferrer">
-                Trustpilot <ArrowUpRight size={13} />
-              </a>
-              <a href="mailto:admin@theopenlimits.com">
-                Email us <ArrowUpRight size={13} />
-              </a>
-            </nav>
+            <nav aria-label="Contact links"><Link href="/?contact=1">Contact Morgan Retailers <ArrowUpRight size={13} /></Link><Link href="/support">Business details</Link></nav>
           </div>
-          <div className="oversized-wordmark" aria-label="Open Limits">
-            <span>OPEN</span>
+          <div className="oversized-wordmark" aria-label="Morgan Retailers">
+            <span>FULLSTACK</span>
             <span>
-              LIMITS<span className="wordmark-period">.</span>
+              GUYS<span className="wordmark-period">.</span>
             </span>
           </div>
           <div className="footer-company">
-            <Link href="/" aria-label="Open Limits home">
+            <Link href="/" aria-label="Morgan Retailers home">
               <BrandLogo />
             </Link>
             <p>
-              THEOPENLIMITS LTD
+              MORGAN RETAILERS
               <br />
-              Director: Vikrant Chauhan
+              TheFullStack Guys — a website by Morgan Retailers
               <br />
-              Office 1817, 85 Dunstall Hill
+              GSTIN: 07ANVPC6122B1ZA
               <br />
-              Wolverhampton, WV60SR, UK
+              1st Floor, House No-29, Tiggipur
+              <br />
+              New Delhi, North Delhi, Delhi, 110036, India
             </p>
-            <a href="mailto:admin@theopenlimits.com">
-              admin@theopenlimits.com <ArrowUpRight size={16} />
-            </a>
+            <Link href="/?contact=1">
+              Morgan Retailers support <ArrowUpRight size={16} />
+            </Link>
           </div>
           <div className="footer-legal">
             <div>
@@ -1389,7 +1266,7 @@ export default function Home() {
               <Link href="/support">Support</Link>
               <Link href="/admin">Admin</Link>
             </div>
-            <span>© {new Date().getFullYear()} Open Limits</span>
+            <span>© {new Date().getFullYear()} Morgan Retailers</span>
             <button
               className="motion-control"
               onClick={() => setMotion(!motion)}
@@ -1404,7 +1281,7 @@ export default function Home() {
       <dialog
         className="reel-dialog"
         ref={reelRef}
-        aria-label="Open Limits studio reel"
+        aria-label="Morgan Retailers studio reel"
         onCancel={closeReel}
         onClick={(event) => {
           if (event.target === event.currentTarget) closeReel();
@@ -1434,7 +1311,7 @@ export default function Home() {
         </div>
       </dialog>
       <DiscountPopup open={offerOpen} onOpenChange={setOfferOpen} />
-      <VisitorTracker />
+
       <LeadChat open={chatOpen} onOpenChange={handleChatOpenChange} />
     </main>
   );

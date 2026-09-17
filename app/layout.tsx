@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Space_Grotesk } from "next/font/google";
 import { headers } from "next/headers";
-import { FacebookPixel } from "@/app/components/FacebookPixel";
-import { OpenAIAdsPixel } from "@/app/components/OpenAIAdsPixel";
+import { FULLSTACK_ORIGIN, isFullstackHost } from "@/tenant-routing";
 import "./globals.css";
 import "lenis/dist/lenis.css";
 import "./studio.css";
+import "@/tenants/fullstack/brand.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,6 +24,26 @@ const geistMono = Geist_Mono({
 
 export async function generateMetadata(): Promise<Metadata> {
   const requestHeaders = await headers();
+  if (isFullstackHost(requestHeaders.get("host"), process.env.NODE_ENV === "development")) {
+    const path = requestHeaders.get("x-site-path") || "/";
+    const canonicalPath = path.startsWith("/") && !path.startsWith("//") ? path : "/";
+    return {
+      metadataBase: new URL(FULLSTACK_ORIGIN),
+      title: "TheFullStack Guys | MORGAN RETAILERS",
+      description: "Websites, commerce, apps and software by MORGAN RETAILERS. TheFullStack Guys is our website. Based in New Delhi, India.",
+      alternates: { canonical: new URL(canonicalPath, FULLSTACK_ORIGIN).href },
+      robots: canonicalPath.startsWith("/admin") ? { index: false, follow: false } : { index: true, follow: true },
+      icons: { icon: "/tenant-assets/fullstack/fullstack-icon.svg", shortcut: "/tenant-assets/fullstack/fullstack-icon.svg" },
+      openGraph: {
+        title: "TheFullStack Guys | MORGAN RETAILERS", siteName: "TheFullStack Guys", type: "website",
+        url: new URL(canonicalPath, FULLSTACK_ORIGIN).href,
+        description: "Digital design and development by Morgan Retailers, New Delhi.",
+        images: [{ url: "/tenant-assets/fullstack/fullstack-social.svg", width: 1730, height: 909 }],
+      },
+      twitter: { card: "summary_large_image", title: "TheFullStack Guys | MORGAN RETAILERS", images: ["/tenant-assets/fullstack/fullstack-social.svg"] },
+    };
+  }
+
   const host =
     requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host");
   const protocol =
@@ -57,19 +77,19 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const requestHeaders = await headers();
+  const fullstack = isFullstackHost(requestHeaders.get("host"), process.env.NODE_ENV === "development");
   return (
-    <html lang="en">
+    <html lang="en" data-tenant={fullstack ? "fullstack" : "default"}>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable}`}
       >
         {children}
-        <FacebookPixel />
-        <OpenAIAdsPixel />
       </body>
     </html>
   );
