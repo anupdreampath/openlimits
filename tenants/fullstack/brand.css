@@ -10,6 +10,30 @@ html[data-tenant="fullstack"] .site-splash__mark .brand-logo-image { filter: non
 @media (max-width: 600px) { html[data-tenant="fullstack"] .brand-logo-image { width: 146px; } html[data-tenant="fullstack"] .footer-company { gap: 20px; } }
 
 html[data-tenant="fullstack"] .floating-brand .brand-logo-image { width: 132px; height: 54px; }
+@media (min-width: 761px) {
+  html[data-tenant="fullstack"] .floating-header {
+    width: min(940px, calc(100% - 56px));
+    height: 74px;
+    gap: 27px;
+    padding: 7px 9px 7px 18px;
+  }
+  html[data-tenant="fullstack"] .floating-brand {
+    margin-right: auto;
+  }
+  html[data-tenant="fullstack"] .floating-brand .brand-logo-image {
+    width: 156px;
+    height: 60px;
+  }
+  html[data-tenant="fullstack"] .floating-nav a {
+    padding: 12px 14px;
+    font-size: 13px;
+  }
+  html[data-tenant="fullstack"] .nav-contact {
+    min-height: 50px;
+    padding-inline: 21px;
+    font-size: 14px !important;
+  }
+}
 @media (max-width: 700px) {
   html[data-tenant="fullstack"] .info-hero { padding: 54px 24px; }
   html[data-tenant="fullstack"] .info-hero h1 { font-size: clamp(32px, 9vw, 52px); line-height: 1.08; overflow-wrap: anywhere; letter-spacing: -0.04em; }
