@@ -168,7 +168,7 @@ export const infoPages: Record<string, InfoPageContent> = {
     },
     {
       "title": "07. Advertising, cookies, and tracking choices",
-      "body": "This version does not load Meta or OpenAI advertising pixels, record visitor heatmaps, or send server-side advertising conversion events. Seeing or clicking an ad on another platform is governed by that platform’s privacy settings. If optional analytics or advertising measurement is introduced later, we will update this notice, identify the data and recipients, and obtain consent where required before activating it. Declining optional tracking must not prevent you from reading policies or contacting us."
+      "body": "This version does not load Meta or OpenAI advertising pixels or send server-side advertising conversion events. We may record first-party website activity such as page views, clicks, scroll depth, approximate device type, session identifiers, requested paths, and chat or inquiry interactions to understand site performance, prevent abuse, and improve service delivery. Seeing or clicking an ad on another platform is governed by that platform’s privacy settings. If optional third-party advertising measurement is introduced later, we will update this notice, identify the data and recipients, and obtain consent where required before activating it. Declining optional advertising tracking must not prevent you from reading policies or contacting us."
     },
     {
       "title": "08. Access to client systems",

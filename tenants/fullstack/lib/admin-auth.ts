@@ -13,11 +13,11 @@ async function hashValue(value: string) {
 }
 
 function adminEmail() {
-  return process.env.ADMIN_EMAIL || "";
+  return process.env.MORGAN_RETAILERS_ADMIN_EMAIL || process.env.ADMIN_EMAIL || "";
 }
 
 function adminPassword() {
-  return process.env.ADMIN_PASSWORD || "";
+  return process.env.MORGAN_RETAILERS_ADMIN_PASSWORD || process.env.ADMIN_PASSWORD || "";
 }
 
 export async function ensureAdminTables() {

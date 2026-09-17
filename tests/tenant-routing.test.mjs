@@ -24,7 +24,7 @@ test("tenant hostname matching is exact, normalized, and cannot be spoofed by fo
 });
 
 test("all fullstack page and API paths rewrite to the tenant while preserving query strings", () => {
-  for (const path of ["/", "/privacy-policy", "/terms-of-use", "/admin/chats", "/api/chat?sessionId=example", "/sitemap.xml", "/robots.txt"]) {
+  for (const path of ["/", "/privacy-policy", "/terms-of-use", "/admin/chats", "/api/chat?sessionId=example", "/api/track", "/sitemap.xml", "/robots.txt"]) {
     const response = proxy(request("thefullstackguys.com", path));
     const rewrite = new URL(response.headers.get("x-middleware-rewrite"));
     const incoming = new URL(`https://thefullstackguys.com${path}`);
@@ -59,10 +59,12 @@ test("tenant writes are namespaced within the shared database and cannot write o
   const dbUrl=dataUrl('export function getSql(){return globalThis.__tenantSql;}');
   const source=(await read("tenants/fullstack/lib/chat-storage.ts")).replace('"@/tenants/fullstack/lib/neon"',JSON.stringify(dbUrl));
   try {
-    const {saveChatTurn}=await import(dataUrl(source));
+    const {saveChatTurn, saveHeatmapEvent}=await import(dataUrl(source));
     await saveChatTurn({sessionId:"test",userMessage:"Hello",assistantMessage:"Hello",lead:{}});
+    await saveHeatmapEvent({sessionId:"test",path:"/",eventType:"pageview",metadata:{visitorId:"visitor"}});
     assert.ok(statements.some(s=>/INSERT INTO morgan_retailers_chat_sessions/.test(s)));
     assert.ok(statements.some(s=>/INSERT INTO morgan_retailers_chat_messages/.test(s)));
+    assert.ok(statements.some(s=>/INSERT INTO morgan_retailers_heatmap_events/.test(s)));
     assert.ok(statements.every(s=>!s.includes("open_limits")));
   } finally {delete globalThis.__tenantSql;}
 });

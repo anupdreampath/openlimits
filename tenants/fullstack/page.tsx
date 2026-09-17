@@ -32,6 +32,7 @@ import { LeadChat } from "@/tenants/fullstack/components/LeadChat";
 import { PlatformShowcase } from "@/tenants/fullstack/components/PlatformShowcase";
 import { SplashScreen } from "@/tenants/fullstack/components/SplashScreen";
 import { DiscountPopup } from "@/tenants/fullstack/components/DiscountPopup";
+import { VisitorTracker } from "@/tenants/fullstack/components/VisitorTracker";
 import { type Project } from "@/tenants/fullstack/lib/projects";
 import {
   heroProjects as gallery,
@@ -1296,6 +1297,7 @@ export default function Home() {
       </dialog>
       <DiscountPopup open={offerOpen} onOpenChange={setOfferOpen} />
 
+      <VisitorTracker />
       <LeadChat open={chatOpen} onOpenChange={handleChatOpenChange} />
     </main>
   );

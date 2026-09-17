@@ -12,7 +12,7 @@ This tenant runs inside the existing Next.js app. It uses the existing database 
 
 The public contact route uses the website inquiry form and published postal address. A business email, phone, and booking-calendar link have not yet been supplied for this tenant, so none are invented. Add verified contacts when supplied. Privacy, terms and refund policy text must continue to match actual operational practices.
 
-Portfolio images and the new silent portfolio reel use local tenant assets. No advertising pixels, heatmaps or conversion endpoints are active in this tenant. Claims about marketplace reviews and credentials from another identity were not carried over.
+Portfolio images and the new silent portfolio reel use local tenant assets. No advertising pixels or server-side advertising conversion endpoints are active in this tenant. First-party visitor events are written only to the `morgan_retailers_heatmap_events` table for admin analytics. Claims about marketplace reviews and credentials from another identity were not carried over.
 
 ## Local verification
 
