@@ -40,7 +40,7 @@ export function SplashScreen() {
         "--splash-x": `${spotlight.x}%`,
         "--splash-y": `${spotlight.y}%`,
       } as CSSProperties}
-      aria-label="Morgan Retailers loading"
+      aria-label="TheFullStack Guys loading"
       onClick={dismiss}
       onPointerMove={handlePointerMove}
       role="button"
@@ -64,7 +64,7 @@ export function SplashScreen() {
         <Mark />
       </div>
       <div className="site-splash__wordmark" aria-label="TheFullStack Guys by Morgan Retailers">
-        {["FULLSTACK", "GUYS"].map((word, wordIndex) => (
+        {["THEFULLSTACK", "GUYS"].map((word, wordIndex) => (
           <span className="site-splash__word" key={word} aria-hidden="true">
             {word.split("").map((letter, letterIndex) => (
               <span

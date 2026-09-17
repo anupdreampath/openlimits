@@ -718,24 +718,8 @@ export default function Home() {
         ))}
       </section>
 
-      <section className="trust-proof-section" id="proof" aria-labelledby="proof-heading">
+      <section className="trust-proof-section" id="proof" aria-label="Our approach">
         <div className="content-width">
-          <div className="proof-section-label reveal">
-            <span>01 / REPUTATION</span>
-            <span>Good work. Happy clients.</span>
-          </div>
-          <div className="trust-proof-layout">
-            <div className="trust-proof-intro reveal">
-              <h2 id="proof-heading">Clear scope.<br />Careful delivery.<br /><em>Real accountability.</em></h2>
-              <p>TheFullStack Guys is operated by MORGAN RETAILERS. From the first written quote to handoff, know who you are working with and what comes next.</p>
-              <a className="proof-portfolio-link" href="/about"><strong>MR.</strong><span>Morgan Retailers<small>Meet the business <ArrowUpRight size={14} /></small></span></a>
-            </div>
-            <div className="trust-proof-grid">
-              <a className="trust-proof-card reveal" href="/process"><div className="proof-card-top"><span>PROJECT DELIVERY</span><ArrowUpRight size={18} /></div><div className="proof-card-rating"><strong>Written scope.</strong></div><p>Agree the deliverables, milestones, price and responsibilities before work begins.</p><span className="trust-proof-link">Our process</span></a>
-              <a className="trust-proof-card reveal" href="/refund-policy"><div className="proof-card-top"><span>PAYMENTS & SUPPORT</span><ArrowUpRight size={18} /></div><div className="proof-card-rating"><strong>Clear terms.</strong></div><p>Review payment stages, cancellation, refunds and post-launch support before committing.</p><span className="trust-proof-link">Read the policy</span></a>
-              <a className="trustpilot-proof reveal" href="/support"><div className="trustpilot-proof-copy"><span className="proof-platform">MORGAN RETAILERS</span><p>New Delhi, India<br />GSTIN: 07ANVPC6122B1ZA</p><span className="trust-proof-link">Business and contact details <ArrowUpRight size={14} /></span></div></a>
-            </div>
-          </div>
           <div className="proof-approach">
             <div className="proof-approach-heading reveal">
               <p className="proof-eyebrow">THE MORGAN RETAILERS APPROACH</p>
