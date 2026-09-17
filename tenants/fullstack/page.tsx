@@ -427,7 +427,7 @@ export default function Home() {
       <SplashScreen />
       <header className="floating-header">
         <Link className="floating-brand" href="/" aria-label="Morgan Retailers home">
-          <BrandLogo />
+          <BrandLogo header />
         </Link>
         <nav className="floating-nav" aria-label="Main navigation">
           <a href="#about">About</a>

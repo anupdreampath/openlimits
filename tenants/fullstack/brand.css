@@ -95,3 +95,14 @@ html[data-tenant="fullstack"] .floating-brand::before {
   html[data-tenant="fullstack"] .info-card p { font-size: 15px; line-height: 1.75; }
   html[data-tenant="fullstack"] .info-stat strong { font-size: 38px; overflow-wrap: anywhere; }
 }
+
+html[data-tenant="fullstack"] .floating-brand .brand-logo-image--header {
+  width: 176px;
+  height: 40px;
+}
+@media (min-width: 761px) {
+  html[data-tenant="fullstack"] .floating-brand .brand-logo-image--header {
+    width: 220px;
+    height: 52px;
+  }
+}

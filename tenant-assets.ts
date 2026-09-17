@@ -1,6 +1,8 @@
 export const fullstackAssetPaths = new Set([
   "/anyjob-website.png",
   "/fullstack-logo.svg",
+  "/fullstack-mark.png",
+  "/fullstack-wordmark-white.png",
   "/fullstack-social.svg",
   "/fullstack-icon.svg",
   "/studio-reel.mp4",

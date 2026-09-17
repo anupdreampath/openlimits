@@ -25,14 +25,16 @@ export function SectionWave({
   );
 }
 
-export function BrandLogo() {
+export function BrandLogo({ header = false }: { header?: boolean }) {
   return (
     <Image unoptimized
-      className="brand-logo-image"
-      src="/tenant-assets/fullstack/fullstack-logo.svg"
+      className={`brand-logo-image${header ? " brand-logo-image--header" : ""}`}
+      src={header
+        ? "/tenant-assets/fullstack/fullstack-wordmark-white.png"
+        : "/tenant-assets/fullstack/fullstack-logo.svg"}
       alt="TheFullStack Guys — by Morgan Retailers"
-      width={220}
-      height={90}
+      width={header ? 1694 : 220}
+      height={header ? 342 : 90}
     />
   );
 }
