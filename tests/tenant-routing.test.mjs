@@ -24,7 +24,7 @@ test("tenant hostname matching is exact, normalized, and cannot be spoofed by fo
 });
 
 test("all fullstack page and API paths rewrite to the tenant while preserving query strings", () => {
-  for (const path of ["/", "/privacy-policy", "/terms-of-use", "/admin/chats", "/api/chat?sessionId=example", "/api/track", "/sitemap.xml", "/robots.txt"]) {
+  for (const path of ["/", "/privacy-policy", "/terms-of-use", "/admin/chats", "/api/chat?sessionId=example", "/api/track", "/api/booking-lead", "/sitemap.xml", "/robots.txt"]) {
     const response = proxy(request("thefullstackguys.com", path));
     const rewrite = new URL(response.headers.get("x-middleware-rewrite"));
     const incoming = new URL(`https://thefullstackguys.com${path}`);

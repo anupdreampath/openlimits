@@ -2,6 +2,7 @@ import {
   ADMIN_EMAIL,
   CALENDAR_LINK,
   OFFICE_ADDRESS,
+  WHATSAPP_NUMBER,
   type ChatMessage,
   type LeadProfile,
 } from "./business-context";
@@ -73,7 +74,7 @@ export function answerFallback(
       latest,
     )
   ) {
-    answer = `You can request a discovery call through our contact form. Bring your main goal and must-have features; the team can use those to discuss the scope and a personalized quote.\n\nBook a call: ${CALENDAR_LINK}`;
+    answer = `You can choose a discovery-call slot after sharing your name, email, and phone. Bring your main goal and must-have features; the team can use those to discuss the scope and a personalized quote.\n\nBook a call: ${CALENDAR_LINK}\nFast-track on WhatsApp: ${WHATSAPP_NUMBER}`;
   } else if (/\b(?:how long|timeline|deadline|weeks|months)\b/.test(latest)) {
     answer =
       "The biggest scheduling factors are the number of screens, custom functionality, integrations, and how ready the content is. We would break the work into design, development, testing, and launch rather than promise a date before knowing the scope. What date are you aiming for?";
@@ -87,13 +88,13 @@ export function answerFallback(
       latest,
     )
   ) {
-    answer = `Contact Morgan Retailers through ${ADMIN_EMAIL} or write to ${OFFICE_ADDRESS}. Request a reply using the form below.\n\nBook a call: ${CALENDAR_LINK}`;
+    answer = `Contact Morgan Retailers through ${ADMIN_EMAIL}, WhatsApp ${WHATSAPP_NUMBER}, or write to ${OFFICE_ADDRESS}. You can also request a discovery call after sharing your name, email, and phone.\n\nBook a call: ${CALENDAR_LINK}\nFast-track on WhatsApp: ${WHATSAPP_NUMBER}`;
   } else if (
     /website,? app,? or software|website,? app,? (?:and|or) software/.test(
       latest,
     )
   ) {
-    answer = `We can help with all three. A website usually presents or sells your business, an app gives customers a mobile experience, and custom software supports specific workflows. Which best describes your idea?\n\nBook a call: ${CALENDAR_LINK}`;
+    answer = `We can help with all three. A website usually presents or sells your business, an app gives customers a mobile experience, and custom software supports specific workflows. Which best describes your idea?\n\nBook a call: ${CALENDAR_LINK}\nFast-track on WhatsApp: ${WHATSAPP_NUMBER}`;
   } else if (
     /\b(?:difference|which|better|choose|recommend)\b/.test(latest) &&
     /\b(?:app|website|web|native|react|next|stack)\b/.test(context)

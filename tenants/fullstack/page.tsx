@@ -33,6 +33,7 @@ import { PlatformShowcase } from "@/tenants/fullstack/components/PlatformShowcas
 import { SplashScreen } from "@/tenants/fullstack/components/SplashScreen";
 import { DiscountPopup } from "@/tenants/fullstack/components/DiscountPopup";
 import { VisitorTracker } from "@/tenants/fullstack/components/VisitorTracker";
+import { BookingCapture, openBookingCapture } from "@/tenants/fullstack/components/BookingCapture";
 import { type Project } from "@/tenants/fullstack/lib/projects";
 import {
   heroProjects as gallery,
@@ -43,7 +44,6 @@ import {
 import { services, stages, faqs } from "@/tenants/fullstack/lib/studio-content";
 import { useStudioMotion } from "@/tenants/fullstack/lib/use-studio-motion";
 
-const calendarLink = "/?contact=1";
 const filters = ["All", "Brand Web", "Software", "Commerce"] as const;
 const CHAT_AUTO_OPEN_KEY = "fullstack-guys-chat-auto-opened";
 const CHAT_AUTO_OPEN_MOBILE_QUERY = "(max-width: 760px)";
@@ -725,9 +725,9 @@ export default function Home() {
             <div className="proof-approach-heading reveal">
               <p className="proof-eyebrow">THE MORGAN RETAILERS APPROACH</p>
               <h3>A good partner makes<br /><em>all the difference.</em></h3>
-              <a href={calendarLink} target="_blank" rel="noreferrer" className="proof-call-link">
+              <button type="button" onClick={openBookingCapture} className="proof-call-link">
                 Meet your team <ArrowUpRight size={17} />
-              </a>
+              </button>
             </div>
             <ol className="proof-principles">
               {comparisonPoints.map((point, index) => (
@@ -1090,14 +1090,9 @@ export default function Home() {
             A direct line to the people doing the work.
             <br />A shared ambition for the finished product.
           </p>
-          <a
-            href={calendarLink}
-            target="_blank"
-            rel="noreferrer"
-            className="white-button"
-          >
+          <button type="button" onClick={openBookingCapture} className="white-button">
             Meet your technology partner <ArrowUpRight size={17} />
-          </a>
+          </button>
         </div>
         <div className="partnership-marker" aria-hidden="true">
           <Image unoptimized src="/tenant-assets/fullstack/fullstack-logo.svg" alt="" width={400} height={200} />
@@ -1123,14 +1118,9 @@ export default function Home() {
             <button className="accent-button" onClick={() => setOfferOpen(true)}>
               View offer <ArrowUpRight size={16} />
             </button>
-            <a
-              href={calendarLink}
-              target="_blank"
-              rel="noreferrer"
-              className="line-button"
-            >
+            <button type="button" onClick={openBookingCapture} className="line-button">
               Request a call <ArrowUpRight size={15} />
-            </a>
+            </button>
           </div>
         </div>
       </section>
@@ -1188,14 +1178,9 @@ export default function Home() {
           <button className="accent-button" onClick={openChat}>
             Start a project <ArrowUpRight size={18} />
           </button>
-          <a
-            className="line-button"
-            href={calendarLink}
-            target="_blank"
-            rel="noreferrer"
-          >
+          <button type="button" className="line-button" onClick={openBookingCapture}>
             Request a discovery call <ArrowUpRight size={16} />
-          </a>
+          </button>
         </div>
         <button
           className="project-offer-link"
@@ -1297,6 +1282,7 @@ export default function Home() {
       </dialog>
       <DiscountPopup open={offerOpen} onOpenChange={setOfferOpen} />
 
+      <BookingCapture />
       <VisitorTracker />
       <LeadChat open={chatOpen} onOpenChange={handleChatOpenChange} />
     </main>

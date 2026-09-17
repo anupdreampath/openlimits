@@ -100,9 +100,136 @@ html[data-tenant="fullstack"] .floating-brand .brand-logo-image--header {
   width: 176px;
   height: 40px;
 }
+html[data-tenant="fullstack"] button.proof-call-link,
+html[data-tenant="fullstack"] button.white-button,
+html[data-tenant="fullstack"] button.line-button,
+html[data-tenant="fullstack"] .info-header nav button,
+html[data-tenant="fullstack"] .info-hero__actions button,
+html[data-tenant="fullstack"] .lead-chat__ctas button {
+  font: inherit;
+  cursor: pointer;
+}
+html[data-tenant="fullstack"] .lead-chat__ctas button {
+  border: 0;
+}
+html[data-tenant="fullstack"] .info-header nav button,
+html[data-tenant="fullstack"] .info-hero__actions button {
+  background: none;
+  color: inherit;
+  text-decoration: none;
+}
+html[data-tenant="fullstack"] .booking-capture__whatsapp {
+  text-decoration: none;
+}
+html[data-tenant="fullstack"] .booking-capture {
+  position: fixed;
+  inset: 0;
+  z-index: 220;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+}
+html[data-tenant="fullstack"] .booking-capture__scrim {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(4, 12, 9, .62);
+  cursor: pointer;
+}
+html[data-tenant="fullstack"] .booking-capture__card {
+  position: relative;
+  width: min(100%, 440px);
+  display: grid;
+  gap: 14px;
+  padding: 28px;
+  border: 1px solid rgba(219, 231, 221, .8);
+  border-radius: 24px;
+  background: #fbf8ef;
+  color: #13281d;
+  box-shadow: 0 28px 80px rgba(0, 0, 0, .28);
+}
+html[data-tenant="fullstack"] .booking-capture__card > span {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .16em;
+}
+html[data-tenant="fullstack"] .booking-capture__card h2 {
+  margin: 0;
+  font-size: 34px;
+  line-height: 1;
+  letter-spacing: 0;
+}
+html[data-tenant="fullstack"] .booking-capture__card p {
+  margin: 0;
+  color: #5d6d62;
+  line-height: 1.55;
+}
+html[data-tenant="fullstack"] .booking-capture__card label {
+  display: grid;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+html[data-tenant="fullstack"] .booking-capture__card input {
+  width: 100%;
+  border: 1px solid rgba(19, 40, 29, .2);
+  border-radius: 14px;
+  background: #fffdf8;
+  padding: 14px 15px;
+  color: #13281d;
+  font: inherit;
+  letter-spacing: 0;
+  outline: none;
+}
+html[data-tenant="fullstack"] .booking-capture__card input:focus {
+  border-color: #ff4b26;
+  box-shadow: 0 0 0 3px rgba(255, 75, 38, .16);
+}
+html[data-tenant="fullstack"] .booking-capture__close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(19, 40, 29, .14);
+  border-radius: 999px;
+  background: #fffdf8;
+  color: #13281d;
+  cursor: pointer;
+}
+html[data-tenant="fullstack"] .booking-capture__error {
+  color: #b72b18;
+  font-size: 13px;
+  font-weight: 700;
+}
+html[data-tenant="fullstack"] .booking-capture__whatsapp {
+  justify-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #2f704f;
+  font-weight: 800;
+}
 @media (min-width: 761px) {
   html[data-tenant="fullstack"] .floating-brand .brand-logo-image--header {
     width: 220px;
     height: 52px;
+  }
+}
+@media (max-width: 600px) {
+  html[data-tenant="fullstack"] .booking-capture {
+    align-items: end;
+    padding: 12px;
+  }
+  html[data-tenant="fullstack"] .booking-capture__card {
+    padding: 24px 20px 20px;
+    border-radius: 22px;
+  }
+  html[data-tenant="fullstack"] .booking-capture__card h2 {
+    font-size: 29px;
   }
 }

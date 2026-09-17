@@ -3,12 +3,12 @@
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { ArrowUpRight, MessageCircle } from "lucide-react";
 import {
-  CALENDAR_LINK,
   ChatMessage,
   DEFAULT_ASSISTANT_MESSAGE,
   LeadProfile,
   WHATSAPP_NUMBER,
 } from "@/tenants/fullstack/lib/business-context";
+import { openBookingCapture } from "@/tenants/fullstack/components/BookingCapture";
 import { getBrowserSessionId } from "@/tenants/fullstack/lib/browser-session";
 import {
   reconcileChatHistory,
@@ -53,9 +53,9 @@ function AssistantMessageContent({ content }: { content: string }) {
       {showCalendar || showWhatsapp ? (
         <div className="lead-chat__ctas">
           {showCalendar ? (
-            <a href={CALENDAR_LINK} target="_blank" rel="noreferrer">
+            <button type="button" onClick={openBookingCapture}>
               Book a call
-            </a>
+            </button>
           ) : null}
           {showWhatsapp ? (
             <a

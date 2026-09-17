@@ -1,9 +1,11 @@
+"use client";
+
 import type { CSSProperties } from "react";
 import Link from "next/link";
 import { Arrow, BrandLogo } from "@/tenants/fullstack/components/BrandPrimitives";
+import { BookingCapture, openBookingCapture } from "@/tenants/fullstack/components/BookingCapture";
 import { InfoPageContent } from "@/tenants/fullstack/info-content";
 
-const calendarLink = "/?contact=1";
 function renderPoint(point: string) { return point; }
 
 export function InfoPage({ content }: { content: InfoPageContent }) {
@@ -21,9 +23,9 @@ export function InfoPage({ content }: { content: InfoPageContent }) {
           <Link href="/about">About</Link>
           <Link href="/process">Process</Link>
           <Link href="/pricing">Pricing</Link>
-          <a href={calendarLink} target="_blank" rel="noreferrer">
+          <button type="button" onClick={openBookingCapture}>
             Request a call <Arrow diagonal />
-          </a>
+          </button>
         </nav>
       </header>
 
@@ -32,9 +34,9 @@ export function InfoPage({ content }: { content: InfoPageContent }) {
         <h1>{content.title}</h1>
         <p>{content.intro}</p>
         <div className="info-hero__actions">
-          <a href={calendarLink} target="_blank" rel="noreferrer">
+          <button type="button" onClick={openBookingCapture}>
             Request a project call <Arrow />
-          </a>
+          </button>
           <Link href="/?contact=1">Morgan Retailers support</Link>
         </div>
         <div className="info-stat" aria-label={content.statLabel}>
@@ -75,6 +77,7 @@ export function InfoPage({ content }: { content: InfoPageContent }) {
           <Link href="/admin">Admin panel</Link>
         </div>
       </footer>
+      <BookingCapture />
     </main>
   );
 }
