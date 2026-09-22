@@ -161,7 +161,7 @@ test("chat API is wired to Groq, fallback answers, CTAs, and Neon leads", async 
   assert.match(route, /anme/);
   assert.match(replies, /Fast-track on WhatsApp/);
   assert.match(route, /safeSaveLead/);
-  assert.match(brain, /admin@theopenlimits\.com/);
+  assert.match(brain, /support@theopenlimits\.com/);
   assert.match(brain, /Office 1817, 85 Dunstall Hill/);
   assert.match(brain, /THEOPENLIMITS LTD/);
   assert.match(brain, /https:\/\/calendar\.app\.google\/adHW8rdFF8fZwitT6/);

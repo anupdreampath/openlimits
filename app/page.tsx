@@ -507,8 +507,8 @@ export default function Home() {
               <ArrowUpRight />
             </a>
           ))}
-          <a className="mobile-email" href="mailto:admin@theopenlimits.com">
-            admin@theopenlimits.com
+          <a className="mobile-email" href="mailto:support@theopenlimits.com">
+            support@theopenlimits.com
           </a>
         </nav>
       )}
@@ -1353,7 +1353,7 @@ export default function Home() {
               <a href={trustpilotLink} target="_blank" rel="noreferrer">
                 Trustpilot <ArrowUpRight size={13} />
               </a>
-              <a href="mailto:admin@theopenlimits.com">
+              <a href="mailto:support@theopenlimits.com">
                 Email us <ArrowUpRight size={13} />
               </a>
             </nav>
@@ -1377,8 +1377,8 @@ export default function Home() {
               <br />
               Wolverhampton, WV60SR, UK
             </p>
-            <a href="mailto:admin@theopenlimits.com">
-              admin@theopenlimits.com <ArrowUpRight size={16} />
+            <a href="mailto:support@theopenlimits.com">
+              support@theopenlimits.com <ArrowUpRight size={16} />
             </a>
           </div>
           <div className="footer-legal">

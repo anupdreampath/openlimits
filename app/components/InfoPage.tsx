@@ -59,7 +59,7 @@ export function InfoPage({ content }: { content: InfoPageContent }) {
           <a href={calendarLink} target="_blank" rel="noreferrer">
             Book a project call <Arrow />
           </a>
-          <a href="mailto:admin@theopenlimits.com">admin@theopenlimits.com</a>
+          <a href="mailto:support@theopenlimits.com">support@theopenlimits.com</a>
         </div>
         <div className="info-stat" aria-label={content.statLabel}>
           <strong>{content.stat}</strong>

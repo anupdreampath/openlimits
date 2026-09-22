@@ -9,7 +9,9 @@ const OPENAI_ADS_PIXEL_ID =
 
 declare global {
   interface Window {
-    oaiq?: (...args: unknown[]) => void;
+    oaiq?: (
+      (command: "measure", eventName: "lead_created" | "appointment_scheduled" | "page_viewed", data?: Record<string, unknown>, options?: { event_id?: string }) => void
+    ) & { q?: unknown[][] };
   }
 }
 

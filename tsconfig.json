@@ -35,6 +35,7 @@
     "db",
     "worker",
     "examples",
+    "thefullstack-guys",
     "build",
     "vite.config.ts",
     "drizzle.config.ts"

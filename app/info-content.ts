@@ -137,7 +137,7 @@ export const infoPages: Record<string, InfoPageContent> = {
       {
         title: "How to reach us",
         body:
-          "Email admin@theopenlimits.com, WhatsApp +15572093217, or book a call from the calendar link whenever the project needs a human decision. Our director is Vikrant Chauhan. Our registered office is THEOPENLIMITS LTD, Office 1817, 85 Dunstall Hill, Wolverhampton, WV60SR, UK.",
+          "Email support@theopenlimits.com, WhatsApp +447446318687, or book a call from the calendar link whenever the project needs a human decision. Our director is Vikrant Chauhan. Our registered office is THEOPENLIMITS LTD, Office 1817, 85 Dunstall Hill, Wolverhampton, WV60SR, UK.",
       },
     ],
   },
@@ -189,7 +189,7 @@ export const infoPages: Record<string, InfoPageContent> = {
       {
         title: "Retention and deletion",
         body:
-          "We keep lead, chat, project, and support records for as long as reasonably needed for communication, delivery, legal, tax, fraud prevention, and business continuity purposes. You can ask us to update or delete your contact details by emailing admin@theopenlimits.com. We may retain limited records where required for legitimate business, legal, or accounting reasons.",
+          "We keep lead, chat, project, and support records for as long as reasonably needed for communication, delivery, legal, tax, fraud prevention, and business continuity purposes. You can ask us to update or delete your contact details by emailing support@theopenlimits.com. We may retain limited records where required for legitimate business, legal, or accounting reasons.",
       },
       {
         title: "Security",
@@ -199,7 +199,7 @@ export const infoPages: Record<string, InfoPageContent> = {
       {
         title: "Contact",
         body:
-          "For privacy questions, updates, or deletion requests, email admin@theopenlimits.com. If your request relates to a marketplace order, we may also ask you to contact us through Fiverr or Upwork so the platform record stays accurate.",
+          "For privacy questions, updates, or deletion requests, email support@theopenlimits.com. If your request relates to a marketplace order, we may also ask you to contact us through Fiverr or Upwork so the platform record stays accurate.",
       },
     ],
   },
@@ -261,7 +261,7 @@ export const infoPages: Record<string, InfoPageContent> = {
       {
         title: "How to request a refund",
         body:
-          "Email admin@theopenlimits.com with your project name, order platform if any, the specific issue, screenshots or links, and the outcome you want. We will review the request in good faith and may first offer fixes, revised delivery, credit, partial refund, or cancellation depending on the situation.",
+          "Email support@theopenlimits.com with your project name, order platform if any, the specific issue, screenshots or links, and the outcome you want. We will review the request in good faith and may first offer fixes, revised delivery, credit, partial refund, or cancellation depending on the situation.",
       },
     ],
   },
@@ -333,7 +333,7 @@ export const infoPages: Record<string, InfoPageContent> = {
       {
         title: "Contact",
         body:
-          "For questions about these terms, project scope, payments, or support, email admin@theopenlimits.com. If your order is on Fiverr or Upwork, platform-related communication may need to happen through that marketplace.",
+          "For questions about these terms, project scope, payments, or support, email support@theopenlimits.com. If your order is on Fiverr or Upwork, platform-related communication may need to happen through that marketplace.",
       },
     ],
   },
